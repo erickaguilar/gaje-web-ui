@@ -66,7 +66,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const pillsEl = document.getElementById('island-pills');
                 if (pillsEl) {
                     pillsEl.innerHTML = (info.island.pills || [])
-                        .map(p => `<span class="island-pill">${p}</span>`)
+                        .map(p => {
+                            let typeClass = '';
+                            const lower = p.toLowerCase();
+                            if (lower.includes('episod') || lower.includes('episodic')) typeClass = 'pill-episodic';
+                            else if (lower.includes('doc')) typeClass = 'pill-documental';
+                            else if (lower.includes('convers')) typeClass = 'pill-conversational';
+                            return `<span class="island-pill ${typeClass}">${p}</span>`;
+                        })
                         .join('');
                 }
                 if (info.island.memory_type) document.getElementById('island-mem-val').innerText = info.island.memory_type;

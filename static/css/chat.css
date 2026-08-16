@@ -507,29 +507,93 @@ footer {
 }
 
 .island-pill {
+    font-family: var(--mono);
     font-size: 0.7rem;
-    padding: 0.25rem 0.6rem;
-    border-radius: 30px;
-    font-weight: 600;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    font-weight: bold;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .pill-episodic {
-    background: rgba(244, 63, 94, 0.1);
+    background: rgba(244, 63, 94, 0.08);
     color: #fda4af;
-    border-color: rgba(244, 63, 94, 0.3);
+    border-color: rgba(244, 63, 94, 0.35);
 }
 
 .pill-documental {
-    background: rgba(14, 165, 233, 0.1);
+    background: rgba(14, 165, 233, 0.08);
     color: #7dd3fc;
-    border-color: rgba(14, 165, 233, 0.3);
+    border-color: rgba(14, 165, 233, 0.35);
 }
 
 .pill-conversational {
-    background: rgba(16, 185, 129, 0.1);
+    background: rgba(16, 185, 129, 0.08);
     color: #6ee7b7;
-    border-color: rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.35);
+}
+
+/* ── Visualización de Red Genómica (Island Node Map) ── */
+.island-grid-viz {
+    height: 38px;
+    background: rgba(6, 8, 20, 0.75);
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    border-radius: 4px;
+    margin-bottom: 0.8rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.6);
+}
+
+.island-grid-viz::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 4px, 6px 100%;
+    opacity: 0.8;
+}
+
+.grid-node {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    position: absolute;
+    box-shadow: 0 0 8px currentColor;
+}
+
+.grid-node.node-a {
+    top: 16px;
+    left: 20%;
+    color: #fda4af; /* episodic */
+    background-color: #fda4af;
+}
+
+.grid-node.node-b {
+    top: 16px;
+    left: 50%;
+    color: #7dd3fc; /* documental */
+    background-color: #7dd3fc;
+}
+
+.grid-node.node-c {
+    top: 16px;
+    left: 80%;
+    color: #6ee7b7; /* conversational */
+    background-color: #6ee7b7;
+}
+
+.grid-line {
+    position: absolute;
+    top: 18px;
+    left: 22%;
+    width: 56%;
+    height: 1px;
+    background: linear-gradient(90deg, #fda4af 0%, #7dd3fc 50%, #6ee7b7 100%);
+    opacity: 0.45;
 }
 
 .meta-island {
@@ -1126,4 +1190,117 @@ select:focus-visible {
     font-family: var(--mono);
     font-size: 0.82rem;
     color: #c084fc;
+}
+
+/* ── Sobrescritura para Modo Claro (High Contrast Y2K) ── */
+[data-theme="light"] .message.user {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(99, 102, 241, 0.1));
+    border-color: rgba(168, 85, 247, 0.5);
+    color: #4c1d95;
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.1);
+}
+
+[data-theme="light"] .message.user::after {
+    color: rgba(168, 85, 247, 0.9);
+    background: #f1f5f9;
+    border-color: rgba(168, 85, 247, 0.4);
+}
+
+[data-theme="light"] .message.bot {
+    background: rgba(255, 255, 255, 0.75);
+    border-color: rgba(99, 102, 241, 0.25);
+    border-left-color: #0284c7;
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.05),
+                inset 0 0 12px rgba(99, 102, 241, 0.02);
+}
+
+[data-theme="light"] .message.bot::after {
+    color: rgba(2, 132, 199, 0.9);
+    background: #f1f5f9;
+    border-color: rgba(2, 132, 199, 0.3);
+}
+
+[data-theme="light"] .meta-badge {
+    background: rgba(99, 102, 241, 0.05);
+    border-color: rgba(99, 102, 241, 0.2);
+    color: #4f46e5;
+}
+
+[data-theme="light"] .meta-badge.meta-island {
+    border-color: rgba(22, 163, 74, 0.35);
+    color: #15803d;
+    background: rgba(22, 163, 74, 0.04);
+}
+
+[data-theme="light"] .meta-badge.meta-latency {
+    border-color: rgba(2, 132, 199, 0.35);
+    color: #0369a1;
+    background: rgba(2, 132, 199, 0.04);
+}
+
+[data-theme="light"] .message.system {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: rgba(99, 102, 241, 0.25);
+    color: #4f46e5;
+}
+
+[data-theme="light"] .message.system::before {
+    color: #4f46e5;
+}
+
+[data-theme="light"] .code-block {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    color: #0f172a;
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .inline-code {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #b45309;
+}
+
+[data-theme="light"] .input-area {
+    background: rgba(241, 245, 249, 0.85);
+    border-top-color: rgba(99, 102, 241, 0.25);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8),
+                0 -4px 15px rgba(99, 102, 241, 0.03);
+}
+
+[data-theme="light"] input {
+    background: #ffffff;
+    border-color: rgba(99, 102, 241, 0.25);
+    color: #0f172a;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] input:focus {
+    border-color: #0284c7;
+    box-shadow: 0 0 10px rgba(2, 132, 199, 0.25),
+                inset 0 0 2px rgba(2, 132, 199, 0.1);
+}
+
+[data-theme="light"] button#send-btn {
+    background: rgba(124, 58, 237, 0.06);
+    color: #6d28d9;
+    border-color: rgba(124, 58, 237, 0.45);
+}
+
+[data-theme="light"] button#send-btn:hover:not(:disabled) {
+    background: rgba(124, 58, 237, 0.12);
+    border-color: #6d28d9;
+    color: #4c1d95;
+    box-shadow: 0 0 12px rgba(124, 58, 237, 0.25);
+}
+
+[data-theme="light"] .stop-btn {
+    background: rgba(244, 63, 94, 0.04);
+    border-color: rgba(244, 63, 94, 0.4);
+}
+
+[data-theme="light"] .stop-btn:hover {
+    background: rgba(244, 63, 94, 0.12);
+    border-color: rgba(244, 63, 94, 0.7);
+    box-shadow: 0 0 10px rgba(244, 63, 94, 0.25);
 }
