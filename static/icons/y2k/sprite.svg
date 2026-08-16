@@ -50,6 +50,13 @@
     <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.7 6.7 0 0 0 9.8 9.8Z"/>
   </symbol>
 
+  <!-- Reloj / Latencia (reloj digital/CPU) -->
+  <symbol id="i-clock" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 6v6l4 2" />
+    <path d="M12 2v2M12 20v2M2 12h2M20 12h2" />
+  </symbol>
+
   <!-- Carpeta (carga .gaje.flat) -->
   <symbol id="i-folder" viewBox="0 0 24 24">
     <path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>

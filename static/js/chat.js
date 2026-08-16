@@ -220,6 +220,49 @@ document.addEventListener('DOMContentLoaded', () => {
         }[c]));
     }
 
+    function formatLatency(ms) {
+        if (!ms && ms !== 0) return '00:00:00::000';
+        const totalMs = Math.round(ms);
+        const hours = Math.floor(totalMs / 3600000);
+        const minutes = Math.floor((totalMs % 3600000) / 60000);
+        const seconds = Math.floor((totalMs % 60000) / 1000);
+        const milli = totalMs % 1000;
+
+        const hh = String(hours).padStart(2, '0');
+        const mm = String(minutes).padStart(2, '0');
+        const ss = String(seconds).padStart(2, '0');
+        const mmm = String(milli).padStart(3, '0');
+
+        return `${hh}:${mm}:${ss}::${mmm}`;
+    }
+
+    function parseMarkdown(text) {
+        if (!text) return '';
+        let html = escapeHtml(text);
+        
+        // Parse code blocks: ```javascript\ncode\n```
+        html = html.replace(/```(\w*)\n([\s\S]*?)\n```/g, (match, lang, code) => {
+            return `<pre class="code-block"><code class="${lang}">${code}</code></pre>`;
+        });
+        
+        // Parse inline code: `code`
+        html = html.replace(/`([^`\n]+)`/g, '<code class="inline-code">$1</code>');
+        
+        // Parse bold: **text**
+        html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+        
+        // Parse italic: *text*
+        html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+        
+        // Parse bullet points: \n- item or \n* item
+        html = html.replace(/\n[-*]\s+([^\n]+)/g, '<br>• $1');
+        
+        // Parse line breaks
+        html = html.replace(/\n/g, '<br>');
+        
+        return html;
+    }
+
     function addMessage(text, type, meta = null) {
         const msgDiv = document.createElement('div');
         msgDiv.className = `message ${type}`;
@@ -227,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
             msgDiv.classList.add('error');
         }
 
-        let html = `<p>${escapeHtml(text)}</p>`;
+        let html = `<p>${parseMarkdown(text)}</p>`;
         if (type === 'bot' && meta) {
             let islandBadge = '';
             if (meta.island) {
@@ -235,9 +278,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             html += `
                 <div class="message-meta">
-                    <span class="meta-badge">⏱️ ${escapeHtml(meta.latency_ms)} ms (${escapeHtml(meta.tokens_sec || 0)} tok/s)</span>
-                    <span class="meta-badge">🔢 ${escapeHtml(meta.tokens_count || 0)} tokens</span>
                     ${islandBadge}
+                    <span class="meta-badge">🔢 ${escapeHtml(meta.tokens_count || 0)} tokens</span>
+                    <span class="meta-badge meta-latency">
+                        <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-clock"/></svg>
+                        <span>${formatLatency(meta.latency_ms)} (${escapeHtml(meta.tokens_sec || 0)} tok/s)</span>
+                    </span>
                 </div>
             `;
         }
@@ -257,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="metric-row"><span>Ahorro:</span> <span class="metric-val">${metrics.saved.toFixed(2)}%</span></div>
             <div class="progress-bar-container"><div class="progress-bar-fill" style="width: ${metrics.saved}%"></div></div>
             <div class="metric-row"><span>Tokens Usados:</span> <span class="metric-val">${metrics.tokens_count || 0} tok</span></div>
-            <div class="metric-row"><span>Tiempo Resp:</span> <span class="metric-val">${metrics.latency_ms || 0} ms</span></div>
+            <div class="metric-row"><span>Tiempo Resp:</span> <span class="metric-val">${formatLatency(metrics.latency_ms)}</span></div>
         `;
 
         if (metrics.sf_info) {
@@ -267,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('hd-val').innerText = metrics.hd_info;
         }
         if (metrics.latency_ms) {
-            document.getElementById('latency-val').innerText = `${metrics.latency_ms} ms (${metrics.tokens_sec || 0} tok/s)`;
+            document.getElementById('latency-val').innerText = `${formatLatency(metrics.latency_ms)} (${metrics.tokens_sec || 0} tok/s)`;
         }
     }
 
@@ -372,6 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
             stopBtn.hidden = true;
             if (chatWindow) chatWindow.setAttribute('aria-busy', 'false');
             botMsg.classList.remove('streaming');
+            statusAnchor.remove(); // Elimina el indicador "Generando" de la UI
             const elapsed = Date.now() - started;
             if (aborted && fullText) {
                 addMetaTo(botMsg, elapsed, '⏹️ detenido');
@@ -427,7 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 throw new Error(token.error);
                             }
                             fullText += token;
-                            contentEl.textContent = fullText;
+                            contentEl.innerHTML = parseMarkdown(fullText);
                             chatWindow.scrollTop = chatWindow.scrollHeight;
                         } catch (e) {
                             // payload no JSON o error
@@ -464,7 +511,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function addMetaTo(msgEl, elapsed, prefix = '') {
         const meta = document.createElement('div');
         meta.className = 'message-meta';
-        meta.innerHTML = `<span class="meta-badge">⏱️ ${elapsed} ms ${prefix ? '(' + escapeHtml(prefix) + ')' : ''}</span>`;
+        meta.innerHTML = `
+            <span class="meta-badge meta-latency">
+                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-clock"/></svg>
+                <span>${formatLatency(elapsed)} ${prefix ? '(' + escapeHtml(prefix) + ')' : ''}</span>
+            </span>
+        `;
         msgEl.appendChild(meta);
     }
 

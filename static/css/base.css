@@ -323,6 +323,7 @@ body {
 .y2k-icon:has(use[href$="#i-sat"])   { color: #fb923c; }
 .y2k-icon:has(use[href$="#i-sun"])   { color: #fbbf24; }
 .y2k-icon:has(use[href$="#i-moon"])  { color: #67e8f9; }
+.y2k-icon:has(use[href$="#i-clock"]) { color: #38bdf8; }
 .y2k-icon:has(use[href$="#i-github"]){ color: #e8ecf4; }
 .y2k-icon:has(use[href$="#i-github"]) { fill: currentColor; stroke: none; }
 .y2k-nav a::before {
