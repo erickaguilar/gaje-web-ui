@@ -264,6 +264,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addMessage(text, type, meta = null) {
+        if (type === 'system') {
+            const alertsContainer = document.getElementById('system-alerts-container');
+            if (alertsContainer) {
+                const item = document.createElement('div');
+                item.className = 'system-alert-item';
+                item.innerText = text;
+                alertsContainer.appendChild(item);
+                alertsContainer.scrollTop = alertsContainer.scrollHeight;
+            }
+            return;
+        }
+
         const msgDiv = document.createElement('div');
         msgDiv.className = `message ${type}`;
         if (type === 'bot' && /^❌|^Error/.test(text)) {
