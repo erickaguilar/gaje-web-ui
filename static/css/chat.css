@@ -341,56 +341,65 @@ main {
 }
 
 .input-area {
-    padding: 1.5rem 2rem;
-    border-top: 1px solid var(--border-color);
+    padding: 1.2rem 2rem;
+    border-top: 1px solid rgba(99, 102, 241, 0.35);
     display: flex;
-    gap: 1rem;
-    background: rgba(6, 8, 20, 0.15);
-    backdrop-filter: var(--backdrop-blur);
-    -webkit-backdrop-filter: var(--backdrop-blur);
+    gap: 0.8rem;
+    background: rgba(9, 11, 28, 0.55);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                0 -6px 24px rgba(99, 102, 241, 0.05);
 }
 
 input {
     flex: 1;
-    background: var(--input-bg);
-    border: 1px solid var(--border-color);
-    padding: 0.9rem 1.2rem;
-    border-radius: 12px;
-    color: var(--text-color);
-    font-family: inherit;
+    background: rgba(6, 8, 20, 0.7);
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    padding: 0.8rem 1.1rem;
+    border-radius: 6px;
+    color: #e2e8f0;
+    font-family: var(--mono);
     font-size: 0.95rem;
+    letter-spacing: 0.5px;
     transition: all 0.2s ease;
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4);
 }
 
 input:focus {
     outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 10px rgba(99, 102, 241, 0.15);
+    border-color: #22d3ee;
+    box-shadow: 0 0 12px rgba(34, 211, 238, 0.35),
+                inset 0 0 4px rgba(34, 211, 238, 0.15);
 }
 
 button#send-btn {
-    background: var(--accent-gradient);
-    color: white;
-    border: none;
-    padding: 0.9rem 2rem;
-    border-radius: 12px;
+    background: rgba(168, 85, 247, 0.08);
+    color: #d8b4fe;
+    border: 1px solid rgba(168, 85, 247, 0.6);
+    padding: 0.8rem 1.8rem;
+    border-radius: 6px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-family: var(--pixel);
+    font-size: 0.82rem;
+    letter-spacing: 1.5px;
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+    transition: all 0.2s ease;
+    text-transform: uppercase;
 }
 
-button#send-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.35);
+button#send-btn:hover:not(:disabled) {
+    background: rgba(168, 85, 247, 0.22);
+    border-color: #a855f7;
+    color: #ffffff;
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.45);
 }
 
-button#send-btn:active {
-    transform: translateY(0);
+button#send-btn:active:not(:disabled) {
+    transform: scale(0.98);
 }
 
 .send-icon {
@@ -864,12 +873,12 @@ footer {
 
 /* ===== Streaming (Fase 2.2) ===== */
 .stop-btn {
-    background: rgba(244, 63, 94, 0.12);
-    border: 1px solid rgba(244, 63, 94, 0.4);
+    background: rgba(244, 63, 94, 0.08);
+    border: 1px solid rgba(244, 63, 94, 0.45);
     color: var(--dna-a);
-    width: 46px;
-    height: 46px;
-    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 1.1rem;
     display: inline-flex;
@@ -879,8 +888,9 @@ footer {
 }
 
 .stop-btn:hover {
-    background: rgba(244, 63, 94, 0.25);
-    box-shadow: 0 0 12px rgba(244, 63, 94, 0.3);
+    background: rgba(244, 63, 94, 0.22);
+    border-color: rgba(244, 63, 94, 0.85);
+    box-shadow: 0 0 15px rgba(244, 63, 94, 0.45);
 }
 
 .stop-btn[hidden] {
