@@ -124,6 +124,13 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=SERVER_DIR, **kwargs)
 
+    def end_headers(self):
+        # Prevent caching of static assets during active local development
+        self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+        self.send_header("Pragma", "no-cache")
+        self.send_header("Expires", "0")
+        super().end_headers()
+
     def do_GET(self):
         if self.path == "/api/models":
             models = list_available_models(MODELS_ROOT)

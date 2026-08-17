@@ -96,8 +96,9 @@
   --badge-text: #2c5234;
   --shadow-color: rgba(26, 26, 26, 0.04);
   --footer-text: #5e5a54;
-  --font-heading: 'Cardo', Georgia, serif;
-  --font-brand: var(--font-heading);
+  --sans: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
+  --font-heading: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
+  --font-brand: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
