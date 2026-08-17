@@ -101,12 +101,26 @@
       .catch(function (e) { console.warn('No se pudo cargar header parcial:', e); });
   }
 
+  /* ── Footer Y2K compartido (parcial) ── */
+  function initFooter() {
+    var host = document.getElementById('gaje-footer');
+    if (!host) return;
+    fetch('static/partials/footer.html')
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        host.innerHTML = html;
+        host.classList.add('y2k-footer');
+      })
+      .catch(function (e) { console.warn('No se pudo cargar footer parcial:', e); });
+  }
+
   /* ── Boot ── */
   function boot() {
     initReveal();
     initCopyButtons();
     initTheme();
     initHeader();
+    initFooter();
   }
 
   if (document.readyState === 'loading') {
@@ -115,5 +129,5 @@
     boot();
   }
 
-  global.GajeUI = { initReveal: initReveal, initTheme: initTheme, initCopyButtons: initCopyButtons, initHeader: initHeader };
+  global.GajeUI = { initReveal: initReveal, initTheme: initTheme, initCopyButtons: initCopyButtons, initHeader: initHeader, initFooter: initFooter };
 })(window);

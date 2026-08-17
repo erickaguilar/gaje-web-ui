@@ -467,13 +467,99 @@ button#send-btn:hover .send-icon {
     transform: translate(2px, -2px);
 }
 
-footer {
+/* ── Y2K Shared Footer ── */
+#gaje-footer {
+    display: block;
+    width: 100%;
+}
+
+.y2k-footer {
     padding: 0.8rem 2rem;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     text-align: center;
     color: var(--footer-text);
     border-top: 1px solid var(--border-color);
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(9, 11, 28, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    font-family: var(--mono);
+    position: relative;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.y2k-footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.y2k-footer-left {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.y2k-footer-divider {
+    color: rgba(99, 102, 241, 0.3);
+}
+
+.y2k-footer-right {
+    display: flex;
+    align-items: center;
+}
+
+.y2k-footer-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.y2k-footer-link:hover {
+    color: #22d3ee;
+    text-shadow: 0 0 8px rgba(34, 211, 238, 0.4);
+}
+
+.y2k-footer-link .y2k-icon {
+    width: 14px;
+    height: 14px;
+}
+
+/* Light mode overrides for footer */
+[data-theme="light"] .y2k-footer {
+    background: rgba(241, 245, 249, 0.85);
+    border-top-color: rgba(99, 102, 241, 0.2);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .y2k-footer-link {
+    color: #4f46e5;
+}
+
+[data-theme="light"] .y2k-footer-link:hover {
+    color: #0284c7;
+}
+
+@media (max-width: 768px) {
+    .y2k-footer-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .y2k-footer-left {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    .y2k-footer-divider {
+        display: none;
+    }
 }
 
 .metric-row {
