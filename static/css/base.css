@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&display=swap');
+
 /* ============================================================
    GAJE Design System — base.css
    Design tokens + componentes compartidos entre páginas
@@ -22,6 +24,8 @@
   --mono: 'VT323', ui-monospace, SFMono-Regular, monospace;
   --sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
   --pixel: 'Pixelify Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading: var(--sans);
+  --font-brand: var(--pixel);
 
   /* Chat / SPA */
   --bg-gradient: radial-gradient(circle at top, #111226 0%, #05060f 100%);
@@ -54,44 +58,46 @@
 
 /* ── Design Tokens — tema claro ── */
 [data-theme="light"] {
-  --bg: #f1f5f9;
-  --bg-soft: #e2e8f0;
+  --bg: #f6f5f3;
+  --bg-soft: #edebe9;
   --panel: #ffffff;
-  --border: #cbd5e1;
-  --text: #0f172a;
-  --muted: #475569;
-  --accent: #4f46e5;
-  --accent-2: #0284c7;
-  --green: #059669;
-  --amber: #d97706;
-  --red: #dc2626;
-  --purple: #7c3aed;
+  --border: #cfcdc9;
+  --text: #1a1a1a;
+  --muted: #5e5a54;
+  --accent: #2c5234;
+  --accent-2: #2c3539;
+  --green: #2e4a3f;
+  --amber: #b45309;
+  --red: #b91c1c;
+  --purple: #6d28d9;
 
-  --bg-gradient: radial-gradient(circle at top, #e2e8f0 0%, #cbd5e1 100%);
-  --card-bg: rgba(248, 250, 252, 0.82);
-  --card-hover-border: rgba(99, 102, 241, 0.6);
-  --text-color: #0f172a;
-  --text-muted: #334155;
-  --border-color: rgba(99, 102, 241, 0.2);
-  --accent-color: #4f46e5;
-  --accent-glow: rgba(99, 102, 241, 0.25);
-  --accent-gradient: linear-gradient(135deg, #6366f1, #4f46e5);
-  --system-msg: #334155;
-  --dna-a: #e11d48;
+  --bg-gradient: radial-gradient(circle at top, #faf9f6 0%, #f6f5f3 100%);
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --card-hover-border: rgba(44, 82, 52, 0.6);
+  --text-color: #1a1a1a;
+  --text-muted: #5e5a54;
+  --border-color: rgba(44, 82, 52, 0.15);
+  --accent-color: #2c5234;
+  --accent-glow: rgba(44, 82, 52, 0.12);
+  --accent-gradient: linear-gradient(135deg, #2c5234, #1a301f);
+  --system-msg: #5e5a54;
+  --dna-a: #b91c1c;
   --dna-c: #0284c7;
-  --dna-g: #059669;
-  --dna-t: #ca8a04;
-  --header-bg: rgba(226, 232, 240, 0.85);
-  --sidebar-bg: rgba(203, 213, 225, 0.35);
-  --scrollbar-thumb: rgba(99, 102, 241, 0.25);
-  --scrollbar-track: rgba(203, 213, 225, 0.5);
-  --input-bg: rgba(241, 245, 249, 0.9);
-  --message-bot-bg: rgba(99, 102, 241, 0.06);
-  --badge-bg: rgba(99, 102, 241, 0.08);
-  --badge-border: rgba(99, 102, 241, 0.25);
-  --badge-text: #4f46e5;
-  --shadow-color: rgba(15, 23, 42, 0.1);
-  --footer-text: #475569;
+  --dna-g: #2e4a3f;
+  --dna-t: #b45309;
+  --header-bg: rgba(246, 245, 243, 0.85);
+  --sidebar-bg: rgba(237, 235, 233, 0.5);
+  --scrollbar-thumb: rgba(44, 82, 52, 0.2);
+  --scrollbar-track: rgba(237, 235, 233, 0.4);
+  --input-bg: rgba(255, 255, 255, 0.95);
+  --message-bot-bg: rgba(255, 255, 255, 0.8);
+  --badge-bg: rgba(44, 82, 52, 0.05);
+  --badge-border: rgba(44, 82, 52, 0.2);
+  --badge-text: #2c5234;
+  --shadow-color: rgba(26, 26, 26, 0.04);
+  --footer-text: #5e5a54;
+  --font-heading: 'Cardo', Georgia, serif;
+  --font-brand: var(--font-heading);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -107,6 +113,10 @@ body {
   overflow-x: hidden;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
 .bg-grid {
   position: fixed;
   inset: 0;
@@ -116,6 +126,11 @@ body {
   background-size: 48px 48px;
   pointer-events: none;
   z-index: 0;
+}
+[data-theme="light"] .bg-grid {
+  background-image:
+    linear-gradient(rgba(44, 82, 52, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(44, 82, 52, 0.02) 1px, transparent 1px);
 }
 
 .wrap {
@@ -228,7 +243,7 @@ body {
   align-items: center;
   gap: 8px;
   text-decoration: none;
-  font-family: var(--pixel);
+  font-family: var(--font-brand);
   font-weight: 700;
   letter-spacing: 1px;
   font-size: 1.15rem;
@@ -502,7 +517,7 @@ body {
   margin-bottom: 20px;
 }
 .hero h1 {
-  font-family: var(--sans);
+  font-family: var(--font-heading);
   font-size: clamp(2rem, 5vw, 3.4rem);
   font-weight: 500;
   line-height: 1.15;
@@ -547,7 +562,7 @@ body {
   color: var(--accent);
 }
 .s-head h2 {
-  font-family: var(--sans);
+  font-family: var(--font-heading);
   font-size: clamp(1.6rem, 3vw, 2.3rem);
   font-weight: 500;
   margin-top: 8px;
