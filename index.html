@@ -2,7 +2,6 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" href="static/icons/gaje-icon-32.png" type="image/png">
     <link rel="icon" href="static/icons/gaje-icon.svg" type="image/svg+xml">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="GAJE Helix - Motor de inferencia nativo en Rust con compresión Q4_0 + FP32 (formato .gaje.flat v2 zero-copy mmap), Island Model .gmem y kernels SIMD de alto rendimiento.">
@@ -36,7 +35,8 @@
                         <div id="model-ram" class="model-meta">RAM: —</div>
                     </div>
                     <button id="unload-model-btn" class="unload-model-btn" title="Liberar modelo de la RAM y detenerlo" aria-label="Liberar modelo de la memoria RAM">
-                        ⏹ Liberar Modelo
+                        <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
+                        <span>Liberar Modelo</span>
                     </button>
                     <div id="model-load-bar" class="model-load" role="progressbar" aria-label="Cargando modelo" aria-valuemin="0" aria-valuemax="100" aria-valuetext="inactivo" hidden>
                         <span class="model-load-label">Cargando organismo…</span>
@@ -45,7 +45,7 @@
                 </section>
 
                 <section class="stats-card island-card">
-                    <h3>🏝️ Island Model (.gmem)</h3>
+                    <h3><svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-island"/></svg> <span>Island Model (.gmem)</span></h3>
                     <div id="island-content">
                         <div class="island-badge-row" id="island-pills">
                             <span class="island-pill">Cargando...</span>
@@ -90,7 +90,7 @@
                 </section>
 
                 <section class="stats-card logs-card">
-                    <h3>⚡ Alertas del Sistema</h3>
+                    <h3><svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg> <span>Alertas del Sistema</span></h3>
                     <div id="system-alerts-container" class="system-alerts-container">
                         <div class="system-alert-item">Núcleo GAJE iniciado. Listo para compresión semántica.</div>
                     </div>
@@ -100,7 +100,10 @@
             <section id="chat-view" class="chat-container" aria-label="Consola de Chat Genómico" aria-busy="false">
                 <div class="chat-toolbar">
                     <span class="chat-toolbar-label" id="chat-label">Conversación</span>
-                    <button id="clear-history-btn" class="clear-history-btn" title="Borrar historial local" aria-label="Borrar historial local de la conversación">🗑 Borrar historial</button>
+                    <button id="clear-history-btn" class="clear-history-btn" title="Borrar historial local" aria-label="Borrar historial local de la conversación">
+                        <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-trash"/></svg>
+                        <span>Borrar historial</span>
+                    </button>
                 </div>
                 <div id="chat-window" class="chat-window" role="log" aria-live="polite" aria-relevant="additions" aria-labelledby="chat-label">
                     <div class="message system">
@@ -113,7 +116,9 @@
                 <div class="input-area">
                     <label for="user-input" class="visually-hidden">Mensaje para el modelo</label>
                     <input type="text" id="user-input" placeholder="Escribe un mensaje genómico..." autocomplete="off" aria-label="Mensaje para el modelo">
-                    <button id="stop-btn" class="stop-btn" title="Detener generación" aria-label="Detener generación" hidden>⏹</button>
+                    <button id="stop-btn" class="stop-btn" title="Detener generación" aria-label="Detener generación" hidden>
+                        <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
+                    </button>
                     <button id="send-btn" aria-label="Enviar mensaje">
                         <span>ENVIAR</span>
                         <svg class="send-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
