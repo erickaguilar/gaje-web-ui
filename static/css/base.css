@@ -585,3 +585,225 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
   .hero { padding: 64px 0 40px; }
   .github-badge { display: none; }
 }
+
+/* ── Y2K Dropdown Menu and Header Actions ── */
+.y2k-header-actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* GitHub Icon-only button style */
+.y2k-github-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.12), rgba(168, 85, 247, 0.12));
+  color: var(--text);
+  transition: all 0.18s;
+  text-decoration: none;
+}
+
+.y2k-github-icon-btn:hover {
+  border-color: rgba(34, 211, 238, 0.6);
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.4);
+  transform: translateY(-1px);
+}
+
+.y2k-github-icon-btn .y2k-icon {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  stroke: none;
+}
+
+/* Menu Toggle Button */
+.y2k-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.12), rgba(168, 85, 247, 0.12));
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.y2k-menu-btn:hover {
+  border-color: rgba(168, 85, 247, 0.6);
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+}
+
+.y2k-menu-icon {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  transition: transform 0.2s;
+}
+
+.y2k-menu-btn[aria-expanded="true"] .y2k-menu-icon {
+  transform: rotate(90deg);
+}
+
+/* Dropdown Menu Panel */
+.y2k-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 240px;
+  background: rgba(13, 16, 35, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  padding: 8px;
+  z-index: 200;
+  display: none;
+  transform-origin: top right;
+  animation: y2kDropdownOpen 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.y2k-menu-dropdown.open {
+  display: block;
+}
+
+@keyframes y2kDropdownOpen {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Dropdown items */
+.y2k-dropdown-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.y2k-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  color: var(--text-color);
+  text-decoration: none;
+  font-family: var(--pixel);
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.y2k-dropdown-item:hover {
+  background: rgba(99, 102, 241, 0.15);
+  color: #fff;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+}
+
+.y2k-dropdown-item.active {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.45), rgba(168, 85, 247, 0.45));
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  color: #fff;
+}
+
+.y2k-dropdown-item .y2k-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.y2k-dropdown-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 8px 6px;
+}
+
+.y2k-dropdown-footer {
+  padding: 6px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.y2k-menu-label {
+  font-size: 0.62rem;
+  font-family: var(--mono);
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+/* Theme toggle inside dropdown */
+.y2k-dropdown-footer .y2k-theme-btn {
+  width: 100%;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.y2k-dropdown-footer .y2k-theme-btn .theme-text {
+  font-size: 0.78rem;
+  font-family: var(--mono);
+}
+
+/* Light mode overrides for dropdown */
+[data-theme="light"] .y2k-github-icon-btn,
+[data-theme="light"] .y2k-menu-btn {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(44, 82, 52, 0.2);
+  color: #1a1a1a;
+}
+
+[data-theme="light"] .y2k-github-icon-btn:hover,
+[data-theme="light"] .y2k-menu-btn:hover {
+  border-color: #2c5234;
+  box-shadow: 0 4px 12px rgba(44, 82, 52, 0.12);
+}
+
+[data-theme="light"] .y2k-menu-dropdown {
+  background: rgba(246, 245, 243, 0.98);
+  border-color: #cfcdc9;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .y2k-dropdown-item {
+  color: #1a1a1a;
+  font-family: var(--font-heading);
+  font-weight: 600;
+}
+
+[data-theme="light"] .y2k-dropdown-item:hover {
+  background: rgba(44, 82, 52, 0.06);
+  color: #2c5234;
+}
+
+[data-theme="light"] .y2k-dropdown-item.active {
+  background: rgba(44, 82, 52, 0.08);
+  border-color: rgba(44, 82, 52, 0.35);
+  color: #2c5234;
+}
+
+[data-theme="light"] .y2k-dropdown-divider {
+  background-color: #e5e3df;
+}
+
+[data-theme="light"] .y2k-dropdown-footer .y2k-theme-btn {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(44, 82, 52, 0.2);
+}

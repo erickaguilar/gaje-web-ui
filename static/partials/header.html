@@ -3,28 +3,54 @@
     <img class="y2k-brand-icon" src="static/icons/gaje-icon.svg" alt="GAJE" width="26" height="26">
     <span>GAJE<span class="brand-underscore">_</span></span>
   </a>
+
   <div class="y2k-status" aria-hidden="true">
     <span class="y2k-status-inner">
       <span class="tick-label">SIMD ONLINE</span> :: GENOMIC COMPRESSION v1.6.0 :: Q4_0 + FP32 :: ZERO-COPY MMAP :: ISLAND MODEL .gmem &nbsp;&nbsp;&nbsp;
       <span class="tick-label">SIMD ONLINE</span> :: GENOMIC COMPRESSION v1.6.0 :: Q4_0 + FP32 :: ZERO-COPY MMAP :: ISLAND MODEL .gmem
     </span>
   </div>
-  <nav class="y2k-nav" aria-label="Navegación principal">
-    <a href="index.html">
-      <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-chat"/></svg>
-      <span>Chat</span>
+
+  <div class="y2k-header-actions">
+    <!-- Solo GitHub es visible directamente -->
+    <a class="y2k-github-icon-btn" href="https://github.com/erickaguilar/gaje-semantic-compression" target="_blank" rel="noopener" aria-label="Repositorio de GitHub">
+      <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-github"/></svg>
     </a>
-    <a href="architecture.html">
-      <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-arch"/></svg>
-      <span>Arquitectura</span>
-    </a>
-    <a href="docs.html">
-      <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-docs"/></svg>
-      <span>Docs</span>
-    </a>
-  </nav>
-  <button id="theme-toggle" class="y2k-theme-btn" aria-label="Cambiar Tema">
-    <svg class="y2k-theme-icon icon-sun"><use href="static/icons/y2k/sprite.svg#i-sun"/></svg>
-    <svg class="y2k-theme-icon icon-moon"><use href="static/icons/y2k/sprite.svg#i-moon"/></svg>
-  </button>
+
+    <!-- Botón Menú Hamburguesa -->
+    <button id="y2k-menu-btn" class="y2k-menu-btn" aria-label="Abrir Menú de Navegación" aria-expanded="false">
+      <svg class="y2k-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="4" y1="6" x2="20" y2="6"></line>
+        <line x1="4" y1="12" x2="16" y2="12"></line>
+        <line x1="4" y1="18" x2="20" y2="18"></line>
+      </svg>
+    </button>
+
+    <!-- Panel del Menú Desplegable -->
+    <div id="y2k-menu-dropdown" class="y2k-menu-dropdown">
+      <nav class="y2k-dropdown-nav" aria-label="Navegación del menú">
+        <a href="index.html" class="y2k-dropdown-item">
+          <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-chat"/></svg>
+          <span>Chat Sandbox</span>
+        </a>
+        <a href="architecture.html" class="y2k-dropdown-item">
+          <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-arch"/></svg>
+          <span>Arquitectura</span>
+        </a>
+        <a href="docs.html" class="y2k-dropdown-item">
+          <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-docs"/></svg>
+          <span>Documentación</span>
+        </a>
+      </nav>
+      <div class="y2k-dropdown-divider"></div>
+      <div class="y2k-dropdown-footer">
+        <span class="y2k-menu-label">INTERFAZ</span>
+        <button id="theme-toggle" class="y2k-theme-btn" aria-label="Cambiar Tema">
+          <svg class="y2k-theme-icon icon-sun"><use href="static/icons/y2k/sprite.svg#i-sun"/></svg>
+          <svg class="y2k-theme-icon icon-moon"><use href="static/icons/y2k/sprite.svg#i-moon"/></svg>
+          <span class="theme-text">Alternar Modo</span>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

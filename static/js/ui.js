@@ -79,6 +79,31 @@
   }
 
   /* ── Header Y2K compartido (parcial) ── */
+  function initHeaderMenu(host) {
+    var menuBtn = host.querySelector('#y2k-menu-btn');
+    var dropdown = host.querySelector('#y2k-menu-dropdown');
+    if (!menuBtn || !dropdown) return;
+
+    menuBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var isOpen = dropdown.classList.contains('open');
+      if (isOpen) {
+        dropdown.classList.remove('open');
+        menuBtn.setAttribute('aria-expanded', 'false');
+      } else {
+        dropdown.classList.add('open');
+        menuBtn.setAttribute('aria-expanded', 'true');
+      }
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!host.contains(e.target)) {
+        dropdown.classList.remove('open');
+        menuBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
   function initHeader() {
     var host = document.getElementById('gaje-header');
     if (!host) return;
@@ -89,13 +114,14 @@
         var page = host.getAttribute('data-page') || 'index';
         var map = { index: 'index.html', chat: 'index.html', architecture: 'architecture.html', docs: 'docs.html' };
         var target = map[page] || page;
-        var links = host.querySelectorAll('.y2k-nav a');
+        var links = host.querySelectorAll('.y2k-dropdown-item');
         links.forEach(function (a) {
           if (a.getAttribute('href') === target) {
             a.classList.add('active');
             a.setAttribute('aria-current', 'page');
           }
         });
+        initHeaderMenu(host);
         initTheme();
       })
       .catch(function (e) { console.warn('No se pudo cargar header parcial:', e); });
