@@ -107,7 +107,7 @@
   function initHeader() {
     var host = document.getElementById('gaje-header');
     if (!host) return;
-    fetch('static/partials/header.html')
+    fetch('static/partials/header.html?v=1.6.2')
       .then(function (r) { return r.text(); })
       .then(function (html) {
         host.innerHTML = html;
@@ -131,7 +131,7 @@
   function initFooter() {
     var host = document.getElementById('gaje-footer');
     if (!host) return;
-    fetch('static/partials/footer.html')
+    fetch('static/partials/footer.html?v=1.6.2')
       .then(function (r) { return r.text(); })
       .then(function (html) {
         host.innerHTML = html;
