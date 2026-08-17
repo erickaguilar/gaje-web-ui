@@ -244,31 +244,27 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   gap: 8px;
   text-decoration: none;
-  font-family: var(--font-brand);
-  font-weight: 700;
-  letter-spacing: 1px;
-  font-size: 1.15rem;
-  background: linear-gradient(120deg, #e2e8ff 0%, #7dd3fc 25%, #a78bfa 50%, #f0abfc 75%, #e2e8ff 100%);
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: y2kChrome 6s linear infinite;
 }
-[data-theme="light"] .y2k-brand {
-  background: linear-gradient(120deg, #1e3a8a 0%, #0369a1 25%, #6d28d9 50%, #a21caf 75%, #1e3a8a 100%);
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: y2kChrome 6s linear infinite;
+.y2k-brand-text {
+  width: 76px;
+  height: 20px;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+  filter: drop-shadow(0 0 4px rgba(99, 102, 241, 0.15));
 }
-@keyframes y2kChrome {
-  0% { background-position: 0% 0; }
-  100% { background-position: 300% 0; }
+.y2k-brand:hover .y2k-brand-text {
+  color: var(--accent-color);
+  filter: drop-shadow(0 0 8px var(--accent-glow));
+}
+[data-theme="light"] .y2k-brand-text {
+  color: #1a1a1a;
+  filter: none;
+}
+[data-theme="light"] .y2k-brand:hover .y2k-brand-text {
+  color: #2c5234;
+  filter: drop-shadow(0 2px 4px rgba(44, 82, 52, 0.15));
 }
 .y2k-brand .brand-underscore {
-  -webkit-text-fill-color: var(--accent-2);
   animation: y2kBlink 1s steps(1) infinite;
 }
 .y2k-brand-icon {
