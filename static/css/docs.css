@@ -40,7 +40,7 @@
   transition: all 0.2s;
 }
 .tab-btn:hover { color: var(--text); }
-.tab-btn.active { background: rgba(99,102,241,0.15); color: var(--accent-2); border-color: var(--accent); }
+.tab-btn.active { background: rgba(10, 132, 255, 0.15); color: var(--text); border-color: var(--accent); }
 .terminal-actions { margin-left: auto; }
 .copy-btn {
   background: var(--panel);
@@ -56,12 +56,12 @@
 .terminal-body {
   font-family: var(--mono);
   font-size: 0.82rem;
-  color: var(--accent-2);
+  color: var(--text);
   padding: 18px;
   white-space: pre-wrap;
   word-break: break-word;
   min-height: 180px;
-  background: #05070c;
+  background: var(--bg-soft);
 }
 
 /* ── PILLARS ── */
@@ -105,7 +105,7 @@
   cursor: pointer;
   transition: all 0.2s;
 }
-.sim-toggle-btn.active { background: rgba(99,102,241,0.15); color: var(--accent-2); border-color: var(--accent); }
+.sim-toggle-btn.active { background: rgba(10, 132, 255, 0.15); color: var(--text); border-color: var(--accent); }
 .sim-visualizer { flex: 1 1 260px; text-align: center; }
 .genomic-symbol {
   font-family: var(--mono);
@@ -116,7 +116,7 @@
   border: 1px solid var(--border);
   background: var(--bg-soft);
   margin-bottom: 18px;
-  color: var(--accent-2);
+  color: var(--accent);
 }
 .sim-stats { display: grid; grid-template-columns: 1fr; gap: 10px; }
 .sim-stat-box {
@@ -203,7 +203,7 @@
   transition: all 0.2s;
 }
 .filter-btn:hover { color: var(--text); }
-.filter-btn.active { background: rgba(99,102,241,0.15); color: var(--accent-2); border-color: var(--accent); }
+.filter-btn.active { background: rgba(10, 132, 255, 0.15); color: var(--text); border-color: var(--accent); }
 .search-box input {
   background: var(--panel);
   border: 1px solid var(--border);
@@ -260,8 +260,8 @@
   margin-bottom: 8px;
   display: inline-block;
 }
-.log-tag.infra { background: rgba(34,211,238,0.12); color: var(--accent-2); }
-.log-tag.teoria { background: rgba(99,102,241,0.15); color: var(--accent); }
+.log-tag.infra { background: rgba(94, 92, 230, 0.12); color: var(--accent-2); }
+.log-tag.teoria { background: rgba(10, 132, 255, 0.12); color: var(--accent); }
 .log-tag.debug { background: rgba(251,191,36,0.12); color: var(--amber); }
 .log-tag.abierto { background: rgba(248,113,113,0.12); color: var(--red); }
 
@@ -293,8 +293,8 @@
   font-size: 0.82rem;
   padding: 18px;
   overflow-x: auto;
-  color: var(--accent-2);
-  background: #05070c;
+  color: var(--text);
+  background: var(--bg-soft);
 }
 
 /* ── CHECKLIST ── */
