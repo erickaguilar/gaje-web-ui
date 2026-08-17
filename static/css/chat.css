@@ -23,7 +23,7 @@ body {
     left: 25%;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, rgba(99, 102, 241, 0.03) 50%, transparent 100%);
+    background: radial-gradient(circle, rgba(10, 132, 255, 0.08) 0%, rgba(94, 92, 230, 0.03) 50%, transparent 100%);
     z-index: 0;
     pointer-events: none;
     filter: blur(80px);
@@ -56,20 +56,20 @@ main {
 
 .sidebar {
     width: 320px;
-    border-right: 1px solid rgba(99, 102, 241, 0.35);
+    border-right: 1px solid var(--border-color);
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 1.2rem;
-    background: rgba(9, 11, 28, 0.65);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: var(--sidebar-bg);
+    backdrop-filter: var(--backdrop-blur);
+    -webkit-backdrop-filter: var(--backdrop-blur);
     overflow-y: auto;
     max-height: 100%;
     min-height: 0;
     scrollbar-width: thin;
     scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
-    box-shadow: 4px 0 24px rgba(99, 102, 241, 0.05);
+    box-shadow: 4px 0 24px var(--shadow-color);
 }
 
 .sidebar::-webkit-scrollbar {
@@ -97,17 +97,17 @@ main {
 }
 
 .stats-card, .dna-viewer {
-    background: rgba(13, 16, 35, 0.75);
+    background: var(--card-bg);
     padding: 1.2rem;
     border-radius: 6px;
-    border: 1px solid rgba(99, 102, 241, 0.25);
+    border: 1px solid var(--border-color);
     transition: all 0.25s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .stats-card:hover, .dna-viewer:hover {
-    border-color: rgba(34, 211, 238, 0.45);
-    box-shadow: 0 0 15px rgba(34, 211, 238, 0.15);
+    border-color: var(--card-hover-border);
+    box-shadow: 0 0 15px var(--accent-glow);
 }
 
 /* ── Contenedor de Alertas del Sistema (Y2K Logs) ── */
@@ -117,17 +117,17 @@ main {
     font-family: var(--mono);
     font-size: 0.75rem;
     line-height: 1.4;
-    color: #a5b4fc;
-    background: rgba(6, 8, 20, 0.85);
-    border: 1px solid rgba(99, 102, 241, 0.3);
+    color: var(--text-color);
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     padding: 0.6rem;
-    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.6);
+    box-shadow: inset 0 0 8px var(--shadow-color);
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
     scrollbar-width: thin;
-    scrollbar-color: rgba(99, 102, 241, 0.3) transparent;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
 .system-alerts-container::-webkit-scrollbar {
@@ -135,7 +135,7 @@ main {
 }
 
 .system-alerts-container::-webkit-scrollbar-thumb {
-    background: rgba(99, 102, 241, 0.4);
+    background: var(--scrollbar-thumb);
     border-radius: 2px;
 }
 

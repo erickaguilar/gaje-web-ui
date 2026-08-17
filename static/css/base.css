@@ -8,52 +8,52 @@
 
 /* ── Design Tokens (tema oscuro por defecto) ── */
 :root {
-  /* Core (docs / architecture) */
-  --bg: #07090f;
-  --bg-soft: #0c1019;
-  --panel: #101522;
-  --border: #1e2637;
-  --text: #e8ecf4;
-  --muted: #8b95ab;
-  --accent: #6366f1;
-  --accent-2: #22d3ee;
-  --green: #34d399;
-  --amber: #fbbf24;
-  --red: #f87171;
-  --purple: #a78bfa;
-  --mono: 'VT323', ui-monospace, SFMono-Regular, monospace;
-  --sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
-  --pixel: 'Pixelify Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Core (docs / architecture) - HIG Dark Mode */
+  --bg: #000000;
+  --bg-soft: #1c1c1e;
+  --panel: #2c2c2e;
+  --border: rgba(255, 255, 255, 0.12);
+  --text: #ffffff;
+  --muted: #8e8e93;
+  --accent: #0a84ff;
+  --accent-2: #5e5ce6;
+  --green: #30d158;
+  --amber: #ffd60a;
+  --red: #ff453a;
+  --purple: #bf5af2;
+  --mono: ui-monospace, SFMono-Regular, SF Pro Mono, Menlo, monospace;
+  --sans: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif;
+  --pixel: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-heading: var(--sans);
-  --font-brand: var(--pixel);
+  --font-brand: var(--sans);
 
-  /* Chat / SPA */
-  --bg-gradient: radial-gradient(circle at top, #111226 0%, #05060f 100%);
-  --card-bg: rgba(13, 16, 35, 0.65);
-  --card-hover-border: rgba(139, 92, 246, 0.45);
-  --text-color: #f1f5f9;
-  --text-muted: #94a3b8;
-  --border-color: rgba(99, 102, 241, 0.15);
-  --accent-color: #8b5cf6;
-  --accent-glow: rgba(139, 92, 246, 0.4);
-  --accent-gradient: linear-gradient(135deg, #a855f7, #6366f1);
-  --system-msg: #94a3b8;
-  --dna-a: #f43f5e;
-  --dna-c: #0ea5e9;
-  --dna-g: #10b981;
-  --dna-t: #eab308;
-  --header-bg: rgba(9, 11, 28, 0.75);
-  --sidebar-bg: rgba(6, 8, 20, 0.4);
-  --scrollbar-thumb: rgba(99, 102, 241, 0.3);
-  --scrollbar-track: rgba(6, 8, 20, 0.2);
-  --input-bg: rgba(15, 17, 36, 0.9);
-  --message-bot-bg: rgba(22, 28, 59, 0.35);
-  --badge-bg: rgba(99, 102, 241, 0.08);
-  --badge-border: rgba(99, 102, 241, 0.2);
-  --badge-text: #a5b4fc;
-  --shadow-color: rgba(0, 0, 0, 0.6);
-  --footer-text: #64748b;
-  --backdrop-blur: blur(16px);
+  /* Chat / SPA - HIG Translucent Materials & Solid Accents */
+  --bg-gradient: radial-gradient(circle at top, #1c1c1e 0%, #000000 100%);
+  --card-bg: rgba(28, 28, 30, 0.7);
+  --card-hover-border: rgba(10, 132, 255, 0.45);
+  --text-color: #ffffff;
+  --text-muted: #8e8e93;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --accent-color: #0a84ff;
+  --accent-glow: rgba(10, 132, 255, 0.12);
+  --accent-gradient: linear-gradient(135deg, #0a84ff, #5e5ce6);
+  --system-msg: #8e8e93;
+  --dna-a: #ff453a;
+  --dna-c: #0a84ff;
+  --dna-g: #30d158;
+  --dna-t: #ffd60a;
+  --header-bg: rgba(0, 0, 0, 0.8);
+  --sidebar-bg: rgba(28, 28, 30, 0.4);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.15);
+  --scrollbar-track: transparent;
+  --input-bg: rgba(44, 44, 46, 0.8);
+  --message-bot-bg: rgba(44, 44, 46, 0.4);
+  --badge-bg: rgba(10, 132, 255, 0.1);
+  --badge-border: rgba(10, 132, 255, 0.2);
+  --badge-text: #409cff;
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  --footer-text: #8e8e93;
+  --backdrop-blur: blur(20px);
 }
 
 /* ── Design Tokens — tema claro ── */
@@ -600,15 +600,16 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
   height: 34px;
   border-radius: 8px;
   border: 1px solid var(--border);
-  background: linear-gradient(135deg, rgba(34, 211, 238, 0.12), rgba(168, 85, 247, 0.12));
+  background: rgba(255, 255, 255, 0.06);
   color: var(--text);
   transition: all 0.18s;
   text-decoration: none;
 }
 
 .y2k-github-icon-btn:hover {
-  border-color: rgba(34, 211, 238, 0.6);
-  box-shadow: 0 0 10px rgba(34, 211, 238, 0.4);
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transform: translateY(-1px);
 }
 
@@ -628,15 +629,16 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
   height: 34px;
   border-radius: 8px;
   border: 1px solid var(--border);
-  background: linear-gradient(135deg, rgba(34, 211, 238, 0.12), rgba(168, 85, 247, 0.12));
+  background: rgba(255, 255, 255, 0.06);
   color: var(--text);
   cursor: pointer;
   transition: all 0.18s;
 }
 
 .y2k-menu-btn:hover {
-  border-color: rgba(168, 85, 247, 0.6);
-  box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .y2k-menu-icon {
@@ -658,12 +660,12 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
   top: calc(100% + 12px);
   right: 0;
   width: 240px;
-  background: rgba(13, 16, 35, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(28, 28, 30, 0.85);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
   border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12px 40px var(--shadow-color);
   padding: 8px;
   z-index: 200;
   display: none;
@@ -701,21 +703,20 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
   border-radius: 8px;
   color: var(--text-color);
   text-decoration: none;
-  font-family: var(--pixel);
+  font-family: var(--sans);
   font-size: 0.85rem;
   font-weight: 500;
   transition: all 0.15s;
 }
 
 .y2k-dropdown-item:hover {
-  background: rgba(99, 102, 241, 0.15);
+  background: rgba(255, 255, 255, 0.08);
   color: #fff;
-  text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
 }
 
 .y2k-dropdown-item.active {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.45), rgba(168, 85, 247, 0.45));
-  border: 1px solid rgba(139, 92, 246, 0.4);
+  background: rgba(10, 132, 255, 0.15);
+  border: 1px solid rgba(10, 132, 255, 0.35);
   color: #fff;
 }
 
