@@ -614,6 +614,7 @@ main {
     color: var(--badge-text);
     letter-spacing: 0.3px;
 }
+.meta-badge.meta-model { border-color: rgba(94, 92, 230, 0.35); color: #a78bfa; background: rgba(94, 92, 230, 0.08); font-weight: 500; }
 .meta-badge.meta-island { border-color: rgba(48, 209, 88, 0.3); color: var(--green); background: rgba(48, 209, 88, 0.06); }
 .meta-badge.meta-latency { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; border-color: rgba(10, 132, 255, 0.3); }
 .meta-badge .y2k-icon { width: 11px; height: 11px; stroke-width: 2.2; }

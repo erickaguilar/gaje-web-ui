@@ -376,7 +376,8 @@ document.addEventListener('DOMContentLoaded', () => {
             messages.forEach((msg) => {
                 const isUser = msg.classList.contains('user');
                 const time = msg.getAttribute('data-time') || '—';
-                const role = isUser ? '👤 USUARIO' : `🧬 GAJE LLM [${selectedModelName}]`;
+                const msgModel = msg.getAttribute('data-model') || selectedModelName;
+                const role = isUser ? '👤 USUARIO' : `🧬 GAJE LLM [${msgModel}]`;
 
                 if (isUser) {
                     const p = msg.querySelector('p');
@@ -558,7 +559,7 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         return thoughtHtml + (html ? (thoughtHtml ? '<div class="response-body">' + html + '</div>' : html) : '');
     }
 
-    function addMessage(text, type, meta = null, explicitTime = null) {
+    function addMessage(text, type, meta = null, explicitTime = null, modelName = null) {
         if (type === 'system') {
             const nowTime = explicitTime || new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             systemAlertsHistory.push(`[${nowTime}] ${text}`);
@@ -577,12 +578,19 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         msgDiv.className = `message ${type}`;
         const msgTime = explicitTime || new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         msgDiv.setAttribute('data-time', msgTime);
-        if (type === 'bot' && /^❌|^Error/.test(text)) {
-            msgDiv.classList.add('error');
+        if (type === 'bot') {
+            const mName = modelName || modelSelect.value || 'gaje-model';
+            msgDiv.setAttribute('data-model', mName);
+            if (/^❌|^Error/.test(text)) {
+                msgDiv.classList.add('error');
+            }
         }
 
         let html = `<p>${parseMarkdown(text)}</p>`;
         if (type === 'bot') {
+            const mName = msgDiv.getAttribute('data-model') || '';
+            const shortModel = mName ? mName.replace('.gaje.flat', '').replace('.flat', '').replace('.gaje', '') : '';
+            const modelBadge = shortModel ? `<span class="meta-badge meta-model">🧬 ${escapeHtml(shortModel)}</span>` : '';
             let islandBadge = '';
             if (meta && meta.island) {
                 islandBadge = `<span class="meta-badge meta-island">🏝️ Island .gmem: ${escapeHtml(meta.island.retrieval_ms)} ms | +${escapeHtml(meta.island.budget_tokens)} tok (CosSim ${escapeHtml(meta.island.cossim)})</span>`;
@@ -592,6 +600,7 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
             
             html += `
                 <div class="message-meta">
+                    ${modelBadge}
                     ${islandBadge}
                     ${meta ? `<span class="meta-badge">🔢 ${tokensCount} tokens</span>` : ''}
                     ${latencyStr ? `
@@ -695,15 +704,15 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
             });
             const data = await response.json();
             if (data.error) {
-                addMessage(`Error: ${data.error}`, 'bot');
+                addMessage(`Error: ${data.error}`, 'bot', null, null, modelName);
             } else {
-                addMessage(data.response, 'bot', data.metrics);
-                pushHistory({ role: 'assistant', content: data.response });
+                addMessage(data.response, 'bot', data.metrics, null, modelName);
+                pushHistory({ role: 'assistant', content: data.response, model: modelName });
                 updateMetrics(data.metrics);
                 updateDNA(data.dna);
             }
         } catch (err) {
-            addMessage('Error de conexión con el núcleo GAJE.', 'bot');
+            addMessage('Error de conexión con el núcleo GAJE.', 'bot', null, null, modelName);
             console.error(err);
         }
     }
@@ -712,7 +721,7 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
     let abortController = null;
 
     function streamChat(message, modelName) {
-        const botMsg = createBotMessage();
+        const botMsg = createBotMessage(modelName);
         botMsg.classList.add('streaming');
         const statusEl = document.createElement('span');
         statusEl.className = 'stream-status';
@@ -747,11 +756,11 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
             statusAnchor.remove(); // Elimina el indicador "Generando" de la UI
             const elapsed = Date.now() - started;
             if (aborted && fullText) {
-                addMetaTo(botMsg, elapsed, '⏹️ detenido');
+                addMetaTo(botMsg, elapsed, '⏹️ detenido', fullText, modelName);
             } else if (!aborted) {
-                addMetaTo(botMsg, elapsed);
+                addMetaTo(botMsg, elapsed, '', fullText, modelName);
             }
-            if (fullText) pushHistory({ role: 'assistant', content: fullText });
+            if (fullText) pushHistory({ role: 'assistant', content: fullText, model: modelName });
             chatWindow.scrollTop = chatWindow.scrollHeight;
         };
 
@@ -828,18 +837,24 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         });
     }
 
-    function createBotMessage() {
+    function createBotMessage(modelName = null) {
         const msgDiv = document.createElement('div');
         msgDiv.className = 'message bot';
         const msgTime = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         msgDiv.setAttribute('data-time', msgTime);
+        const mName = modelName || modelSelect.value || 'gaje-model';
+        msgDiv.setAttribute('data-model', mName);
         return msgDiv;
     }
 
-    function addMetaTo(msgEl, elapsed, prefix = '', fullText = '') {
+    function addMetaTo(msgEl, elapsed, prefix = '', fullText = '', modelName = '') {
+        const mName = modelName || msgEl.getAttribute('data-model') || '';
+        const shortModel = mName ? mName.replace('.gaje.flat', '').replace('.flat', '').replace('.gaje', '') : '';
+        const modelBadge = shortModel ? `<span class="meta-badge meta-model">🧬 ${escapeHtml(shortModel)}</span>` : '';
         const meta = document.createElement('div');
         meta.className = 'message-meta';
         meta.innerHTML = `
+            ${modelBadge}
             <span class="meta-badge meta-latency">
                 <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-clock"/></svg>
                 <span>${formatLatency(elapsed)} ${prefix ? '(' + escapeHtml(prefix) + ')' : ''}</span>
@@ -880,6 +895,9 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         if (!entry.time) {
             entry.time = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         }
+        if (entry.role === 'assistant' && !entry.model) {
+            entry.model = modelSelect.value;
+        }
         const arr = loadHistory();
         arr.push(entry);
         if (arr.length > 100) arr.splice(0, arr.length - 100);
@@ -899,7 +917,7 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         if (arr.length === 0) return;
         arr.forEach(entry => {
             if (entry.role === 'user') addMessage(entry.content, 'user', null, entry.time);
-            else if (entry.role === 'assistant') addMessage(entry.content, 'bot', entry.meta || null, entry.time);
+            else if (entry.role === 'assistant') addMessage(entry.content, 'bot', entry.meta || null, entry.time, entry.model);
             else if (entry.role === 'system') addMessage(entry.content, 'system', null, entry.time);
         });
         chatWindow.scrollTop = chatWindow.scrollHeight;
