@@ -461,65 +461,68 @@ main {
 .chat-toolbar-actions {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
 }
 
-.chat-tool-btn {
+.chat-icon-btn {
     background: transparent;
     border: 1px solid var(--border-color);
     color: var(--text-muted);
-    padding: 0.3rem 0.7rem;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
     border-radius: 8px;
-    font-size: 0.72rem;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
-    font-family: inherit;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    justify-content: center;
+    padding: 0;
+    position: relative;
 }
-.chat-tool-btn:hover {
+
+.chat-icon-btn:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+.chat-icon-btn:hover {
     border-color: var(--accent-color);
     color: var(--accent-color);
     background: rgba(94, 92, 230, 0.08);
+    transform: translateY(-1px);
 }
-.chat-tool-btn.primary-tool-btn {
+
+.chat-icon-btn:active {
+    transform: scale(0.94);
+}
+
+.chat-icon-btn.primary-tool-btn {
     background: rgba(94, 92, 230, 0.08);
     border-color: rgba(94, 92, 230, 0.35);
     color: #a78bfa;
-    font-weight: 600;
 }
-.chat-tool-btn.primary-tool-btn:hover {
-    background: rgba(94, 92, 230, 0.18);
+
+.chat-icon-btn.primary-tool-btn:hover {
+    background: rgba(94, 92, 230, 0.2);
     border-color: var(--accent-color);
     color: #fff;
-    box-shadow: 0 0 12px rgba(94, 92, 230, 0.3);
+    box-shadow: 0 0 12px rgba(94, 92, 230, 0.35);
 }
 
-.chat-tool-btn.copied {
-    border-color: #10b981;
-    color: #10b981;
-    background: rgba(16, 185, 129, 0.1);
-}
-
-.clear-history-btn {
-    background: transparent;
-    border: 1px solid var(--border-color);
-    color: var(--text-muted);
-    padding: 0.3rem 0.7rem;
-    border-radius: 8px;
-    font-size: 0.72rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: inherit;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-}
-.clear-history-btn:hover {
+.chat-icon-btn.danger-tool-btn:hover {
     border-color: var(--red);
     color: var(--red);
-    background: rgba(255, 69, 58, 0.06);
+    background: rgba(255, 69, 58, 0.08);
+    box-shadow: 0 0 10px rgba(255, 69, 58, 0.25);
+}
+
+.chat-icon-btn.copied {
+    border-color: #10b981 !important;
+    color: #10b981 !important;
+    background: rgba(16, 185, 129, 0.12) !important;
+    transform: scale(1.05);
 }
 
 .chat-window {

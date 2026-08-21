@@ -311,15 +311,18 @@ document.addEventListener('DOMContentLoaded', () => {
         
         navigator.clipboard.writeText(transcript.trim()).then(() => {
             const originalHtml = btnElement.innerHTML;
+            const originalTitle = btnElement.getAttribute('title');
             btnElement.classList.add('copied');
+            btnElement.setAttribute('title', '¡Chat copiado!');
             btnElement.innerHTML = `
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
-                <span style="color:#10b981; font-weight:600;">¡Chat Copiado!</span>
+                <span class="visually-hidden">¡Chat Copiado!</span>
             `;
             setTimeout(() => {
                 btnElement.classList.remove('copied');
+                btnElement.setAttribute('title', originalTitle);
                 btnElement.innerHTML = originalHtml;
             }, 2000);
         });
@@ -463,15 +466,18 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
 
         navigator.clipboard.writeText(logContent).then(() => {
             const originalHtml = btnElement.innerHTML;
+            const originalTitle = btnElement.getAttribute('title');
             btnElement.classList.add('copied');
+            btnElement.setAttribute('title', '¡Log copiado al portapapeles!');
             btnElement.innerHTML = `
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
-                <span style="color:#10b981; font-weight:600;">¡Log Copiado!</span>
+                <span class="visually-hidden">¡Log Copiado!</span>
             `;
             setTimeout(() => {
                 btnElement.classList.remove('copied');
+                btnElement.setAttribute('title', originalTitle);
                 btnElement.innerHTML = originalHtml;
             }, 2500);
         }).catch(err => {
