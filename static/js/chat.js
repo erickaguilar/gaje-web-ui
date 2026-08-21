@@ -291,19 +291,35 @@ document.addEventListener('DOMContentLoaded', () => {
         let transcript = `=== CONVERSACIÓN GAJE HELIX ===\nFecha: ${new Date().toLocaleString()}\n\n`;
         messages.forEach(msg => {
             const isUser = msg.classList.contains('user');
-            const role = isUser ? '👤 USUARIO' : '🧬 GAJE LLM';
+            const msgModel = msg.getAttribute('data-model');
+            const shortModel = msgModel ? msgModel.replace('.gaje.flat', '').replace('.flat', '').replace('.gaje', '') : '';
+            const role = isUser ? '👤 USUARIO' : (shortModel ? `🧬 GAJE LLM (${shortModel})` : '🧬 GAJE LLM');
             
             let content = '';
-            const thoughtBox = msg.querySelector('.apple-thought-content');
-            const responseBody = msg.querySelector('.response-body') || msg.querySelector('p');
-            
-            if (thoughtBox) {
-                content += `[Razonamiento]:\n${thoughtBox.innerText.trim()}\n\n`;
-            }
-            if (responseBody) {
-                content += responseBody.innerText.trim();
+            if (isUser) {
+                const p = msg.querySelector('p');
+                content = p ? p.innerText.trim() : msg.innerText.trim();
             } else {
-                content += msg.innerText.trim();
+                const thoughtBox = msg.querySelector('.apple-thought-content');
+                if (thoughtBox) {
+                    const rawThought = thoughtBox.innerText.trim();
+                    if (rawThought) {
+                        content += `[Razonamiento]:\n${rawThought}\n\n`;
+                    }
+                }
+                const responseBody = msg.querySelector('.response-body');
+                if (responseBody) {
+                    content += responseBody.innerText.trim();
+                } else {
+                    const pClone = msg.cloneNode(true);
+                    const box = pClone.querySelector('.apple-thought-box');
+                    if (box) box.remove();
+                    const meta = pClone.querySelector('.message-meta');
+                    if (meta) meta.remove();
+                    content += pClone.innerText.trim();
+                }
+                // Limpieza de etiquetas residuales
+                content = content.replace(/<\/?(thinks?|answers?|p|div|content)[^>]*>/gi, '').trim();
             }
             
             transcript += `[${role}]:\n${content}\n\n`;
