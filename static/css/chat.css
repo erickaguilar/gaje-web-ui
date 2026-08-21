@@ -458,6 +458,37 @@ main {
     border-radius: 20px;
 }
 
+.chat-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.chat-tool-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 0.3rem 0.7rem;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.chat-tool-btn:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    background: rgba(94, 92, 230, 0.08);
+}
+.chat-tool-btn.copied {
+    border-color: #10b981;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+}
+
 .clear-history-btn {
     background: transparent;
     border: 1px solid var(--border-color);
@@ -570,6 +601,29 @@ main {
 .meta-badge.meta-island { border-color: rgba(48, 209, 88, 0.3); color: var(--green); background: rgba(48, 209, 88, 0.06); }
 .meta-badge.meta-latency { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; border-color: rgba(10, 132, 255, 0.3); }
 .meta-badge .y2k-icon { width: 11px; height: 11px; stroke-width: 2.2; }
+
+.meta-badge.meta-copy-btn {
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--border-color);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+    font-weight: 500;
+}
+.meta-badge.meta-copy-btn:hover {
+    background: rgba(94, 92, 230, 0.15);
+    border-color: var(--accent-color);
+    color: #fff;
+    transform: translateY(-1px);
+}
+.meta-badge.meta-copy-btn.copied {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.12);
+}
 
 /* Streaming */
 .message.streaming { border-color: var(--accent-color); }

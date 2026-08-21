@@ -243,6 +243,75 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${hh}:${mm}:${ss}::${mmm}`;
     }
 
+    function copyTextToClipboard(rawText, btnElement) {
+        if (!rawText) return;
+        
+        let textToCopy = rawText;
+        if (textToCopy.includes('<think>')) {
+            textToCopy = textToCopy.replace(/<think>([\s\S]*?)<\/think>/i, (m, thought) => {
+                return `--- [RAZONAMIENTO] ---\n${thought.trim()}\n----------------------\n\n`;
+            }).trim();
+        }
+        
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const originalHtml = btnElement.innerHTML;
+            btnElement.classList.add('copied');
+            btnElement.innerHTML = `
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span style="color:#10b981; font-weight:600;">¡Copiado!</span>
+            `;
+            setTimeout(() => {
+                btnElement.classList.remove('copied');
+                btnElement.innerHTML = originalHtml;
+            }, 2000);
+        }).catch(err => {
+            console.error('Error al copiar al portapapeles:', err);
+        });
+    }
+
+    function copyEntireChat(btnElement) {
+        const messages = chatWindow.querySelectorAll('.message:not(.system)');
+        if (!messages.length) return;
+        
+        let transcript = `=== CONVERSACIÓN GAJE HELIX ===\nFecha: ${new Date().toLocaleString()}\n\n`;
+        messages.forEach(msg => {
+            const isUser = msg.classList.contains('user');
+            const role = isUser ? '👤 USUARIO' : '🧬 GAJE LLM';
+            
+            let content = '';
+            const thoughtBox = msg.querySelector('.apple-thought-content');
+            const responseBody = msg.querySelector('.response-body') || msg.querySelector('p');
+            
+            if (thoughtBox) {
+                content += `[Razonamiento]:\n${thoughtBox.innerText.trim()}\n\n`;
+            }
+            if (responseBody) {
+                content += responseBody.innerText.trim();
+            } else {
+                content += msg.innerText.trim();
+            }
+            
+            transcript += `[${role}]:\n${content}\n\n`;
+        });
+        
+        navigator.clipboard.writeText(transcript.trim()).then(() => {
+            const originalHtml = btnElement.innerHTML;
+            btnElement.classList.add('copied');
+            btnElement.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span style="color:#10b981; font-weight:600;">¡Chat Copiado!</span>
+            `;
+            setTimeout(() => {
+                btnElement.classList.remove('copied');
+                btnElement.innerHTML = originalHtml;
+            }, 2000);
+        });
+    }
+
     function parseMarkdown(text) {
         if (!text) return '';
 
@@ -336,24 +405,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let html = `<p>${parseMarkdown(text)}</p>`;
-        if (type === 'bot' && meta) {
+        if (type === 'bot') {
             let islandBadge = '';
-            if (meta.island) {
+            if (meta && meta.island) {
                 islandBadge = `<span class="meta-badge meta-island">🏝️ Island .gmem: ${escapeHtml(meta.island.retrieval_ms)} ms | +${escapeHtml(meta.island.budget_tokens)} tok (CosSim ${escapeHtml(meta.island.cossim)})</span>`;
             }
+            const tokensCount = meta ? escapeHtml(meta.tokens_count || 0) : '—';
+            const latencyStr = meta ? `${formatLatency(meta.latency_ms)} (${escapeHtml(meta.tokens_sec || 0)} tok/s)` : '';
+            
             html += `
                 <div class="message-meta">
                     ${islandBadge}
-                    <span class="meta-badge">🔢 ${escapeHtml(meta.tokens_count || 0)} tokens</span>
+                    ${meta ? `<span class="meta-badge">🔢 ${tokensCount} tokens</span>` : ''}
+                    ${latencyStr ? `
                     <span class="meta-badge meta-latency">
                         <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-clock"/></svg>
-                        <span>${formatLatency(meta.latency_ms)} (${escapeHtml(meta.tokens_sec || 0)} tok/s)</span>
-                    </span>
+                        <span>${latencyStr}</span>
+                    </span>` : ''}
+                    <button class="meta-badge meta-copy-btn" title="Copiar texto de esta respuesta" aria-label="Copiar texto de esta respuesta">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        <span>Copiar</span>
+                    </button>
                 </div>
             `;
         }
 
         msgDiv.innerHTML = html;
+        const copyBtn = msgDiv.querySelector('.meta-copy-btn');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', () => copyTextToClipboard(text, copyBtn));
+        }
         chatWindow.appendChild(msgDiv);
         chatWindow.scrollTop = chatWindow.scrollHeight;
     }
@@ -573,7 +657,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return msgDiv;
     }
 
-    function addMetaTo(msgEl, elapsed, prefix = '') {
+    function addMetaTo(msgEl, elapsed, prefix = '', fullText = '') {
         const meta = document.createElement('div');
         meta.className = 'message-meta';
         meta.innerHTML = `
@@ -581,7 +665,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-clock"/></svg>
                 <span>${formatLatency(elapsed)} ${prefix ? '(' + escapeHtml(prefix) + ')' : ''}</span>
             </span>
+            <button class="meta-badge meta-copy-btn" title="Copiar texto de esta respuesta" aria-label="Copiar texto de esta respuesta">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span>Copiar</span>
+            </button>
         `;
+        const copyBtn = meta.querySelector('.meta-copy-btn');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', () => {
+                const textToCopy = fullText || msgEl.innerText;
+                copyTextToClipboard(textToCopy, copyBtn);
+            });
+        }
         msgEl.appendChild(meta);
     }
 
@@ -629,5 +727,25 @@ document.addEventListener('DOMContentLoaded', () => {
     userInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') sendMessage();
     });
+
+    const copyAllBtn = document.getElementById('copy-all-btn');
+    if (copyAllBtn) {
+        copyAllBtn.addEventListener('click', () => copyEntireChat(copyAllBtn));
+    }
+
+    const clearHistoryBtn = document.getElementById('clear-history-btn');
+    if (clearHistoryBtn) {
+        clearHistoryBtn.addEventListener('click', () => {
+            clearHistory();
+            chatWindow.innerHTML = `
+                <div class="message system">
+                    <div class="msg-content">
+                        <p><strong>[SYSTEM]:</strong> Historial borrado. Núcleo GAJE listo.</p>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
     renderHistory();
 });

@@ -137,10 +137,19 @@
                         <span class="chat-toolbar-label" id="chat-label">Conversación</span>
                         <span class="status-text side-group-badge">Núcleo GAJE</span>
                     </div>
-                    <button id="clear-history-btn" class="clear-history-btn" title="Borrar historial local" aria-label="Borrar historial local de la conversación">
-                        <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-trash"/></svg>
-                        <span>Borrar historial</span>
-                    </button>
+                    <div class="chat-toolbar-actions">
+                        <button id="copy-all-btn" class="chat-tool-btn" title="Copiar conversación visible" aria-label="Copiar todo el texto visible de la conversación">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            <span>Copiar chat</span>
+                        </button>
+                        <button id="clear-history-btn" class="clear-history-btn" title="Borrar historial local" aria-label="Borrar historial local de la conversación">
+                            <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-trash"/></svg>
+                            <span>Borrar historial</span>
+                        </button>
+                    </div>
                 </div>
                 <div id="chat-window" class="chat-window" role="log" aria-live="polite" aria-relevant="additions" aria-labelledby="chat-label">
                     <div class="message system">
