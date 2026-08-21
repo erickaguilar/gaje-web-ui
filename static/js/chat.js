@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `[${new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}] Núcleo GAJE iniciado. Listo para compresión semántica.`
     ];
     let modelsData = [
-        { name: 'maximo.gaje', size_bytes: 1324840960, date: '2026-08-21 00:16', ram_mb: 0.0 },
+        { name: 'maximo.gaje', size_bytes: 5247238144, date: '2026-08-21 08:25', ram_mb: 0.0 },
         { name: 'pro.gaje', size_bytes: 2405756928, date: '2026-08-09 22:57', ram_mb: 0.0 },
         { name: 'turbo.gaje', size_bytes: 522679808, date: '2026-08-09 14:17', ram_mb: 0.0 },
         { name: 'nano.gaje', size_bytes: 496182528, date: '2026-08-19 00:33', ram_mb: 0.0 }
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     opt.value = model.name;
                     let label = model.name;
                     if (label === 'maximo.gaje') {
-                        label = '⚡ GAJE MAX (maximo.gaje · Razonamiento R1)';
+                        label = '⚡ GAJE MAX (maximo.gaje · Razonamiento R1 7B)';
                     } else if (label === 'pro.gaje') {
                         label = '⚡ GAJE PRO (pro.gaje · Multilingüe Qwen 3B)';
                     } else if (label === 'turbo.gaje') {
