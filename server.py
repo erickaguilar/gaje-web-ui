@@ -50,8 +50,10 @@ ISLAND_CONFIG = {
 
 
 def _model_quality(name: str) -> float:
-    """Estima los parámetros del modelo (en miles de millones) para ordenar por calidad."""
+    """Estima la prioridad y calidad del modelo para ordenar el selector por defecto."""
     n = name.lower()
+    if "deepseek" in n or "r1" in n:
+        return 100.0  # Modelo principal prioritario de razonamiento
     if "3b" in n:
         return 3.0
     if "1_5b" in n:
