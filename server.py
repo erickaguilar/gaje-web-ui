@@ -343,10 +343,13 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(json.dumps(data).encode("utf-8"))
 
 
+class ThreadingServerWithReuse(socketserver.ThreadingTCPServer):
+    allow_reuse_address = True
+    daemon_threads = True
+
+
 if __name__ == "__main__":
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.ThreadingTCPServer(("", PORT), GajeHandler) as httpd:
-        httpd.daemon_threads = True
+    with ThreadingServerWithReuse(("", PORT), GajeHandler) as httpd:
         logger.info("Servidor GAJE Visual Real activo en http://localhost:%s", PORT)
         logger.info("Presiona Ctrl+C para detener.")
         try:

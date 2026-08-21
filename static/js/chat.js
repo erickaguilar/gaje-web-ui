@@ -9,7 +9,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const modelSize = document.getElementById('model-size');
     const modelRam = document.getElementById('model-ram');
     const modelLoadBar = document.getElementById('model-load-bar');
-    let modelsData = [];
+    let modelsData = [
+        { name: 'deepseek_r1_1_5b_q4_0_q8_0_embd.gaje.flat', size_bytes: 1324840960, date: '2026-08-21 00:16', ram_mb: 0.0 },
+        { name: 'qwen2_5_3b_q4_0_q8_0_embd.gaje.flat', size_bytes: 2405756928, date: '2026-08-09 22:57', ram_mb: 0.0 },
+        { name: 'qwen2_0_5b_q4_0_q8_0_embd.gaje.flat', size_bytes: 522679808, date: '2026-08-09 14:17', ram_mb: 0.0 },
+        { name: 'smollm2_4bit_clean.gaje.flat', size_bytes: 496182528, date: '2026-08-19 00:33', ram_mb: 0.0 }
+    ];
 
     // Cargar modelos disponibles
     async function loadModels(autoLoadEnabled = true) {
@@ -41,9 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (modelSelect.value && shouldPreload) {
                     preloadModel(modelSelect.value);
                 }
+            } else {
+                updateModelMeta();
             }
         } catch (err) {
-            console.log('Usando modelos por defecto pre-configurados.');
+            console.log('Usando modelos por defecto certificados.');
+            updateModelMeta();
         }
     }
 
