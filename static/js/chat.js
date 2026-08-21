@@ -245,7 +245,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function parseMarkdown(text) {
         if (!text) return '';
-        let html = escapeHtml(text);
+
+        // Renderizar pensamiento <think>...</think> al estilo Apple HIG (Cupertino Thought Disclosure)
+        let thoughtHtml = '';
+        let cleanText = text;
+
+        const thinkMatch = cleanText.match(/<think>([\s\S]*?)(?:<\/think>|$)/i);
+        if (thinkMatch) {
+            const rawThought = thinkMatch[1].trim();
+            cleanText = cleanText.replace(/<think>[\s\S]*?(?:<\/think>|$)/i, '').trim();
+            
+            if (rawThought) {
+                const isFinished = text.includes('</think>');
+                let formattedThought = escapeHtml(rawThought);
+                formattedThought = formattedThought.replace(/```(\w*)\n([\s\S]*?)\n```/g, '<pre class="code-block"><code class="$1">$2</code></pre>');
+                formattedThought = formattedThought.replace(/`([^`\n]+)`/g, '<code class="inline-code">$1</code>');
+                formattedThought = formattedThought.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+                formattedThought = formattedThought.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+                formattedThought = formattedThought.replace(/\n[-*]\s+([^\n]+)/g, '<br>• $1');
+                formattedThought = formattedThought.replace(/\n/g, '<br>');
+
+                thoughtHtml = `
+                    <details class="apple-thought-box" ${isFinished ? '' : 'open'}>
+                        <summary class="apple-thought-summary">
+                            <div class="apple-thought-header">
+                                <span class="apple-thought-icon">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 2a8 8 0 0 0-8 8c0 3.4 2.1 6.3 5.1 7.4.3.1.5.4.5.7v1.9c0 .6.4 1 1 1h6.8c.6 0 1-.4 1-1V18c0-.3.2-.6.5-.7 3-1.1 5.1-4 5.1-7.4a8 8 0 0 0-8-8z"/>
+                                        <path d="M9 22h6"/>
+                                    </svg>
+                                </span>
+                                <span class="apple-thought-title">Proceso de Razonamiento (${isFinished ? 'completado' : 'pensando...'})</span>
+                                <span class="apple-thought-chevron">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="6 9 12 15 18 9"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </summary>
+                        <div class="apple-thought-content">
+                            ${formattedThought}
+                        </div>
+                    </details>
+                `;
+            }
+        }
+
+        let html = escapeHtml(cleanText);
         
         // Parse code blocks: ```javascript\ncode\n```
         html = html.replace(/```(\w*)\n([\s\S]*?)\n```/g, (match, lang, code) => {
@@ -267,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Parse line breaks
         html = html.replace(/\n/g, '<br>');
         
-        return html;
+        return thoughtHtml + (html ? (thoughtHtml ? '<div class="response-body">' + html + '</div>' : html) : '');
     }
 
     function addMessage(text, type, meta = null) {

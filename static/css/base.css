@@ -144,6 +144,13 @@ h1, h2, h3, h4, h5, h6 {
 
 .mono { font-family: var(--mono); color: var(--text); }
 
+/* Accesibilidad — ocultar visualmente sin quitar del árbol de accesibilidad */
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
+  clip: rect(0 0 0 0); clip-path: inset(50%); overflow: hidden; white-space: nowrap;
+}
+
 /* ── TOPBAR ── */
 .topbar {
   position: sticky;
@@ -210,27 +217,68 @@ h1, h2, h3, h4, h5, h6 {
   max-width: 1400px;
   margin: 5px auto 0;
   z-index: 30;
-  border-radius: 12px;
+  border-radius: 14px;
   background:
-    linear-gradient(180deg, rgba(20, 24, 48, 0.92), rgba(7, 9, 20, 0.94)),
-    repeating-linear-gradient(0deg, transparent 0 2px, rgba(255, 255, 255, 0.015) 2px 3px);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--border);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 -1px 0 rgba(99, 102, 241, 0.2);
+    radial-gradient(110% 160% at 0% 50%, rgba(34, 211, 238, 0.22) 0%, transparent 45%),
+    radial-gradient(100% 150% at 100% 40%, rgba(167, 139, 250, 0.20) 0%, transparent 50%),
+    radial-gradient(60% 120% at 55% 0%, rgba(244, 114, 182, 0.16) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(16, 20, 38, 0.9) 0%, rgba(7, 9, 15, 0.9) 100%);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 8px 32px var(--shadow-color);
+}
+.y2k-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 3px,
+      rgba(255, 255, 255, 0.03) 3px,
+      rgba(255, 255, 255, 0.03) 4px
+    ),
+    linear-gradient(
+      115deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.10) 45%,
+      rgba(255, 255, 255, 0.04) 50%,
+      transparent 65%
+    );
+  z-index: 1;
+}
+.y2k-header::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 46%;
+  border-radius: 14px 14px 0 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  z-index: 2;
 }
 [data-theme="light"] .y2k-header {
   background:
-    linear-gradient(180deg, rgba(232, 238, 248, 0.95), rgba(255, 255, 255, 0.95)),
-    repeating-linear-gradient(0deg, transparent 0 2px, rgba(0, 0, 0, 0.02) 2px 3px);
-  border: 1px solid rgba(99, 102, 241, 0.25);
-  box-shadow:
-    0 8px 24px rgba(99, 102, 241, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    radial-gradient(110% 160% at 0% 50%, rgba(2, 132, 199, 0.12) 0%, transparent 45%),
+    radial-gradient(100% 150% at 100% 40%, rgba(109, 40, 217, 0.10) 0%, transparent 50%),
+    radial-gradient(60% 120% at 55% 0%, rgba(162, 28, 175, 0.08) 0%, transparent 55%),
+    linear-gradient(180deg, #ffffff 0%, #f4f3f0 100%);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 8px 24px var(--shadow-color);
 }
 .y2k-header .wrap {
+  position: relative;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -250,19 +298,16 @@ h1, h2, h3, h4, h5, h6 {
   height: 20px;
   color: var(--text-color);
   transition: all 0.2s ease;
-  filter: drop-shadow(0 0 4px rgba(99, 102, 241, 0.15));
 }
 .y2k-brand:hover .y2k-brand-text {
   color: var(--accent-color);
-  filter: drop-shadow(0 0 8px var(--accent-glow));
 }
 [data-theme="light"] .y2k-brand-text {
-  color: #1a1a1a;
+  color: var(--text);
   filter: none;
 }
 [data-theme="light"] .y2k-brand:hover .y2k-brand-text {
   color: #2c5234;
-  filter: drop-shadow(0 2px 4px rgba(44, 82, 52, 0.15));
 }
 .y2k-brand .brand-underscore {
   animation: y2kBlink 1s steps(1) infinite;
@@ -270,15 +315,16 @@ h1, h2, h3, h4, h5, h6 {
 .y2k-brand-icon {
   width: 26px;
   height: 26px;
-  border-radius: 6px;
+  border-radius: 8px;
   flex-shrink: 0;
   object-fit: contain;
-  filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.6));
-  transition: filter 0.2s, transform 0.2s;
+  transition: transform 0.2s, filter 0.2s;
+}
+[data-theme="light"] .y2k-brand-icon {
+  filter: invert(1) hue-rotate(180deg);
 }
 .y2k-brand:hover .y2k-brand-icon {
-  transform: scale(1.08);
-  filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.8));
+  transform: scale(1.06);
 }
 @keyframes y2kBlink { 50% { opacity: 0; } }
 
@@ -343,23 +389,22 @@ h1, h2, h3, h4, h5, h6 {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 7px;
-  background: linear-gradient(135deg, rgba(34, 211, 238, 0.15), rgba(168, 85, 247, 0.15));
+  border-radius: 8px;
+  background: var(--badge-bg);
   opacity: 0;
   transition: opacity 0.18s;
 }
-.y2k-nav a:hover { color: var(--text); border-color: rgba(34, 211, 238, 0.4); text-shadow: 0 0 8px rgba(34, 211, 238, 0.6); }
+.y2k-nav a:hover { color: var(--text); border-color: var(--card-hover-border); }
 .y2k-nav a:hover::before { opacity: 1; }
 .y2k-nav a.active {
-  color: #fff;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.55), rgba(168, 85, 247, 0.55));
-  border-color: rgba(139, 92, 246, 0.6);
-  box-shadow: 0 0 12px rgba(139, 92, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+  color: var(--accent-color);
+  background: var(--badge-bg);
+  border-color: var(--badge-border);
 }
 [data-theme="light"] .y2k-nav a.active {
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  color: var(--accent);
+  background: var(--badge-bg);
+  border-color: var(--badge-border);
 }
 
 /* Status ticker — cyberpunk marquee (web 1.0 marquee sin <marquee>) */
@@ -406,28 +451,19 @@ h1, h2, h3, h4, h5, h6 {
   flex-shrink: 0;
   width: 34px; height: 34px;
   display: inline-flex; align-items: center; justify-content: center;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: linear-gradient(135deg, rgba(34, 211, 238, 0.12), rgba(168, 85, 247, 0.12));
+  border-radius: 9px;
+  border: 1px solid var(--border-color);
+  background: var(--panel);
   color: var(--text);
   cursor: pointer;
   transition: all 0.18s;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    inset 1px 0 0 rgba(255, 255, 255, 0.15),
-    inset 0 -2px 0 rgba(0, 0, 0, 0.45),
-    inset -1px 0 0 rgba(0, 0, 0, 0.2);
-}
-.y2k-theme-btn:active {
-  box-shadow:
-    inset 0 -1px 0 rgba(255, 255, 255, 0.25),
-    inset 0 2px 6px rgba(0, 0, 0, 0.5);
-  transform: translateY(1px);
 }
 .y2k-theme-btn:hover {
-  border-color: rgba(34, 211, 238, 0.6);
-  box-shadow: 0 0 10px rgba(34, 211, 238, 0.4);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
 }
+.y2k-theme-btn:active { transform: translateY(1px); }
 .y2k-theme-icon {
   width: 16px; height: 16px;
   fill: none;
@@ -464,14 +500,15 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
   letter-spacing: 0.4px;
   padding: 6px 12px;
-  border-radius: 7px;
-  border: 1px solid var(--border);
-  background: linear-gradient(135deg, rgba(34, 211, 238, 0.12), rgba(168, 85, 247, 0.12));
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--panel);
   transition: all 0.18s;
 }
 .y2k-github:hover {
-  border-color: rgba(34, 211, 238, 0.6);
-  box-shadow: 0 0 10px rgba(34, 211, 238, 0.35);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
   transform: translateY(-1px);
 }
 .y2k-github:hover .y2k-icon { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.6)); }
@@ -484,12 +521,12 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   gap: 4px;
   padding: 4px 24px 6px;
-  border-top: 1px solid rgba(34, 211, 238, 0.12);
-  background: rgba(7, 9, 20, 0.55);
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
+  border-top: 1px solid var(--border);
+  background: var(--sidebar-bg);
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
 }
-[data-theme="light"] .y2k-subnav { background: rgba(226, 232, 240, 0.55); }
+[data-theme="light"] .y2k-subnav { background: var(--sidebar-bg); }
 .y2k-subnav a {
   color: var(--muted);
   text-decoration: none;
@@ -501,7 +538,7 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid transparent;
   transition: all 0.15s;
 }
-.y2k-subnav a:hover { color: var(--text); border-color: rgba(34, 211, 238, 0.4); }
+.y2k-subnav a:hover { color: var(--text); border-color: var(--card-hover-border); }
 .y2k-subnav a.active { color: var(--accent-2); }
 
 /* ── HERO ── */
@@ -583,6 +620,123 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
   .github-badge { display: none; }
 }
 
+/* ── Hero Divider ── */
+.hero-divider {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 36px auto;
+  width: 90%;
+  max-width: 680px;
+}
+
+/* ── WEB 1.0 RETRO — bevel 3D, chrome shine, sparkle ── */
+.y2k-header {
+  border: 1px solid var(--border-color);
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,0.05), transparent 45%),
+    var(--header-bg);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.12) inset,
+    0 -1px 0 rgba(0,0,0,0.35) inset,
+    0 8px 32px var(--shadow-color);
+}
+
+/* Botones bevel 3D estilo clásico web 1.0 */
+.y2k-github-icon-btn,
+.y2k-menu-btn,
+.y2k-theme-btn {
+  border: 1px solid var(--border-color);
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,0.18),
+    inset -1px -1px 0 rgba(0,0,0,0.35),
+    0 1px 0 rgba(0,0,0,0.4);
+}
+.y2k-github-icon-btn:active,
+.y2k-menu-btn:active,
+.y2k-theme-btn:active {
+  box-shadow:
+    inset -1px -1px 0 rgba(255,255,255,0.12),
+    inset 1px 1px 0 rgba(0,0,0,0.4);
+}
+
+/* Chrome shine sweep en la marca al hover */
+.y2k-brand {
+  position: relative;
+  overflow: hidden;
+}
+.y2k-brand::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  left: -60%;
+  width: 40%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,0.35), transparent);
+  transform: skewX(-20deg);
+  opacity: 0;
+  transition: none;
+  pointer-events: none;
+}
+.y2k-brand:hover::after {
+  animation: y2kChromeSweep 0.8s ease forwards;
+}
+@keyframes y2kChromeSweep {
+  0%   { left: -60%; opacity: 1; }
+  100% { left: 130%; opacity: 0; }
+}
+
+/* Destello estrella geocities en el icono */
+.y2k-brand-icon {
+  position: relative;
+}
+.y2k-brand-badge {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.y2k-brand .brand-sparkle {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  font-family: var(--mono);
+  color: #fde047;
+  font-size: 13px;
+  line-height: 1;
+  opacity: 0;
+  text-shadow: 0 0 6px rgba(253, 224, 71, 0.9);
+  animation: y2kSparkle 2.4s ease infinite;
+  pointer-events: none;
+}
+.y2k-brand:hover .brand-sparkle { opacity: 1; }
+@keyframes y2kSparkle {
+  0%, 100% { transform: scale(0.6) rotate(0deg); opacity: 0; }
+  50%      { transform: scale(1.15) rotate(25deg); opacity: 1; }
+}
+
+/* Ticker retro — marco de puntos */
+.y2k-status {
+  border-style: dashed;
+  border-color: rgba(34, 211, 238, 0.35);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.3);
+}
+
+/* Light mode: ajuste de bevels */
+[data-theme="light"] .y2k-github-icon-btn,
+[data-theme="light"] .y2k-menu-btn,
+[data-theme="light"] .y2k-theme-btn {
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,0.6),
+    inset -1px -1px 0 rgba(0,0,0,0.15),
+    0 1px 0 rgba(0,0,0,0.12);
+}
+[data-theme="light"] .y2k-github-icon-btn:active,
+[data-theme="light"] .y2k-menu-btn:active,
+[data-theme="light"] .y2k-theme-btn:active {
+  box-shadow:
+    inset -1px -1px 0 rgba(255,255,255,0.4),
+    inset 1px 1px 0 rgba(0,0,0,0.18);
+}
+
 /* ── Y2K Dropdown Menu and Header Actions ── */
 .y2k-header-actions {
   position: relative;
@@ -598,9 +752,9 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
   justify-content: center;
   width: 34px;
   height: 34px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.06);
+  border-radius: 9px;
+  border: 1px solid var(--border-color);
+  background: var(--panel);
   color: var(--text);
   transition: all 0.18s;
   text-decoration: none;
@@ -608,9 +762,10 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
 
 .y2k-github-icon-btn:hover {
   border-color: var(--accent);
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: var(--panel);
+  box-shadow: 0 4px 12px var(--shadow-color);
   transform: translateY(-1px);
+  color: var(--accent);
 }
 
 .y2k-github-icon-btn .y2k-icon {
@@ -627,9 +782,9 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
   justify-content: center;
   width: 34px;
   height: 34px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.06);
+  border-radius: 9px;
+  border: 1px solid var(--border-color);
+  background: var(--panel);
   color: var(--text);
   cursor: pointer;
   transition: all 0.18s;
@@ -637,8 +792,9 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
 
 .y2k-menu-btn:hover {
   border-color: var(--accent);
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: var(--panel);
+  box-shadow: 0 4px 12px var(--shadow-color);
+  color: var(--accent);
 }
 
 .y2k-menu-icon {
@@ -660,11 +816,11 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
   top: calc(100% + 12px);
   right: 0;
   width: 240px;
-  background: rgba(28, 28, 30, 0.85);
+  background: var(--card-bg);
   backdrop-filter: var(--backdrop-blur);
   -webkit-backdrop-filter: var(--backdrop-blur);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
   box-shadow: 0 12px 40px var(--shadow-color);
   padding: 8px;
   z-index: 200;
@@ -700,7 +856,7 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  border-radius: 8px;
+  border-radius: 10px;
   color: var(--text-color);
   text-decoration: none;
   font-family: var(--sans);
@@ -710,14 +866,14 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
 }
 
 .y2k-dropdown-item:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: var(--badge-bg);
+  color: var(--text-color);
 }
 
 .y2k-dropdown-item.active {
-  background: rgba(10, 132, 255, 0.15);
-  border: 1px solid rgba(10, 132, 255, 0.35);
-  color: #fff;
+  background: var(--badge-bg);
+  border: 1px solid var(--badge-border);
+  color: var(--badge-text);
 }
 
 .y2k-dropdown-item .y2k-icon {
@@ -752,7 +908,8 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
   display: flex;
   justify-content: flex-start;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--badge-bg);
+  border-color: var(--border-color);
 }
 
 .y2k-dropdown-footer .y2k-theme-btn .theme-text {
@@ -763,45 +920,229 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
 /* Light mode overrides for dropdown */
 [data-theme="light"] .y2k-github-icon-btn,
 [data-theme="light"] .y2k-menu-btn {
-  background: rgba(255, 255, 255, 0.8);
-  border-color: rgba(44, 82, 52, 0.2);
-  color: #1a1a1a;
+  background: var(--panel);
+  border-color: var(--border-color);
+  color: var(--text);
 }
 
 [data-theme="light"] .y2k-github-icon-btn:hover,
 [data-theme="light"] .y2k-menu-btn:hover {
-  border-color: #2c5234;
-  box-shadow: 0 4px 12px rgba(44, 82, 52, 0.12);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 [data-theme="light"] .y2k-menu-dropdown {
-  background: rgba(246, 245, 243, 0.98);
-  border-color: #cfcdc9;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  background: var(--card-bg);
+  border-color: var(--border-color);
+  box-shadow: 0 8px 24px var(--shadow-color);
 }
 
 [data-theme="light"] .y2k-dropdown-item {
-  color: #1a1a1a;
+  color: var(--text);
   font-family: var(--font-heading);
   font-weight: 600;
 }
 
 [data-theme="light"] .y2k-dropdown-item:hover {
-  background: rgba(44, 82, 52, 0.06);
-  color: #2c5234;
+  background: var(--badge-bg);
+  color: var(--accent);
 }
 
 [data-theme="light"] .y2k-dropdown-item.active {
-  background: rgba(44, 82, 52, 0.08);
-  border-color: rgba(44, 82, 52, 0.35);
-  color: #2c5234;
+  background: var(--badge-bg);
+  border-color: var(--badge-border);
+  color: var(--accent);
 }
 
 [data-theme="light"] .y2k-dropdown-divider {
-  background-color: #e5e3df;
+  background-color: var(--border-color);
 }
 
 [data-theme="light"] .y2k-dropdown-footer .y2k-theme-btn {
-  background: rgba(0, 0, 0, 0.02);
-  border-color: rgba(44, 82, 52, 0.2);
+  background: var(--badge-bg);
+  border-color: var(--border-color);
+}
+
+/* ── Y2K Shared Footer ── */
+#gaje-footer {
+  display: block;
+  width: 100%;
+}
+
+.y2k-footer {
+  padding: 0.6rem 2rem;
+  font-size: 0.72rem;
+  color: var(--footer-text);
+  border-top: 1px solid var(--border-color);
+  background:
+    radial-gradient(90% 160% at 0% 50%, rgba(34, 211, 238, 0.14) 0%, transparent 45%),
+    radial-gradient(80% 150% at 100% 40%, rgba(167, 139, 250, 0.13) 0%, transparent 50%),
+    radial-gradient(50% 120% at 55% 100%, rgba(244, 114, 182, 0.11) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(9, 11, 20, 0.92) 0%, rgba(5, 7, 12, 0.92) 100%);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  font-family: var(--mono);
+  position: relative;
+  box-shadow: 0 -4px 20px var(--shadow-color);
+  z-index: 10;
+}
+.y2k-footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 3px,
+      rgba(255, 255, 255, 0.025) 3px,
+      rgba(255, 255, 255, 0.025) 4px
+    ),
+    linear-gradient(
+      115deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.06) 55%,
+      transparent 70%
+    );
+}
+.y2k-footer-grid {
+  position: relative;
+  z-index: 2;
+  max-width: 1300px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.y2k-footer-col {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.brand-col {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-color);
+}
+
+.footer-brand .y2k-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.footer-tagline {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.links-col {
+  gap: 0.5rem;
+}
+
+.footer-nav-link {
+  color: var(--text-color);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-nav-link:hover {
+  color: var(--accent);
+}
+
+.meta-col {
+  gap: 1rem;
+}
+
+.meta-row-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.footer-badge {
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.agpl-badge {
+  background: rgba(255, 69, 58, 0.08);
+  border: 1px solid rgba(255, 69, 58, 0.3);
+  color: var(--red);
+}
+
+.y2k-footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.y2k-footer-link:hover {
+  color: var(--accent);
+}
+
+.y2k-footer-link .y2k-icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* Light mode overrides for footer */
+[data-theme="light"] .y2k-footer {
+  background:
+    radial-gradient(90% 160% at 0% 50%, rgba(2, 132, 199, 0.08) 0%, transparent 45%),
+    radial-gradient(80% 150% at 100% 40%, rgba(109, 40, 217, 0.07) 0%, transparent 50%),
+    linear-gradient(180deg, #ffffff 0%, #f4f3f0 100%);
+  border-top-color: var(--border-color);
+}
+
+[data-theme="light"] .footer-nav-link:hover {
+  color: var(--accent);
+}
+
+[data-theme="light"] .agpl-badge {
+  background: rgba(185, 28, 28, 0.05);
+  border-color: rgba(185, 28, 28, 0.2);
+  color: var(--red);
+}
+
+[data-theme="light"] .y2k-footer-link {
+  color: var(--accent);
+}
+
+[data-theme="light"] .y2k-footer-link:hover {
+  color: var(--accent);
+}
+
+@media (max-width: 900px) {
+  .y2k-footer-grid {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.8rem;
+  }
+  .brand-col {
+    align-items: center;
+  }
+  .meta-col {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
 }
