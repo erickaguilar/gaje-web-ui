@@ -140,27 +140,31 @@ def unload_model() -> bool:
 
 
 def list_available_models(models_root: str) -> list:
-    """List all certified .flat models from models/production/."""
+    """List all certified .gaje and .flat models from models/production/."""
     models = []
     seen_models = set()
     production_root = os.path.join(models_root, "production")
 
     if os.path.exists(production_root):
         for root, _, files in os.walk(production_root):
-            for f in files:
-                if f.endswith(".flat") and f not in seen_models:
-                    fpath = os.path.join(root, f)
-                    mtime = os.path.getmtime(fpath)
-                    date_str = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M")
-                    size_bytes = os.path.getsize(fpath)
-                    models.append(
-                        {
-                            "name": f,
-                            "date": date_str,
-                            "size_bytes": size_bytes,
-                            "ram_mb": loaded_ram_mb.get(f, 0.0),
-                        }
-                    )
-                    seen_models.add(f)
+            for f in sorted(files):
+                if (f.endswith(".gaje") or f.endswith(".flat")) and f not in seen_models:
+                        fpath = os.path.join(root, f)
+                        try:
+                            mtime = os.path.getmtime(fpath)
+                            date_str = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M")
+                            size_bytes = os.path.getsize(fpath)
+                        except OSError:
+                            date_str = "---"
+                            size_bytes = 0
+                        models.append(
+                            {
+                                "name": f,
+                                "date": date_str,
+                                "size_bytes": size_bytes,
+                                "ram_mb": loaded_ram_mb.get(f, 0.0),
+                            }
+                        )
+                        seen_models.add(f)
 
     return models

@@ -8,13 +8,13 @@ def format_prompt(model_name: str, message: str) -> str:
     """Format an incoming user message into the correct template for the given model architecture."""
     model_name_lower = model_name.lower()
 
-    if "deepseek" in model_name_lower or "r1" in model_name_lower:
+    if "max" in model_name_lower or "deepseek" in model_name_lower or "r1" in model_name_lower:
         # DeepSeek-R1 CoT ChatML format con trigger de razonamiento <think>
         return (
             f"<|im_start|>system\nEres un asistente experto y preciso que responde en español.<|im_end|>\n"
             f"<|im_start|>user\n{message}<|im_end|>\n<|im_start|>assistant\n<think>\n"
         )
-    elif "smollm" in model_name_lower or "qwen" in model_name_lower:
+    elif "pro" in model_name_lower or "turbo" in model_name_lower or "nano" in model_name_lower or "smollm" in model_name_lower or "qwen" in model_name_lower:
         # ChatML template
         return (
             f"<|im_start|>system\nYou are a helpful and precise assistant.<|im_end|>\n"

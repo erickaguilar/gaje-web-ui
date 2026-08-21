@@ -14,10 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
         `[${new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}] Núcleo GAJE iniciado. Listo para compresión semántica.`
     ];
     let modelsData = [
-        { name: 'deepseek_r1_1_5b_q4_0_q8_0_embd.gaje.flat', size_bytes: 1324840960, date: '2026-08-21 00:16', ram_mb: 0.0 },
-        { name: 'qwen2_5_3b_q4_0_q8_0_embd.gaje.flat', size_bytes: 2405756928, date: '2026-08-09 22:57', ram_mb: 0.0 },
-        { name: 'qwen2_0_5b_q4_0_q8_0_embd.gaje.flat', size_bytes: 522679808, date: '2026-08-09 14:17', ram_mb: 0.0 },
-        { name: 'smollm2_4bit_clean.gaje.flat', size_bytes: 496182528, date: '2026-08-19 00:33', ram_mb: 0.0 }
+        { name: 'maximo.gaje', size_bytes: 1324840960, date: '2026-08-21 00:16', ram_mb: 0.0 },
+        { name: 'pro.gaje', size_bytes: 2405756928, date: '2026-08-09 22:57', ram_mb: 0.0 },
+        { name: 'turbo.gaje', size_bytes: 522679808, date: '2026-08-09 14:17', ram_mb: 0.0 },
+        { name: 'nano.gaje', size_bytes: 496182528, date: '2026-08-19 00:33', ram_mb: 0.0 }
     ];
 
     // Cargar modelos disponibles
@@ -32,12 +32,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     const opt = document.createElement('option');
                     opt.value = model.name;
                     let label = model.name;
-                    if (label.endsWith('.flat')) {
+                    if (label === 'maximo.gaje') {
+                        label = '⚡ GAJE MAX (maximo.gaje · Razonamiento R1)';
+                    } else if (label === 'pro.gaje') {
+                        label = '⚡ GAJE PRO (pro.gaje · Multilingüe Qwen 3B)';
+                    } else if (label === 'turbo.gaje') {
+                        label = '⚡ GAJE TURBO (turbo.gaje · Rápido Qwen 0.5B)';
+                    } else if (label === 'nano.gaje') {
+                        label = '⚡ GAJE NANO (nano.gaje · Edge SmolLM 135M)';
+                    } else if (label.endsWith('.flat')) {
                         label = '⚡ ' + label.replace('.gaje.flat', '').replace('.flat', '') + ' (ZERO-COPY FLAT MMAP)';
                     } else {
-                        label = label.replace('.gaje', '');
+                        label = '⚡ ' + label.replace('.gaje', '').toUpperCase() + ' (ZERO-COPY MMAP)';
                     }
-                    opt.innerText = label.replace(/_/g, ' ').toUpperCase();
+                    opt.innerText = label;
                     modelSelect.appendChild(opt);
                 });
                 updateModelMeta();
