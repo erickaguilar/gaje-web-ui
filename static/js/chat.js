@@ -741,19 +741,5 @@ document.addEventListener('DOMContentLoaded', () => {
         copyAllBtn.addEventListener('click', () => copyEntireChat(copyAllBtn));
     }
 
-    const clearHistoryBtn = document.getElementById('clear-history-btn');
-    if (clearHistoryBtn) {
-        clearHistoryBtn.addEventListener('click', () => {
-            clearHistory();
-            chatWindow.innerHTML = `
-                <div class="message system">
-                    <div class="msg-content">
-                        <p><strong>[SYSTEM]:</strong> Historial borrado. Núcleo GAJE listo.</p>
-                    </div>
-                </div>
-            `;
-        });
-    }
-
     renderHistory();
 });
