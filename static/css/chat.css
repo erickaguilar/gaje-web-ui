@@ -483,6 +483,19 @@ main {
     color: var(--accent-color);
     background: rgba(94, 92, 230, 0.08);
 }
+.chat-tool-btn.primary-tool-btn {
+    background: rgba(94, 92, 230, 0.08);
+    border-color: rgba(94, 92, 230, 0.35);
+    color: #a78bfa;
+    font-weight: 600;
+}
+.chat-tool-btn.primary-tool-btn:hover {
+    background: rgba(94, 92, 230, 0.18);
+    border-color: var(--accent-color);
+    color: #fff;
+    box-shadow: 0 0 12px rgba(94, 92, 230, 0.3);
+}
+
 .chat-tool-btn.copied {
     border-color: #10b981;
     color: #10b981;

@@ -320,6 +320,138 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function generateProjectLog(btnElement) {
+        const now = new Date().toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'medium' });
+        
+        // 1. Metadatos del Modelo Activo
+        const selectedModelName = modelSelect.value || 'Desconocido';
+        const modelDateText = modelDate ? modelDate.innerText : '—';
+        const modelSizeText = modelSize ? modelSize.innerText : '—';
+        const modelRamText = modelRam ? modelRam.innerText : '—';
+
+        // 2. Island Model (.gmem)
+        const islandMem = document.getElementById('island-mem-val')?.innerText || '—';
+        const islandLat = document.getElementById('island-lat-val')?.innerText || '—';
+        const islandBudget = document.getElementById('island-budget-val')?.innerText || '—';
+        const islandPills = Array.from(document.querySelectorAll('#island-pills .island-pill'))
+            .map(p => p.innerText.trim())
+            .filter(Boolean)
+            .join(' | ') || '⚡ Episódica | 📚 Documental | 💬 Conversación';
+
+        // 3. Entorno de Ejecución y Hardware
+        const sfVal = document.getElementById('sf-val')?.innerText || '—';
+        const hdVal = document.getElementById('hd-val')?.innerText || '—';
+        const archVal = document.getElementById('arch-val')?.innerText || '—';
+        const simdVal = document.getElementById('simd-val')?.innerText || '—';
+        const coresVal = document.getElementById('cores-val')?.innerText || '—';
+        const latencyVal = document.getElementById('latency-val')?.innerText || '—';
+
+        // 4. Registro Histórico de Alertas del Sistema
+        const alertItems = Array.from(document.querySelectorAll('#system-alerts-container .system-alert-item'))
+            .map(a => `• ${a.innerText.trim()}`)
+            .join('\n') || '• Núcleo GAJE iniciado.';
+
+        // 5. Transcripción Secuencial del Chat con Marcas de Tiempo
+        const messages = chatWindow.querySelectorAll('.message:not(.system)');
+        let chatTranscript = '';
+
+        if (messages.length === 0) {
+            chatTranscript = '(No hay mensajes en esta sesión aún)';
+        } else {
+            messages.forEach((msg) => {
+                const isUser = msg.classList.contains('user');
+                const time = msg.getAttribute('data-time') || '—';
+                const role = isUser ? '👤 USUARIO' : `🧬 GAJE LLM [${selectedModelName}]`;
+
+                let thoughtText = '';
+                const thoughtEl = msg.querySelector('.apple-thought-content');
+                if (thoughtEl) {
+                    thoughtText = `💡 [PROCESO DE RAZONAMIENTO / THINK]:\n${thoughtEl.innerText.trim()}\n\n`;
+                }
+
+                let bodyText = '';
+                const respBody = msg.querySelector('.response-body');
+                if (respBody) {
+                    bodyText = respBody.innerText.trim();
+                } else {
+                    const p = msg.querySelector('p');
+                    bodyText = p ? p.innerText.trim() : msg.innerText.trim();
+                }
+
+                let metaText = '';
+                const metaBadges = Array.from(msg.querySelectorAll('.message-meta .meta-badge:not(.meta-copy-btn)'))
+                    .map(b => b.innerText.trim())
+                    .join(' | ');
+                if (metaBadges) {
+                    metaText = `\n📊 [Métricas del Turno]: ${metaBadges}`;
+                }
+
+                chatTranscript += `--------------------------------------------------------------------------------\n`;
+                chatTranscript += `[${time}] ${role}:\n`;
+                if (thoughtText) chatTranscript += `${thoughtText}`;
+                chatTranscript += `💬 [RESPUESTA]:\n${bodyText}`;
+                if (metaText) chatTranscript += `${metaText}`;
+                chatTranscript += `\n\n`;
+            });
+        }
+
+        // Construir el reporte completo del proyecto
+        const logContent = `================================================================================
+🧬 GAJE HELIX — BITÁCORA Y REGISTRO COMPLETO DEL PROYECTO (SYSTEM AUDIT LOG)
+Fecha y Hora de Generación: ${now}
+================================================================================
+
+📦 1. MODELO GENÓMICO ACTIVO
+--------------------------------------------------------------------------------
+• Archivo del Modelo: ${selectedModelName}
+• ${modelDateText}
+• ${modelSizeText}
+• ${modelRamText}
+
+🏝️ 2. MEMORIA ISLAND MODEL (.gmem)
+--------------------------------------------------------------------------------
+• Persistencia: ${islandMem}
+• Latencia de Retrieval: ${islandLat}
+• Presupuesto de Contexto: ${islandBudget}
+• Módulos de Memoria: ${islandPills}
+
+⚙️ 3. ENTORNO DE EJECUCIÓN Y HARDWARE
+--------------------------------------------------------------------------------
+• Software: ${sfVal}
+• Hardware: ${hdVal}
+• Arquitectura CPU: ${archVal} (Cores: ${coresVal})
+• Instrucciones SIMD: ${simdVal}
+• Rendimiento Inferencia: ${latencyVal}
+
+🔔 4. REGISTRO DE ALERTAS DEL SISTEMA
+--------------------------------------------------------------------------------
+${alertItems}
+
+💬 5. TRANSCRIPCIÓN SECUENCIAL DEL CHAT (CON HORAS EXACTAS)
+================================================================================
+${chatTranscript.trim()}
+================================================================================
+FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
+================================================================================`;
+
+        navigator.clipboard.writeText(logContent).then(() => {
+            const originalHtml = btnElement.innerHTML;
+            btnElement.classList.add('copied');
+            btnElement.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span style="color:#10b981; font-weight:600;">¡Log Copiado!</span>
+            `;
+            setTimeout(() => {
+                btnElement.classList.remove('copied');
+                btnElement.innerHTML = originalHtml;
+            }, 2500);
+        }).catch(err => {
+            console.error('Error al copiar el log del proyecto:', err);
+        });
+    }
+
     function parseMarkdown(text) {
         if (!text) return '';
 
@@ -399,7 +531,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (alertsContainer) {
                 const item = document.createElement('div');
                 item.className = 'system-alert-item';
-                item.innerText = text;
+                const nowTime = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                item.innerText = `[${nowTime}] ${text}`;
                 alertsContainer.appendChild(item);
                 alertsContainer.scrollTop = alertsContainer.scrollHeight;
             }
@@ -408,6 +541,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const msgDiv = document.createElement('div');
         msgDiv.className = `message ${type}`;
+        const msgTime = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        msgDiv.setAttribute('data-time', msgTime);
         if (type === 'bot' && /^❌|^Error/.test(text)) {
             msgDiv.classList.add('error');
         }
@@ -662,6 +797,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function createBotMessage() {
         const msgDiv = document.createElement('div');
         msgDiv.className = 'message bot';
+        const msgTime = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        msgDiv.setAttribute('data-time', msgTime);
         return msgDiv;
     }
 
@@ -735,6 +872,11 @@ document.addEventListener('DOMContentLoaded', () => {
     userInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') sendMessage();
     });
+
+    const exportLogBtn = document.getElementById('export-log-btn');
+    if (exportLogBtn) {
+        exportLogBtn.addEventListener('click', () => generateProjectLog(exportLogBtn));
+    }
 
     const copyAllBtn = document.getElementById('copy-all-btn');
     if (copyAllBtn) {
