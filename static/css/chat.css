@@ -688,6 +688,35 @@ main {
     background: rgba(48, 209, 88, 0.18) !important;
 }
 
+.apple-tool-btn.monitor-tool-btn {
+    position: relative;
+    color: #38bdf8;
+}
+
+.apple-tool-btn.monitor-tool-btn .y2k-icon {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+}
+
+.apple-tool-btn.monitor-tool-btn:hover {
+    color: #fff;
+    background: rgba(56, 189, 248, 0.2);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+}
+
+.live-dot-pulse-mini {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #30d158;
+    box-shadow: 0 0 6px #30d158;
+    animation: livePulse 2s infinite ease-in-out;
+}
+
 /* ============================================================
    APPLE HIG GLASSMORPHIC TOOLTIPS (DATA-TOOLTIP)
    ============================================================ */
