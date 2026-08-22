@@ -1,7 +1,8 @@
 """GAJE-Flow Prompt Templates Module.
 
 Manages architecture-specific prompt formatting for chat models (Qwen2, SmolLM2, LLaMA, Gemma, DeepSeek-R1)
-with multi-turn conversational memory, context window trimming, and ChatML compliance.
+with multi-turn conversational memory, Island Model (.gmem) long-term memory injection,
+and strict context window budget clamping.
 """
 
 from typing import List, Dict, Optional, Any
@@ -12,12 +13,13 @@ def format_prompt(
     message: str,
     history: Optional[List[Dict[str, str]]] = None,
     system_prompt: Optional[str] = None,
-    max_history_turns: int = 6,
+    island_context: Optional[str] = None,
+    max_history_turns: int = 4,
 ) -> str:
-    """Format an incoming user message along with multi-turn conversation history into the model's native template."""
+    """Format an incoming user message, conversation history, and Island Model memories into native templates."""
     model_name_lower = model_name.lower()
 
-    # Limpiar y filtrar historial
+    # Limpiar y filtrar historial multi-turno
     valid_history = []
     if history and isinstance(history, list):
         for h in history:
@@ -25,13 +27,17 @@ def format_prompt(
             content = h.get("content", "").strip()
             if role in ("user", "assistant", "system") and content:
                 valid_history.append({"role": role, "content": content})
-        # Conservar los últimos N turnos (pares usuario-asistente)
+        # Limitar para asegurar que quepa holgadamente en el presupuesto de 512 tokens
         if len(valid_history) > max_history_turns * 2:
             valid_history = valid_history[-(max_history_turns * 2):]
 
+    # Inyección de memoria de largo plazo Island Model (.gmem)
+    mem_suffix = f"\n\n{island_context}" if island_context else ""
+
     # === Arquitectura 1: DeepSeek-R1 (CoT ChatML + <think> trigger) ===
     if "max" in model_name_lower or "deepseek" in model_name_lower or "r1" in model_name_lower:
-        sys_msg = system_prompt or "Eres un asistente experto y preciso que responde en español."
+        base_sys = system_prompt or "Eres un asistente experto y preciso que responde en español."
+        sys_msg = f"{base_sys}{mem_suffix}"
         parts = [f"<|im_start|>system\n{sys_msg}<|im_end|>"]
         for turn in valid_history:
             parts.append(f"<|im_start|>{turn['role']}\n{turn['content']}<|im_end|>")
@@ -40,7 +46,8 @@ def format_prompt(
 
     # === Arquitectura 2: Qwen2 / Qwen2.5 / SmolLM2 (Estándar ChatML) ===
     elif "pro" in model_name_lower or "turbo" in model_name_lower or "nano" in model_name_lower or "smollm" in model_name_lower or "qwen" in model_name_lower or ".flat" in model_name_lower:
-        sys_msg = system_prompt or "You are a helpful, concise and precise assistant."
+        base_sys = system_prompt or "You are a helpful, concise and precise assistant."
+        sys_msg = f"{base_sys}{mem_suffix}"
         parts = [f"<|im_start|>system\n{sys_msg}<|im_end|>"]
         for turn in valid_history:
             parts.append(f"<|im_start|>{turn['role']}\n{turn['content']}<|im_end|>")
@@ -50,6 +57,8 @@ def format_prompt(
     # === Arquitectura 3: Gemma (Instruction template) ===
     elif "gemma" in model_name_lower:
         parts = []
+        if island_context:
+            parts.append(f"<start_of_turn>user\n[Contexto del Sistema: {island_context}]<end_of_turn>\n<start_of_turn>model\nEntendido.<end_of_turn>")
         for turn in valid_history:
             role = "user" if turn["role"] == "user" else "model"
             parts.append(f"<start_of_turn>{role}\n{turn['content']}<end_of_turn>")
@@ -59,6 +68,8 @@ def format_prompt(
     # === Arquitectura 4: Fallback estándar Turnos ===
     else:
         parts = []
+        if island_context:
+            parts.append(f"System Context: {island_context}")
         for turn in valid_history:
             r = "User" if turn["role"] == "user" else "Assistant"
             parts.append(f"{r}: {turn['content']}")

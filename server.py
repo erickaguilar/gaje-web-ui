@@ -20,18 +20,23 @@ sys.path.insert(0, SERVER_DIR)
 
 from gaje.nn.stabilized import GenomicLLM  # noqa: E402
 from gaje.utils.version import get_project_version  # noqa: E402
+from gaje.processing.island_memory import IslandMemoryManager  # noqa: E402
 from model_manager import get_model, list_available_models, unload_model  # noqa: E402
 from prompt_templates import format_prompt, get_stop_tokens  # noqa: E402
 
 # ============ Configuración por variables de entorno (Fase 2.1) ============
 PORT = int(os.environ.get("GAJE_PORT", "8080"))
 MODELS_ROOT = os.environ.get("GAJE_MODELS_ROOT", os.path.join(PROJECT_ROOT, "models"))
+GMEM_ACTIVE_PATH = os.environ.get("GAJE_GMEM_PATH", os.path.join(PROJECT_ROOT, "data", "memory", "island_active.gmem"))
 MAX_TOKENS = int(os.environ.get("GAJE_MAX_TOKENS", "512"))
 TEMPERATURE = float(os.environ.get("GAJE_TEMPERATURE", "0.2"))
 TOP_P = float(os.environ.get("GAJE_TOP_P", "0.9"))
 REP_PENALTY = float(os.environ.get("GAJE_REP_PENALTY", "1.1"))
 LOG_LEVEL = os.environ.get("GAJE_LOG_LEVEL", "INFO")
 AUTO_LOAD_MODEL = os.environ.get("GAJE_AUTO_LOAD_MODEL", "true").lower() in ("true", "1", "yes")
+
+# Inicialización del gestor de memoria Island Model (.gmem)
+island_memory = IslandMemoryManager(GMEM_ACTIVE_PATH)
 
 logging.basicConfig(
     level=getattr(logging, LOG_LEVEL.upper(), logging.INFO),
@@ -198,14 +203,19 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
                 )
                 return
 
-            # 1. Formatear Prompt según Arquitectura con Memoria Multi-Turno
-            formatted_message = format_prompt(model_name, message, history=history, system_prompt=system_prompt)
+            # 1. Recuperar contexto del Island Model (.gmem) en < 1 ms sin saturar los 512 tokens
+            island_ctx = island_memory.format_memory_injection(message, top_k=2)
+
+            # 2. Formatear Prompt según Arquitectura con Memoria Multi-Turno e Island Model
+            formatted_message = format_prompt(
+                model_name, message, history=history, system_prompt=system_prompt, island_context=island_ctx
+            )
             prompt_tokens = llm.tokenizer.encode(formatted_message, add_special_tokens=False)
             if hasattr(prompt_tokens, "ids"):
                 prompt_tokens = prompt_tokens.ids
             prompt_tokens_count = len(prompt_tokens)
 
-            # 2. Inferencia Nativa
+            # 3. Inferencia Nativa
             start_time = time.time()
             eos_ids = get_stop_tokens(model_name, llm.tokenizer)
 
@@ -219,7 +229,7 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
 
             elapsed_ms = (time.time() - start_time) * 1000.0
 
-            # 3. Decodificar Respuesta
+            # 4. Decodificar Respuesta
             full_response = llm.tokenizer.decode(gen_ids)
             cleaned_response = (
                 full_response.split("<|im_end|>")[0]
@@ -228,13 +238,18 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
                 .strip()
             )
 
+            # 5. Registrar en memoria episódica .gmem para turnos futuros
+            if cleaned_response:
+                island_memory.add_memory("conversational", f"Usuario: {message[:100]} | Asistente: {cleaned_response[:100]}")
+                island_memory.save()
+
             generated_tokens_count = len(gen_ids)
             total_tokens = prompt_tokens_count + generated_tokens_count
             tok_per_sec = (
                 (generated_tokens_count / (elapsed_ms / 1000.0)) if elapsed_ms > 0 else 0.0
             )
 
-            # 4. Cálculo de ADN y Compresión Genómica
+            # 6. Cálculo de ADN y Compresión Genómica
             dna_sample = "GGCCCCCGCCCGCCGCCGCGGCGCGGGCCCGTCGGGGCGCGCCCCGGCGGCCGGCGGGGCCCCCCCCCGCCCCGCGCCCGCCGGGGCGGGCGCGGCGGCCAGCGGGCCCGGGGGCCGGGCGGGCGCGC"
 
             dims = getattr(llm, "n_embd", 576)
@@ -294,7 +309,13 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
                 )
                 return
 
-            formatted_message = format_prompt(model_name, message, history=history, system_prompt=system_prompt)
+            # 1. Recuperar contexto del Island Model (.gmem) en < 1 ms
+            island_ctx = island_memory.format_memory_injection(message, top_k=2)
+
+            # 2. Formatear Prompt según Arquitectura con Memoria Multi-Turno e Island Model
+            formatted_message = format_prompt(
+                model_name, message, history=history, system_prompt=system_prompt, island_context=island_ctx
+            )
             prompt_tokens = llm.tokenizer.encode(formatted_message, add_special_tokens=False)
             if hasattr(prompt_tokens, "ids"):
                 prompt_tokens = prompt_tokens.ids
@@ -315,13 +336,21 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
 
             generated_tokens_count = 0
+            streamed_tokens = []
             for token in gen:
                 generated_tokens_count += 1
                 if not isinstance(token, str):
                     token = str(token)
+                streamed_tokens.append(token)
                 token = token.replace("\n", "\u000A")
                 self.wfile.write(f"data: {json.dumps(token)}\n\n".encode("utf-8"))
                 self.wfile.flush()
+
+            # Registrar en memoria episódica .gmem
+            full_stream_text = "".join(streamed_tokens).strip()
+            if full_stream_text:
+                island_memory.add_memory("conversational", f"Usuario: {message[:100]} | Asistente: {full_stream_text[:100]}")
+                island_memory.save()
 
             elapsed_ms = (time.time() - start_time) * 1000.0
             total_tokens = prompt_tokens_count + generated_tokens_count
