@@ -881,6 +881,364 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
 }
 
 /* ============================================================
+   BOTÓN HUD EN SIDEBAR & ESTILOS Y2K + APPLE HIG MODAL
+   ============================================================ */
+.side-hud-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: rgba(94, 92, 230, 0.12);
+    color: var(--accent-2);
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.side-hud-btn:hover {
+    background: var(--accent-2);
+    color: #fff;
+    box-shadow: 0 0 10px rgba(94, 92, 230, 0.5);
+    transform: translateY(-1px);
+}
+
+.side-hud-btn .y2k-icon {
+    width: 12px;
+    height: 12px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+}
+
+/* ── DIALOG MODAL (TOP-LAYER ANIMATED + APPLE HIG GLASS) ── */
+dialog.y2k-apple-modal {
+    margin: auto;
+    padding: 0;
+    border: none;
+    border-radius: 20px;
+    background: transparent;
+    max-width: 860px;
+    width: 92vw;
+    max-height: 88vh;
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+    color: var(--text-color);
+    font-family: var(--sans);
+    opacity: 0;
+    transform: scale(0.94) translateY(12px);
+    transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                overlay 0.22s allow-discrete,
+                display 0.22s allow-discrete;
+}
+
+dialog.y2k-apple-modal[open] {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+
+@starting-style {
+    dialog.y2k-apple-modal[open] {
+        opacity: 0;
+        transform: scale(0.94) translateY(12px);
+    }
+}
+
+dialog.y2k-apple-modal::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    opacity: 0;
+    transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                overlay 0.22s allow-discrete,
+                display 0.22s allow-discrete;
+}
+
+dialog.y2k-apple-modal[open]::backdrop {
+    opacity: 1;
+}
+
+@starting-style {
+    dialog.y2k-apple-modal[open]::backdrop {
+        opacity: 0;
+    }
+}
+
+/* Modal Window Container */
+.modal-window {
+    display: flex;
+    flex-direction: column;
+    background: rgba(22, 24, 34, 0.88);
+    backdrop-filter: blur(36px) saturate(190%);
+    -webkit-backdrop-filter: blur(36px) saturate(190%);
+    border-radius: 20px;
+    overflow: hidden;
+    height: 100%;
+    max-height: 88vh;
+}
+
+[data-theme="light"] .modal-window {
+    background: rgba(245, 247, 252, 0.92);
+}
+
+/* macOS / Apple HIG Window Bar */
+.modal-mac-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.03);
+    user-select: none;
+}
+
+/* Traffic Lights (🔴 🟡 🟢) */
+.mac-traffic-lights {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.traffic-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.traffic-dot:hover {
+    transform: scale(1.12);
+    filter: brightness(1.2);
+}
+
+.dot-close { background: #ff5f56; box-shadow: 0 0 6px rgba(255, 95, 86, 0.5); }
+.dot-min   { background: #ffbd2e; box-shadow: 0 0 6px rgba(255, 189, 46, 0.5); }
+.dot-max   { background: #27c93f; box-shadow: 0 0 6px rgba(39, 201, 63, 0.5); }
+
+.modal-mac-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.y2k-hologram-pill {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, rgba(94, 92, 230, 0.3), rgba(0, 242, 254, 0.2));
+    border: 1px solid rgba(0, 242, 254, 0.4);
+    color: #00F2FE;
+    font-weight: 700;
+}
+
+.status-live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #30d158;
+    background: rgba(48, 209, 88, 0.1);
+    border: 1px solid rgba(48, 209, 88, 0.25);
+    padding: 3px 8px;
+    border-radius: 12px;
+}
+
+.live-dot {
+    width: 6px;
+    height: 6px;
+    background: #30d158;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #30d158;
+}
+
+/* ── Apple HIG Segmented Bar (Tabs) ── */
+.apple-segmented-bar {
+    display: flex;
+    padding: 0.5rem 1.25rem;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid var(--border-color);
+    overflow-x: auto;
+}
+
+.seg-tab {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0.5rem 0.8rem;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+}
+
+.seg-tab:hover {
+    color: var(--text-color);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.seg-tab.active {
+    color: var(--text-color);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.seg-tab .y2k-icon {
+    width: 15px;
+    height: 15px;
+    stroke: currentColor;
+    fill: none;
+}
+
+/* ── Modal Content Panels ── */
+.modal-body-content {
+    padding: 1.25rem;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 280px;
+}
+
+.tab-pane { display: none; }
+.tab-pane.active { display: block; animation: fadeInPane 0.2s ease; }
+
+@keyframes fadeInPane {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.hud-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.hud-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.hud-card-title {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent-2);
+}
+
+.hud-pills-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.island-grid-viz.modal-viz {
+    height: 70px;
+    margin-top: 0.4rem;
+}
+
+.modal-dna-strand {
+    min-height: 55px;
+    font-size: 0.75rem;
+    padding: 0.7rem;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+}
+
+.modal-alerts-log {
+    max-height: 220px;
+    overflow-y: auto;
+    font-size: 0.75rem;
+}
+
+.y2k-sub-badge {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-muted);
+}
+
+/* Modal Footer */
+.modal-mac-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.8rem 1.25rem;
+    border-top: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.modal-footer-hint {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.modal-footer-hint kbd {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.apple-pill-btn {
+    padding: 0.45rem 1.1rem;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-color);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.apple-pill-btn:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 12px rgba(10, 132, 255, 0.35);
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 768px) {

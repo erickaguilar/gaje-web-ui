@@ -55,6 +55,10 @@
                 <section class="side-group" aria-labelledby="group-monitor">
                     <header class="side-group-head">
                         <span class="side-group-title" id="group-monitor">Monitoreo</span>
+                        <button id="sidebar-open-monitor-btn" class="side-hud-btn" title="Expandir en Modal HUD Y2K / Apple HIG" aria-label="Abrir Dashboard de Telemetría">
+                            <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-monitor"/></svg>
+                            <span>HUD</span>
+                        </button>
                     </header>
 
                     <details class="side-panel" open>
@@ -190,6 +194,140 @@
             </section>
         </main>
     </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         MODAL DE TELEMETRÍA Y MONITOREO (Y2K + APPLE HIG)
+         ═══════════════════════════════════════════════════════════════ -->
+    <dialog id="metrics-monitor-modal" class="y2k-apple-modal" closedby="any" aria-labelledby="modal-monitor-title">
+        <div class="modal-window">
+            <!-- macOS / Apple HIG Header Bar -->
+            <header class="modal-mac-header">
+                <div class="mac-traffic-lights" aria-label="Controles de ventana">
+                    <button id="modal-close-dot" class="traffic-dot dot-close" title="Cerrar (Esc)" aria-label="Cerrar modal"></button>
+                    <button id="modal-min-dot" class="traffic-dot dot-min" title="Restablecer tamaño" aria-label="Restablecer tamaño"></button>
+                    <button id="modal-max-dot" class="traffic-dot dot-max" title="Maximizar / Expandir" aria-label="Expandir modal"></button>
+                </div>
+                <div class="modal-mac-title" id="modal-monitor-title">
+                    <span class="y2k-hologram-pill">🧬 GAJE HELIX</span>
+                    <span class="modal-title-text">Dashboard de Telemetría & Visualización</span>
+                </div>
+                <div class="modal-mac-status">
+                    <span class="status-live-badge"><span class="live-dot"></span> EN VIVO</span>
+                </div>
+            </header>
+
+            <!-- Apple HIG Segmented Control Bar -->
+            <nav class="apple-segmented-bar" role="tablist" aria-label="Secciones de telemetría">
+                <button class="seg-tab active" role="tab" aria-selected="true" data-tab="tab-island">
+                    <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-island"/></svg>
+                    <span>Island (.gmem)</span>
+                </button>
+                <button class="seg-tab" role="tab" aria-selected="false" data-tab="tab-dna">
+                    <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg>
+                    <span>Secuencia ADN</span>
+                </button>
+                <button class="seg-tab" role="tab" aria-selected="false" data-tab="tab-hardware">
+                    <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-search"/></svg>
+                    <span>Hardware & SIMD</span>
+                </button>
+                <button class="seg-tab" role="tab" aria-selected="false" data-tab="tab-alerts">
+                    <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg>
+                    <span>Audit Logs</span>
+                </button>
+            </nav>
+
+            <!-- Modal Content Panels -->
+            <div class="modal-body-content">
+                <!-- Tab 1: Island Model -->
+                <section id="tab-island" class="tab-pane active" role="tabpanel">
+                    <div class="modal-card-grid">
+                        <div class="hud-card">
+                            <h4 class="hud-card-title">Módulos de Memoria Persistente (.gmem)</h4>
+                            <div class="hud-pills-row" id="modal-island-pills">
+                                <span class="island-pill">⚡ EPISÓDICA</span>
+                                <span class="island-pill">📚 DOCUMENTAL</span>
+                                <span class="island-pill">💬 CONVERSACIÓN</span>
+                            </div>
+                            <div class="island-grid-viz modal-viz" aria-hidden="true">
+                                <div class="grid-node node-a animate-pulse"></div>
+                                <div class="grid-node node-b"></div>
+                                <div class="grid-node node-c"></div>
+                                <div class="grid-line"></div>
+                            </div>
+                        </div>
+                        <div class="hud-card">
+                            <h4 class="hud-card-title">Métricas de Latencia y Presupuesto</h4>
+                            <div class="hud-stat-box">
+                                <div class="metric-row"><span>Persistencia:</span> <span id="modal-island-mem-val" class="metric-val">.gmem (Zero-Copy)</span></div>
+                                <div class="metric-row"><span>Latencia Retrieval:</span> <span id="modal-island-lat-val" class="metric-val">0.75 ms</span></div>
+                                <div class="metric-row"><span>Presupuesto Contexto:</span> <span id="modal-island-budget-val" class="metric-val">512 tokens</span></div>
+                                <div class="metric-row"><span>Vector Index:</span> <span class="metric-val">AVX2 Cosine Distance</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Tab 2: DNA Sequence & Compression -->
+                <section id="tab-dna" class="tab-pane" role="tabpanel" hidden>
+                    <div class="hud-card">
+                        <div class="hud-card-head">
+                            <h4 class="hud-card-title">Secuencia Genómica de 4-bit (Q4_0 / SIMD AVX2)</h4>
+                            <span class="y2k-sub-badge">Zero-Copy Mmap</span>
+                        </div>
+                        <div id="modal-dna-strand" class="strand-display modal-dna-strand">
+                            --------------------------------
+                        </div>
+                        <div class="hud-metrics-container" id="modal-metrics-content">
+                            <p class="placeholder">Envía un mensaje en el chat para ver las métricas de compresión genómica en tiempo real.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Tab 3: Hardware & Environment -->
+                <section id="tab-hardware" class="tab-pane" role="tabpanel" hidden>
+                    <div class="modal-card-grid">
+                        <div class="hud-card">
+                            <h4 class="hud-card-title">Entorno de Ejecución</h4>
+                            <div class="hud-stat-box">
+                                <div class="metric-row"><span>Software:</span> <span id="modal-sf-val" class="metric-val">Rust 2021 + PyO3</span></div>
+                                <div class="metric-row"><span>Hardware:</span> <span id="modal-hd-val" class="metric-val">AMD Ryzen 7 5800H</span></div>
+                                <div class="metric-row"><span>Arquitectura:</span> <span id="modal-arch-val" class="metric-val">x86_64</span></div>
+                                <div class="metric-row"><span>SIMD Flags:</span> <span id="modal-simd-val" class="metric-val">AVX2 / FMA / SSE4.2</span></div>
+                            </div>
+                        </div>
+                        <div class="hud-card">
+                            <h4 class="hud-card-title">Rendimiento y Aceleración</h4>
+                            <div class="hud-stat-box">
+                                <div class="metric-row"><span>Cores Activos:</span> <span id="modal-cores-val" class="metric-val">16 Cores</span></div>
+                                <div class="metric-row"><span>Latencia Inferencia:</span> <span id="modal-latency-val" class="metric-val">Sub-milisegundo</span></div>
+                                <div class="metric-row"><span>Aceleración:</span> <span class="metric-val" style="color: var(--neon-cyan)">q4_0_dot SIMD AVX2</span></div>
+                                <div class="metric-row"><span>Kernel Ingesta:</span> <span class="metric-val">Zero-Allocation Direct</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Tab 4: Audit Logs & Alerts -->
+                <section id="tab-alerts" class="tab-pane" role="tabpanel" hidden>
+                    <div class="hud-card">
+                        <div class="hud-card-head">
+                            <h4 class="hud-card-title">Registro y Alertas del Sistema (Audit Log)</h4>
+                        </div>
+                        <div id="modal-system-alerts-container" class="system-alerts-container modal-alerts-log">
+                            <div class="system-alert-item">[00:00:00] Núcleo GAJE iniciado. Listo para compresión semántica.</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Modal Footer Actions -->
+            <footer class="modal-mac-footer">
+                <span class="modal-footer-hint"><kbd>Esc</kbd> o clic fuera para cerrar</span>
+                <button id="modal-close-btn" class="apple-pill-btn">Cerrar Dashboard</button>
+            </footer>
+        </div>
+    </dialog>
+
     <footer id="gaje-footer"></footer>
     <script src="static/js/ui.js?v=1.6.2"></script>
     <script src="static/js/chat.js?v=1.6.2"></script>

@@ -84,24 +84,51 @@ document.addEventListener('DOMContentLoaded', () => {
             const status = document.querySelector('.status-text');
             if (status && info.simd) status.innerText = info.simd + ' Optimized';
 
+            // Mirror to Modal
+            const mSf = document.getElementById('modal-sf-val');
+            const mHd = document.getElementById('modal-hd-val');
+            const mArch = document.getElementById('modal-arch-val');
+            const mSimd = document.getElementById('modal-simd-val');
+            const mCores = document.getElementById('modal-cores-val');
+            if (mSf) mSf.innerText = info.software || '---';
+            if (mHd) mHd.innerText = info.hardware || '---';
+            if (mArch && info.architecture) mArch.innerText = info.architecture;
+            if (mSimd && info.simd) mSimd.innerText = info.simd;
+            if (mCores && info.cores) mCores.innerText = info.cores;
+
             // Island Model (.gmem) — valores desde el servidor, no hardcodeados
             if (info.island) {
+                const pillsHtml = (info.island.pills || [])
+                    .map(p => {
+                        let typeClass = '';
+                        const lower = p.toLowerCase();
+                        if (lower.includes('episod') || lower.includes('episodic')) typeClass = 'pill-episodic';
+                        else if (lower.includes('doc')) typeClass = 'pill-documental';
+                        else if (lower.includes('convers')) typeClass = 'pill-conversational';
+                        return `<span class="island-pill ${typeClass}">${p}</span>`;
+                    })
+                    .join('');
+
                 const pillsEl = document.getElementById('island-pills');
-                if (pillsEl) {
-                    pillsEl.innerHTML = (info.island.pills || [])
-                        .map(p => {
-                            let typeClass = '';
-                            const lower = p.toLowerCase();
-                            if (lower.includes('episod') || lower.includes('episodic')) typeClass = 'pill-episodic';
-                            else if (lower.includes('doc')) typeClass = 'pill-documental';
-                            else if (lower.includes('convers')) typeClass = 'pill-conversational';
-                            return `<span class="island-pill ${typeClass}">${p}</span>`;
-                        })
-                        .join('');
+                if (pillsEl) pillsEl.innerHTML = pillsHtml;
+                const mPillsEl = document.getElementById('modal-island-pills');
+                if (mPillsEl) mPillsEl.innerHTML = pillsHtml;
+
+                if (info.island.memory_type) {
+                    document.getElementById('island-mem-val').innerText = info.island.memory_type;
+                    const mMem = document.getElementById('modal-island-mem-val');
+                    if (mMem) mMem.innerText = info.island.memory_type;
                 }
-                if (info.island.memory_type) document.getElementById('island-mem-val').innerText = info.island.memory_type;
-                if (info.island.retrieval_latency_ms != null) document.getElementById('island-lat-val').innerText = `${info.island.retrieval_latency_ms} ms`;
-                if (info.island.context_budget != null) document.getElementById('island-budget-val').innerText = `${info.island.context_budget} tokens`;
+                if (info.island.retrieval_latency_ms != null) {
+                    document.getElementById('island-lat-val').innerText = `${info.island.retrieval_latency_ms} ms`;
+                    const mLat = document.getElementById('modal-island-lat-val');
+                    if (mLat) mLat.innerText = `${info.island.retrieval_latency_ms} ms`;
+                }
+                if (info.island.context_budget != null) {
+                    document.getElementById('island-budget-val').innerText = `${info.island.context_budget} tokens`;
+                    const mBud = document.getElementById('modal-island-budget-val');
+                    if (mBud) mBud.innerText = `${info.island.context_budget} tokens`;
+                }
             }
             return info.auto_load_model !== false;
         } catch (err) {
@@ -597,6 +624,14 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
                 alertsContainer.appendChild(item);
                 alertsContainer.scrollTop = alertsContainer.scrollHeight;
             }
+            const modalAlerts = document.getElementById('modal-system-alerts-container');
+            if (modalAlerts) {
+                const itemM = document.createElement('div');
+                itemM.className = 'system-alert-item';
+                itemM.innerText = `[${nowTime}] ${text}`;
+                modalAlerts.appendChild(itemM);
+                modalAlerts.scrollTop = modalAlerts.scrollHeight;
+            }
             return;
         }
 
@@ -667,24 +702,46 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
             <div class="metric-row"><span>Tiempo Resp:</span> <span class="metric-val">${formatLatency(metrics.latency_ms)}</span></div>
         `;
 
+        const modalMetrics = document.getElementById('modal-metrics-content');
+        if (modalMetrics) {
+            modalMetrics.innerHTML = metricsContent.innerHTML;
+        }
+
         if (metrics.sf_info) {
             document.getElementById('sf-val').innerText = metrics.sf_info;
+            const mSf = document.getElementById('modal-sf-val');
+            if (mSf) mSf.innerText = metrics.sf_info;
         }
         if (metrics.hd_info) {
             document.getElementById('hd-val').innerText = metrics.hd_info;
+            const mHd = document.getElementById('modal-hd-val');
+            if (mHd) mHd.innerText = metrics.hd_info;
         }
         if (metrics.latency_ms) {
-            document.getElementById('latency-val').innerText = `${formatLatency(metrics.latency_ms)} (${metrics.tokens_sec || 0} tok/s)`;
+            const latText = `${formatLatency(metrics.latency_ms)} (${metrics.tokens_sec || 0} tok/s)`;
+            document.getElementById('latency-val').innerText = latText;
+            const mLat = document.getElementById('modal-latency-val');
+            if (mLat) mLat.innerText = latText;
         }
     }
 
     function updateDNA(strand) {
         dnaStrand.innerHTML = '';
+        const modalStrand = document.getElementById('modal-dna-strand');
+        if (modalStrand) modalStrand.innerHTML = '';
+
         strand.split('').forEach(base => {
             const span = document.createElement('span');
             span.className = `dna-char-${base}`;
             span.innerText = base;
             dnaStrand.appendChild(span);
+
+            if (modalStrand) {
+                const spanM = document.createElement('span');
+                spanM.className = `dna-char-${base}`;
+                spanM.innerText = base;
+                modalStrand.appendChild(spanM);
+            }
         });
     }
 
@@ -949,6 +1006,103 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         chatWindow.scrollTop = chatWindow.scrollHeight;
     }
 
+    // ===== Telemetría & Modal HUD (Y2K + Apple HIG) =====
+    function initTelemetryModal() {
+        const modal = document.getElementById('metrics-monitor-modal');
+        if (!modal) return;
+
+        const openHeaderBtn = document.getElementById('y2k-open-monitor-btn');
+        const openSidebarBtn = document.getElementById('sidebar-open-monitor-btn');
+
+        function openModal() {
+            if (typeof modal.showModal === 'function') {
+                modal.showModal();
+            } else {
+                modal.setAttribute('open', '');
+            }
+        }
+
+        function closeModal() {
+            if (typeof modal.close === 'function') {
+                modal.close();
+            } else {
+                modal.removeAttribute('open');
+            }
+        }
+
+        if (openHeaderBtn) openHeaderBtn.addEventListener('click', openModal);
+        if (openSidebarBtn) openSidebarBtn.addEventListener('click', openModal);
+
+        // Fallback para cerrar al hacer clic en el backdrop
+        if (!('closedBy' in HTMLDialogElement.prototype)) {
+            modal.addEventListener('click', (event) => {
+                if (event.target !== modal) return;
+                const rect = modal.getBoundingClientRect();
+                const isDialogContent = (
+                    rect.top <= event.clientY &&
+                    event.clientY <= rect.top + rect.height &&
+                    rect.left <= event.clientX &&
+                    event.clientX <= rect.left + rect.width
+                );
+                if (!isDialogContent) {
+                    closeModal();
+                }
+            });
+        }
+
+        // Botones de cierre (Traffic lights y footer)
+        const closeDot = document.getElementById('modal-close-dot');
+        const closeBtn = document.getElementById('modal-close-btn');
+        if (closeDot) closeDot.addEventListener('click', closeModal);
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+        // Controles de ventana macOS (Min / Max)
+        const minDot = document.getElementById('modal-min-dot');
+        const maxDot = document.getElementById('modal-max-dot');
+        if (minDot) {
+            minDot.addEventListener('click', () => {
+                modal.style.maxWidth = '860px';
+                modal.style.width = '92vw';
+            });
+        }
+        if (maxDot) {
+            maxDot.addEventListener('click', () => {
+                if (modal.style.maxWidth === '98vw') {
+                    modal.style.maxWidth = '860px';
+                    modal.style.width = '92vw';
+                } else {
+                    modal.style.maxWidth = '98vw';
+                    modal.style.width = '98vw';
+                }
+            });
+        }
+
+        // Apple HIG Segmented Bar (Tabs)
+        const tabs = modal.querySelectorAll('.seg-tab');
+        const panes = modal.querySelectorAll('.tab-pane');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => {
+                    t.classList.remove('active');
+                    t.setAttribute('aria-selected', 'false');
+                });
+                panes.forEach(p => {
+                    p.classList.remove('active');
+                    p.setAttribute('hidden', '');
+                });
+
+                tab.classList.add('active');
+                tab.setAttribute('aria-selected', 'true');
+                const targetId = tab.getAttribute('data-tab');
+                const targetPane = document.getElementById(targetId);
+                if (targetPane) {
+                    targetPane.classList.add('active');
+                    targetPane.removeAttribute('hidden');
+                }
+            });
+        });
+    }
+
     sendBtn.addEventListener('click', sendMessage);
     userInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') sendMessage();
@@ -964,5 +1118,6 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         copyAllBtn.addEventListener('click', () => copyEntireChat(copyAllBtn));
     }
 
+    initTelemetryModal();
     renderHistory();
 });

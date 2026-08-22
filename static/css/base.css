@@ -644,6 +644,7 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
 
 /* Botones bevel 3D estilo clásico web 1.0 */
 .y2k-github-icon-btn,
+.y2k-monitor-icon-btn,
 .y2k-menu-btn,
 .y2k-theme-btn {
   border: 1px solid var(--border-color);
@@ -653,6 +654,7 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
     0 1px 0 rgba(0,0,0,0.4);
 }
 .y2k-github-icon-btn:active,
+.y2k-monitor-icon-btn:active,
 .y2k-menu-btn:active,
 .y2k-theme-btn:active {
   box-shadow:
@@ -773,6 +775,55 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
   height: 18px;
   fill: currentColor;
   stroke: none;
+}
+
+/* Monitor HUD Icon Button */
+.y2k-monitor-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  border: 1px solid var(--border-color);
+  background: var(--panel);
+  color: var(--text);
+  position: relative;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.y2k-monitor-icon-btn:hover {
+  border-color: var(--accent-2);
+  background: var(--panel);
+  box-shadow: 0 0 14px rgba(94, 92, 230, 0.35);
+  transform: translateY(-1px);
+  color: var(--accent-2);
+}
+
+.y2k-monitor-icon-btn .y2k-icon {
+  width: 17px;
+  height: 17px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+.live-dot-pulse {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 6px;
+  height: 6px;
+  background: #30d158;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #30d158;
+  animation: pulse-live 1.8s infinite ease-in-out;
+}
+
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.8); }
 }
 
 /* Menu Toggle Button */

@@ -124,4 +124,16 @@
     <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/>
   </symbol>
 
+  <!-- Monitor / Telemetría (Y2K HUD + Apple HIG Dashboard) -->
+  <symbol id="i-monitor" viewBox="0 0 24 24">
+    <rect x="2" y="3" width="20" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
+    <path d="M6 10h2.5l1.5-3 2.5 7 2-4h3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </symbol>
+
+  <!-- Expandir / Maximizar -->
+  <symbol id="i-expand" viewBox="0 0 24 24">
+    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+
 </svg>

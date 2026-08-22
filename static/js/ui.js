@@ -123,6 +123,20 @@
         });
         initHeaderMenu(host);
         initTheme();
+
+        var monitorBtn = host.querySelector('#y2k-open-monitor-btn');
+        if (monitorBtn) {
+          monitorBtn.addEventListener('click', function () {
+            var modal = document.getElementById('metrics-monitor-modal');
+            if (modal && typeof modal.showModal === 'function') {
+              modal.showModal();
+            } else if (modal) {
+              modal.setAttribute('open', '');
+            } else {
+              window.location.href = 'index.html';
+            }
+          });
+        }
       })
       .catch(function (e) { console.warn('No se pudo cargar header parcial:', e); });
   }
