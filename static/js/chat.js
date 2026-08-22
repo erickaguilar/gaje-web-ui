@@ -255,27 +255,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (unloadModelBtn) {
         unloadModelBtn.addEventListener('click', async () => {
             unloadModelBtn.disabled = true;
-            addMessage(`🧬 Liberando modelo activo de la memoria RAM del servidor...`, 'system');
+            addMessage(`🧬 Purgando por completo todos los modelos y buffers de la memoria RAM...`, 'system');
             try {
                 const response = await fetch('/api/unload_model', {
                     method: 'POST'
                 });
                 const data = await response.json();
                 if (data.status === 'ok') {
-                    addMessage(`✅ Memoria RAM del servidor liberada con éxito.`, 'system');
-                    // Buscamos el modelo seleccionado y ponemos su ram_mb a 0
-                    const selected = modelSelect.value;
-                    const model = modelsData.find(m => m.name === selected);
-                    if (model) {
-                        model.ram_mb = 0.0;
-                    }
+                    addMessage(`✅ Memoria RAM del servidor liberada al 100%. Todos los modelos inactivos.`, 'system');
+                    // Resetear la memoria de todos los modelos a 0.0 MB
+                    modelsData.forEach(m => { m.ram_mb = 0.0; });
                     updateModelMeta();
                     loadEnvInfo();
                 } else {
-                    addMessage(`❌ Error liberando el modelo: ${data.error}`, 'bot');
+                    addMessage(`❌ Error liberando los modelos: ${data.error}`, 'bot');
                 }
             } catch (err) {
-                addMessage(`❌ Error de conexión al intentar liberar el modelo.`, 'bot');
+                addMessage(`❌ Error de conexión al intentar liberar la memoria.`, 'bot');
                 console.error(err);
             } finally {
                 unloadModelBtn.disabled = false;

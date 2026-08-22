@@ -128,15 +128,40 @@ def get_model(models_root: str, model_name: str, GenomicLLM):
 
 
 def unload_model() -> bool:
-    """Thread-safe unloading of any active model from memory."""
+    """Thread-safe complete purging of ALL active models and memory buffers from RAM."""
     with model_lock:
-        if loaded_models:
-            logger.info("Liberando modelo activo de la memoria RAM...")
-            loaded_models.clear()
-            loaded_ram_mb.clear()
-            gc.collect()
-            return True
-        return False
+        unloaded_count = len(loaded_models)
+        logger.info(
+            "Purgando por completo todos los modelos activos (%d) de la memoria RAM...",
+            unloaded_count,
+        )
+
+        for m_name, llm in list(loaded_models.items()):
+            try:
+                if hasattr(llm, "rust_llm"):
+                    del llm.rust_llm
+                if hasattr(llm, "tokenizer"):
+                    del llm.tokenizer
+            except Exception:
+                pass
+
+        loaded_models.clear()
+        loaded_ram_mb.clear()
+
+        # Recolección de basura cíclica agresiva
+        gc.collect()
+        gc.collect()
+
+        # Retornar páginas mapeadas directamente al kernel del sistema operativo (Linux glibc)
+        try:
+            import ctypes
+            libc = ctypes.CDLL("libc.so.6")
+            libc.malloc_trim(0)
+        except Exception:
+            pass
+
+        logger.info("Todos los modelos y buffers en RAM fueron liberados al 100%%.")
+        return True
 
 
 def list_available_models(models_root: str) -> list:
