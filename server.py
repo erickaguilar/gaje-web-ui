@@ -186,9 +186,11 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             data = self._read_json_body()
             message = data.get("message", "")
             model_name = data.get("model", "")
+            history = data.get("history", [])
+            system_prompt = data.get("system_prompt", None)
             _runtime = get_runtime_info()
 
-            logger.info("Procesando mensaje con modelo: %s", model_name)
+            logger.info("Procesando mensaje con modelo: %s (Historial: %d turnos)", model_name, len(history))
             llm = get_model(MODELS_ROOT, model_name, GenomicLLM)
             if not llm:
                 self._send_json(
@@ -196,8 +198,8 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
                 )
                 return
 
-            # 1. Formatear Prompt según Arquitectura
-            formatted_message = format_prompt(model_name, message)
+            # 1. Formatear Prompt según Arquitectura con Memoria Multi-Turno
+            formatted_message = format_prompt(model_name, message, history=history, system_prompt=system_prompt)
             prompt_tokens = llm.tokenizer.encode(formatted_message, add_special_tokens=False)
             if hasattr(prompt_tokens, "ids"):
                 prompt_tokens = prompt_tokens.ids
@@ -280,9 +282,11 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             data = self._read_json_body()
             message = data.get("message", "")
             model_name = data.get("model", "")
+            history = data.get("history", [])
+            system_prompt = data.get("system_prompt", None)
             _runtime = get_runtime_info()
 
-            logger.info("Streaming con modelo: %s", model_name)
+            logger.info("Streaming con modelo: %s (Historial: %d turnos)", model_name, len(history))
             llm = get_model(MODELS_ROOT, model_name, GenomicLLM)
             if not llm:
                 self._send_json(
@@ -290,7 +294,7 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
                 )
                 return
 
-            formatted_message = format_prompt(model_name, message)
+            formatted_message = format_prompt(model_name, message, history=history, system_prompt=system_prompt)
             prompt_tokens = llm.tokenizer.encode(formatted_message, add_special_tokens=False)
             if hasattr(prompt_tokens, "ids"):
                 prompt_tokens = prompt_tokens.ids

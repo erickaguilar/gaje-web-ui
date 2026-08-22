@@ -825,10 +825,11 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
     // Fallback no-streaming con métricas (si el stream falla)
     async function fallbackChat(text, modelName) {
         try {
+            const recentHistory = loadHistory().slice(-8).map(e => ({ role: e.role, content: e.content }));
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text, model: modelName })
+                body: JSON.stringify({ message: text, model: modelName, history: recentHistory })
             });
             const data = await response.json();
             if (data.error) {
@@ -898,10 +899,12 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         };
         stopBtn.onclick = onStop;
 
+        const recentHistory = loadHistory().slice(-8).map(e => ({ role: e.role, content: e.content }));
+
         return fetch('/api/chat/stream', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: message, model: modelName }),
+            body: JSON.stringify({ message: message, model: modelName, history: recentHistory }),
             signal: abortController.signal
         }).then(async (response) => {
             if (!response.ok) {
