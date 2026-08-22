@@ -140,15 +140,19 @@ def unload_model() -> bool:
 
 
 def list_available_models(models_root: str) -> list:
-    """List all certified .gaje and .flat models from models/production/."""
+    """List all certified models from models/production/ (.flat) and models/born/ (.gaje)."""
     models = []
     seen_models = set()
-    production_root = os.path.join(models_root, "production")
+    search_dirs = [
+        os.path.join(models_root, "production"),
+        os.path.join(models_root, "born"),
+    ]
 
-    if os.path.exists(production_root):
-        for root, _, files in os.walk(production_root):
-            for f in sorted(files):
-                if (f.endswith(".gaje") or f.endswith(".flat")) and f not in seen_models:
+    for sdir in search_dirs:
+        if os.path.exists(sdir):
+            for root, _, files in os.walk(sdir):
+                for f in sorted(files):
+                    if (f.endswith(".gaje") or f.endswith(".flat")) and f not in seen_models:
                         fpath = os.path.join(root, f)
                         try:
                             mtime = os.path.getmtime(fpath)

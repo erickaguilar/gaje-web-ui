@@ -14,10 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
         `[${new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}] Núcleo GAJE iniciado. Listo para compresión semántica.`
     ];
     let modelsData = [
-        { name: 'maximo.gaje', size_bytes: 2639659008, date: '2026-08-21 23:08', ram_mb: 0.0 },
-        { name: 'pro.gaje', size_bytes: 2405756928, date: '2026-08-09 22:57', ram_mb: 0.0 },
-        { name: 'turbo.gaje', size_bytes: 522679808, date: '2026-08-09 14:17', ram_mb: 0.0 },
-        { name: 'nano.gaje', size_bytes: 496182528, date: '2026-08-19 00:33', ram_mb: 0.0 }
+        { name: 'qwen2_5_3b.flat', size_bytes: 2405756928, date: '2026-08-09 22:57', ram_mb: 0.0 },
+        { name: 'deepseek_r1_1_5b.flat', size_bytes: 1324845056, date: '2026-08-21 23:28', ram_mb: 0.0 },
+        { name: 'qwen2_0_5b.flat', size_bytes: 522679808, date: '2026-08-09 14:17', ram_mb: 0.0 },
+        { name: 'smollm2_135m.flat', size_bytes: 496182528, date: '2026-08-19 00:33', ram_mb: 0.0 }
     ];
 
     // Cargar modelos disponibles
@@ -32,18 +32,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     const opt = document.createElement('option');
                     opt.value = model.name;
                     let label = model.name;
-                    if (label === 'maximo.gaje') {
-                        label = '⚡ GAJE MAX (maximo.gaje · Razonamiento R1)';
-                    } else if (label === 'pro.gaje') {
-                        label = '⚡ GAJE PRO (pro.gaje · Multilingüe Qwen 3B)';
-                    } else if (label === 'turbo.gaje') {
-                        label = '⚡ GAJE TURBO (turbo.gaje · Rápido Qwen 0.5B)';
-                    } else if (label === 'nano.gaje') {
-                        label = '⚡ GAJE NANO (nano.gaje · Edge SmolLM 135M)';
+                    if (label === 'qwen2_5_3b.flat') {
+                        label = '⚡ QWEN 2.5 3B (qwen2_5_3b.flat · Transmutado Mmap)';
+                    } else if (label === 'deepseek_r1_1_5b.flat') {
+                        label = '⚡ DEEPSEEK-R1 1.5B (deepseek_r1_1_5b.flat · CoT Razonamiento)';
+                    } else if (label === 'qwen2_0_5b.flat') {
+                        label = '⚡ QWEN 2 0.5B (qwen2_0_5b.flat · Micro-Rápido)';
+                    } else if (label === 'smollm2_135m.flat') {
+                        label = '⚡ SMOLLM2 135M (smollm2_135m.flat · Nano-Edge)';
+                    } else if (label.endsWith('.gaje')) {
+                        label = '🧬 ' + label.replace('.gaje', '').toUpperCase() + ' (Nacido por GAJE)';
                     } else if (label.endsWith('.flat')) {
-                        label = '⚡ ' + label.replace('.gaje.flat', '').replace('.flat', '') + ' (ZERO-COPY FLAT MMAP)';
+                        label = '⚡ ' + label.replace('.flat', '').toUpperCase() + ' (Transmutado Mmap)';
                     } else {
-                        label = '⚡ ' + label.replace('.gaje', '').toUpperCase() + ' (ZERO-COPY MMAP)';
+                        label = '⚡ ' + label;
                     }
                     opt.innerText = label;
                     modelSelect.appendChild(opt);

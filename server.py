@@ -52,14 +52,16 @@ ISLAND_CONFIG = {
 def _model_quality(name: str) -> float:
     """Estima la prioridad y calidad del modelo para ordenar el selector por defecto."""
     n = name.lower()
-    if "max" in n or "deepseek" in n or "r1" in n:
-        return 100.0  # Modelo principal prioritario de razonamiento (GAJE MAX)
-    if "pro" in n or "3b" in n:
-        return 3.0    # Modelo general multilingüe (GAJE PRO)
-    if "turbo" in n or "0_5b" in n:
-        return 0.5    # Micro-modelo rápido (GAJE TURBO)
-    if "nano" in n or "smollm" in n or "135" in n:
-        return 0.135  # Nano-agente ultraligero (GAJE NANO)
+    if "3b" in n or "pro" in n or "qwen2_5_3b" in n:
+        return 100.0  # Modelo insignia general y multilingüe (Qwen 2.5 3B)
+    if "deepseek" in n or "r1" in n or "max" in n:
+        return 80.0   # Modelo de razonamiento CoT (DeepSeek-R1)
+    if "gaje" in n and n.endswith(".gaje"):
+        return 70.0   # Modelo nacido por GAJE
+    if "0_5b" in n or "turbo" in n:
+        return 50.0   # Micro-modelo rápido (Qwen 2 0.5B)
+    if "smollm" in n or "135" in n or "nano" in n:
+        return 30.0   # Nano-agente edge (SmolLM2 135M)
     return 0.0
 
 
