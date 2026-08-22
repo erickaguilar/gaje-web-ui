@@ -288,6 +288,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }[c]));
     }
 
+    function formatExactTime(date = new Date()) {
+        const d = date instanceof Date ? date : new Date(date);
+        if (isNaN(d.getTime())) {
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            const ss = String(now.getSeconds()).padStart(2, '0');
+            const mmm = String(now.getMilliseconds()).padStart(3, '0');
+            return `${hh}:${mm}:${ss}::${mmm}`;
+        }
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mm = String(d.getMinutes()).padStart(2, '0');
+        const ss = String(d.getSeconds()).padStart(2, '0');
+        const mmm = String(d.getMilliseconds()).padStart(3, '0');
+        return `${hh}:${mm}:${ss}::${mmm}`;
+    }
+
     function formatLatency(ms) {
         if (!ms && ms !== 0) return '00:00:00::000';
         const totalMs = Math.round(ms);
@@ -650,7 +667,7 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
 
         const msgDiv = document.createElement('div');
         msgDiv.className = `message ${type}`;
-        const msgTime = explicitTime || new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const msgTime = explicitTime || formatExactTime();
         msgDiv.setAttribute('data-time', msgTime);
         if (type === 'bot') {
             const mName = modelName || modelSelect.value || 'gaje-model';
@@ -664,7 +681,7 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         if (type === 'bot') {
             const mName = msgDiv.getAttribute('data-model') || '';
             const latencyStr = meta && meta.latency_ms ? formatLatency(meta.latency_ms) : '';
-            html += renderMinimalMetaHtml(meta, mName, latencyStr, text);
+            html += renderMinimalMetaHtml(meta, mName, latencyStr, text, msgTime);
         }
 
         msgDiv.innerHTML = html;
@@ -676,12 +693,13 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         chatWindow.scrollTop = chatWindow.scrollHeight;
     }
 
-    function renderMinimalMetaHtml(meta, mName, latencyStr, fullText) {
+    function renderMinimalMetaHtml(meta, mName, latencyStr, fullText, timeStr = null) {
         const rawName = mName || (modelSelect ? modelSelect.value : '') || 'GAJE';
         const shortModel = rawName.replace('.gaje.flat', '').replace('.flat', '').replace('.gaje', '');
         const bit = (meta && meta.bit_depth) || 4;
         const ratio = (meta && meta.ratio) ? meta.ratio.toFixed(1) : '8.0';
         const saved = (meta && meta.saved) ? meta.saved.toFixed(1) : '87.5';
+        const displayTime = timeStr || formatExactTime();
         
         let statsText = '';
         let statsTitle = '';
@@ -710,13 +728,16 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
                 </span>
                 ${statsText ? `<span class="meta-tag meta-stats" title="${escapeHtml(statsTitle)}">${escapeHtml(statsText)}</span>` : ''}
                 ${islandHtml}
-                ${latencyStr ? `
-                <span class="meta-tag meta-latency" title="Tiempo de respuesta total: ${escapeHtml(latencyStr)}">
+                <span class="meta-tag meta-time" title="Hora de emisión: ${escapeHtml(displayTime)}${latencyStr ? ' | Latencia: ' + escapeHtml(latencyStr) : ''}">
                     <svg class="meta-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"></circle>
                         <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
-                    <span>${escapeHtml(latencyStr)}</span>
+                    <span>${escapeHtml(displayTime)}</span>
+                </span>
+                ${latencyStr ? `
+                <span class="meta-tag meta-latency" title="Tiempo de respuesta total: ${escapeHtml(latencyStr)}">
+                    ⏱️ <span>${escapeHtml(latencyStr)}</span>
                 </span>` : ''}
                 <button class="meta-btn-copy" title="Copiar texto de esta respuesta" aria-label="Copiar texto de esta respuesta">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -994,7 +1015,7 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
     function createBotMessage(modelName = null) {
         const msgDiv = document.createElement('div');
         msgDiv.className = 'message bot';
-        const msgTime = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const msgTime = formatExactTime();
         msgDiv.setAttribute('data-time', msgTime);
         const mName = modelName || modelSelect.value || 'gaje-model';
         msgDiv.setAttribute('data-model', mName);
@@ -1005,9 +1026,10 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         const mName = modelName || msgEl.getAttribute('data-model') || '';
         const latencyText = formatLatency(metrics && metrics.latency_ms ? metrics.latency_ms : elapsed);
         const finalLatency = prefix ? `${latencyText} (${prefix})` : latencyText;
+        const msgTime = msgEl.getAttribute('data-time') || formatExactTime();
 
         const tempContainer = document.createElement('div');
-        tempContainer.innerHTML = renderMinimalMetaHtml(metrics, mName, finalLatency, fullText);
+        tempContainer.innerHTML = renderMinimalMetaHtml(metrics, mName, finalLatency, fullText, msgTime);
         const meta = tempContainer.firstElementChild;
 
         const copyBtn = meta.querySelector('.meta-btn-copy, .meta-copy-btn');
@@ -1023,7 +1045,7 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
     // ===== Historial y Persistencia (GajeHelixDB via window.GajeDB) =====
     function pushHistory(entry) {
         if (!entry.time) {
-            entry.time = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            entry.time = formatExactTime();
         }
         if (entry.role === 'assistant' && !entry.model) {
             entry.model = modelSelect ? modelSelect.value : 'GAJE';
