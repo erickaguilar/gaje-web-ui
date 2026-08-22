@@ -24,34 +24,7 @@
             <!-- ──────────────────────────── SIDEBAR ──────────────────────────── -->
             <aside class="sidebar" aria-label="Panel de Control y Métricas del Modelo">
 
-                <!-- Grupo 1 · Modelo activo -->
-                <section class="side-group side-model" aria-labelledby="group-model">
-                    <header class="side-group-head">
-                        <span class="side-group-title" id="group-model">Modelo Activo</span>
-                        <span class="side-group-badge" id="model-ram">RAM —</span>
-                    </header>
-                    <label for="model-select" class="visually-hidden">Selecciona un modelo genómico</label>
-                    <select id="model-select" class="model-dropdown">
-                        <option value="qwen2_5_3b.flat" selected>⚡ QWEN 2.5 3B (qwen2_5_3b.flat · Transmutado Mmap)</option>
-                        <option value="deepseek_r1_1_5b.flat">⚡ DEEPSEEK-R1 1.5B (deepseek_r1_1_5b.flat · CoT Razonamiento)</option>
-                        <option value="qwen2_0_5b.flat">⚡ QWEN 2 0.5B (qwen2_0_5b.flat · Micro-Rápido)</option>
-                        <option value="smollm2_135m.flat">⚡ SMOLLM2 135M (smollm2_135m.flat · Nano-Edge)</option>
-                    </select>
-                    <div id="model-meta-block" class="model-meta-block">
-                        <div id="model-date" class="model-meta">Nacido el: —</div>
-                        <div id="model-size" class="model-meta">Peso HD: —</div>
-                    </div>
-                    <div id="model-load-bar" class="model-load" role="progressbar" aria-label="Cargando modelo" aria-valuemin="0" aria-valuemax="100" aria-valuetext="inactivo" hidden>
-                        <span class="model-load-label">Cargando organismo…</span>
-                        <span class="model-load-track"><span class="model-load-fill"></span></span>
-                    </div>
-                    <button id="unload-model-btn" class="unload-model-btn" title="Liberar modelo de la RAM y detenerlo" aria-label="Liberar modelo de la memoria RAM">
-                        <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
-                        <span>Liberar Modelo</span>
-                    </button>
-                </section>
-
-                <!-- Grupo 2 · Monitoreo (colapsable) -->
+                <!-- Grupo 1 · Monitoreo (colapsable) -->
                 <section class="side-group" aria-labelledby="group-monitor">
                     <header class="side-group-head">
                         <span class="side-group-title" id="group-monitor">Monitoreo</span>
@@ -108,7 +81,7 @@
                     </details>
                 </section>
 
-                <!-- Grupo 3 · Visualización -->
+                <!-- Grupo 2 · Visualización -->
                 <section class="side-group" aria-labelledby="group-viz">
                     <header class="side-group-head">
                         <span class="side-group-title" id="group-viz">Visualización</span>
@@ -139,11 +112,39 @@
             <!-- ──────────────────────────── CHAT ──────────────────────────── -->
             <section id="chat-view" class="chat-container" aria-label="Consola de Chat Genómico" aria-busy="false">
                 <div class="chat-toolbar">
-                    <div class="chat-toolbar-title">
-                        <span class="chat-toolbar-label" id="chat-label">Conversación</span>
-                        <span class="status-text side-group-badge">Núcleo GAJE</span>
+                    <!-- Modelo Activo Integrado en Chat Header -->
+                    <div class="chat-model-bar" role="region" aria-label="Control de Modelo Activo">
+                        <div class="model-select-wrapper">
+                            <label for="model-select" class="visually-hidden">Seleccionar Modelo</label>
+                            <select id="model-select" class="model-dropdown header-model-dropdown">
+                                <option value="qwen2_5_3b.flat" selected>⚡ QWEN 2.5 3B (qwen2_5_3b.flat · Transmutado Mmap)</option>
+                                <option value="deepseek_r1_1_5b.flat">⚡ DEEPSEEK-R1 1.5B (deepseek_r1_1_5b.flat · CoT Razonamiento)</option>
+                                <option value="feto_genomico_v1.gaje">🧬 FETO_GENOMICO_V1 (feto_genomico_v1.gaje · Nacido por GAJE)</option>
+                                <option value="qwen2_0_5b.flat">⚡ QWEN 2 0.5B (qwen2_0_5b.flat · Micro-Rápido)</option>
+                                <option value="smollm2_135m.flat">⚡ SMOLLM2 135M (smollm2_135m.flat · Nano-Edge)</option>
+                            </select>
+                        </div>
+
+                        <div class="model-status-pills">
+                            <span class="chat-pill-ram" id="model-ram" title="Uso de memoria RAM residente">RAM —</span>
+                            <div id="model-meta-block" class="chat-model-meta">
+                                <span id="model-size" class="chat-pill-meta">Peso HD: —</span>
+                                <span id="model-date" class="chat-pill-meta">Nacido: —</span>
+                            </div>
+                        </div>
+
+                        <button id="unload-model-btn" class="chat-unload-btn" title="Liberar modelo de la RAM y detenerlo" aria-label="Liberar modelo de la memoria RAM">
+                            <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
+                            <span>Liberar</span>
+                        </button>
+
+                        <div id="model-load-bar" class="model-load chat-model-load" role="progressbar" aria-label="Cargando modelo" aria-valuemin="0" aria-valuemax="100" aria-valuetext="inactivo" hidden>
+                            <span class="model-load-track"><span class="model-load-fill"></span></span>
+                        </div>
                     </div>
+
                     <div class="chat-toolbar-actions" role="toolbar" aria-label="Herramientas de conversación">
+                        <span class="status-text side-group-badge">Núcleo GAJE</span>
                         <button id="export-log-btn" class="chat-icon-btn primary-tool-btn" title="Exportar bitácora completa del proyecto (modelo, entorno, alertas y chat)" aria-label="Exportar bitácora y log del proyecto">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
