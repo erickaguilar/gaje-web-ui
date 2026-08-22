@@ -24,36 +24,36 @@
             <!-- ──────────────────────────── CHAT (PANTALLA COMPLETA) ──────────────────────────── -->
             <section id="chat-view" class="chat-container" aria-label="Consola de Chat Genómico" aria-busy="false">
                 <div class="chat-toolbar">
-                    <div class="chat-window-mac-dots" aria-hidden="true">
-                        <span class="traffic-dot dot-close"></span>
-                        <span class="traffic-dot dot-min"></span>
-                        <span class="traffic-dot dot-max"></span>
-                    </div>
+                    <!-- Left: macOS Lights + Clean Model Selector + RAM -->
+                    <div class="chat-toolbar-left">
+                        <div class="chat-window-mac-dots" aria-hidden="true">
+                            <span class="traffic-dot dot-close"></span>
+                            <span class="traffic-dot dot-min"></span>
+                            <span class="traffic-dot dot-max"></span>
+                        </div>
 
-                    <!-- Modelo Activo Integrado en Chat Header -->
-                    <div class="chat-model-bar" role="region" aria-label="Control de Modelo Activo">
                         <div class="model-select-wrapper">
                             <label for="model-select" class="visually-hidden">Seleccionar Modelo</label>
-                            <select id="model-select" class="model-dropdown header-model-dropdown">
-                                <option value="qwen2_5_3b.flat" selected>⚡ QWEN 2.5 3B (qwen2_5_3b.flat · Transmutado Mmap)</option>
-                                <option value="deepseek_r1_1_5b.flat">⚡ DEEPSEEK-R1 1.5B (deepseek_r1_1_5b.flat · CoT Razonamiento)</option>
-                                <option value="feto_genomico_v1.gaje">🧬 FETO_GENOMICO_V1 (feto_genomico_v1.gaje · Nacido por GAJE)</option>
-                                <option value="qwen2_0_5b.flat">⚡ QWEN 2 0.5B (qwen2_0_5b.flat · Micro-Rápido)</option>
-                                <option value="smollm2_135m.flat">⚡ SMOLLM2 135M (smollm2_135m.flat · Nano-Edge)</option>
+                            <select id="model-select" class="header-model-dropdown">
+                                <option value="qwen2_5_3b.flat" selected>⚡ Qwen 2.5 3B · Principal</option>
+                                <option value="deepseek_r1_1_5b.flat">⚡ DeepSeek-R1 1.5B · CoT</option>
+                                <option value="feto_genomico_v1.gaje">🧬 Feto Genómico v1 · Nacido GAJE</option>
+                                <option value="qwen2_0_5b.flat">⚡ Qwen 2 0.5B · Micro</option>
+                                <option value="smollm2_135m.flat">⚡ SmolLM2 135M · Nano</option>
                             </select>
                         </div>
 
-                        <div class="model-status-pills">
-                            <span class="chat-pill-ram" id="model-ram" title="Uso de memoria RAM residente">RAM —</span>
-                            <div id="model-meta-block" class="chat-model-meta">
-                                <span id="model-size" class="chat-pill-meta">Peso HD: —</span>
-                                <span id="model-date" class="chat-pill-meta">Nacido: —</span>
-                            </div>
+                        <span class="chat-pill-ram" id="model-ram" title="Uso de memoria RAM residente">
+                            <span class="ram-led"></span><span>RAM —</span>
+                        </span>
+
+                        <div id="model-meta-block" class="chat-model-meta">
+                            <span id="model-size" class="chat-pill-meta">2.2 GB</span>
+                            <span id="model-date" class="chat-pill-meta" hidden>—</span>
                         </div>
 
-                        <button id="unload-model-btn" class="chat-unload-btn" title="Liberar modelo de la RAM y detenerlo" aria-label="Liberar modelo de la memoria RAM">
+                        <button id="unload-model-btn" class="chat-unload-icon-btn" title="Liberar modelo de la RAM" aria-label="Liberar modelo de la memoria RAM">
                             <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
-                            <span>Liberar</span>
                         </button>
 
                         <div id="model-load-bar" class="model-load chat-model-load" role="progressbar" aria-label="Cargando modelo" aria-valuemin="0" aria-valuemax="100" aria-valuetext="inactivo" hidden>
@@ -61,34 +61,38 @@
                         </div>
                     </div>
 
-                    <div class="chat-toolbar-actions" role="toolbar" aria-label="Herramientas de conversación">
-                        <span class="status-text side-group-badge">Núcleo GAJE</span>
-                        <button id="export-log-btn" class="chat-icon-btn primary-tool-btn" title="Exportar bitácora completa del proyecto (modelo, entorno, alertas y chat)" aria-label="Exportar bitácora y log del proyecto">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                <polyline points="14 2 14 8 20 8"></polyline>
-                                <line x1="16" y1="13" x2="8" y2="13"></line>
-                                <line x1="16" y1="17" x2="8" y2="17"></line>
-                                <polyline points="10 9 9 9 8 9"></polyline>
-                            </svg>
-                            <span class="visually-hidden">Exportar Bitácora del Proyecto</span>
-                        </button>
-                        <button id="copy-all-btn" class="chat-icon-btn" title="Copiar toda la conversación" aria-label="Copiar toda la conversación al portapapeles">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-                            <span class="visually-hidden">Copiar Conversación Completa</span>
-                        </button>
-                        <button id="clear-history-btn" class="chat-icon-btn danger-tool-btn" title="Borrar historial local de la conversación" aria-label="Borrar historial local de la conversación">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <polyline points="3 6 5 6 21 6"></polyline>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                <line x1="10" y1="11" x2="10" y2="17"></line>
-                                <line x1="14" y1="11" x2="14" y2="17"></line>
-                            </svg>
-                            <span class="visually-hidden">Borrar Historial</span>
-                        </button>
+                    <!-- Right: Apple Segmented Tool Group (Exportar, Copiar, Borrar) -->
+                    <div class="chat-toolbar-actions">
+                        <span class="status-indicator-pill" title="Núcleo GAJE Activo">
+                            <span class="pulse-engine-dot"></span>
+                            <span>Core</span>
+                        </span>
+
+                        <div class="apple-tools-segmented" role="toolbar" aria-label="Herramientas de conversación">
+                            <button id="export-log-btn" class="apple-tool-btn" title="Exportar bitácora completa (.md)" aria-label="Exportar bitácora y log del proyecto">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                </svg>
+                                <span class="visually-hidden">Exportar Bitácora</span>
+                            </button>
+                            <button id="copy-all-btn" class="apple-tool-btn" title="Copiar toda la conversación" aria-label="Copiar toda la conversación al portapapeles">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                <span class="visually-hidden">Copiar Conversación</span>
+                            </button>
+                            <button id="clear-history-btn" class="apple-tool-btn danger" title="Borrar historial local" aria-label="Borrar historial local de la conversación">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                                <span class="visually-hidden">Borrar Historial</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div id="chat-window" class="chat-window" role="log" aria-live="polite" aria-relevant="additions" aria-labelledby="chat-label">

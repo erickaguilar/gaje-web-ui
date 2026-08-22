@@ -469,13 +469,13 @@ main {
     border-bottom-color: rgba(0, 0, 0, 0.08);
 }
 
-/* Barra de control de modelo integrado */
-.chat-model-bar {
+/* Barra de control de modelo integrado (Ultra-Limpia) */
+.chat-toolbar-left {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     flex: 1;
-    min-width: 280px;
+    min-width: 260px;
     flex-wrap: wrap;
 }
 
@@ -483,17 +483,17 @@ main {
     position: relative;
     display: inline-flex;
     align-items: center;
-    max-width: 390px;
+    max-width: 270px;
     flex: 1;
 }
 
 .header-model-dropdown {
     width: 100%;
-    padding: 0.46rem 0.9rem;
-    font-size: 0.78rem;
+    padding: 0.38rem 0.75rem;
+    font-size: 0.76rem;
     font-weight: 600;
     font-family: var(--sans);
-    border-radius: 12px;
+    border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.12);
     background: rgba(255, 255, 255, 0.05);
     color: var(--text-color);
@@ -502,7 +502,7 @@ main {
     outline: none;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 [data-theme="light"] .header-model-dropdown {
@@ -513,160 +513,179 @@ main {
 .header-model-dropdown:hover {
     border-color: var(--accent-2);
     background: rgba(94, 92, 230, 0.08);
-    box-shadow: 0 0 12px rgba(94, 92, 230, 0.3);
+    box-shadow: 0 0 10px rgba(94, 92, 230, 0.25);
 }
 
 .header-model-dropdown:focus {
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 2.5px var(--accent-glow), 0 0 16px var(--accent-glow);
+    box-shadow: 0 0 0 2px var(--accent-glow);
 }
 
-.model-status-pills {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
+/* Micro Píldora de RAM con LED Pulsante */
 .chat-pill-ram {
     font-family: var(--mono);
     font-size: 0.65rem;
     font-weight: 700;
-    padding: 4px 9px;
+    padding: 3px 8px;
     border-radius: 20px;
-    background: rgba(48, 209, 88, 0.12);
-    border: 1px solid rgba(48, 209, 88, 0.35);
+    background: rgba(48, 209, 88, 0.1);
+    border: 1px solid rgba(48, 209, 88, 0.3);
     color: #30d158;
     white-space: nowrap;
-    box-shadow: 0 0 8px rgba(48, 209, 88, 0.2);
     display: inline-flex;
     align-items: center;
     gap: 5px;
+    transition: all 0.2s ease;
+}
+
+.ram-led {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #6b7280;
+    transition: all 0.3s ease;
+}
+
+.ram-led.active {
+    background: #30d158;
+    box-shadow: 0 0 8px #30d158;
+    animation: livePulse 2s infinite ease-in-out;
 }
 
 .chat-model-meta {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
 }
 
 .chat-pill-meta {
     font-family: var(--mono);
-    font-size: 0.63rem;
+    font-size: 0.62rem;
     color: var(--text-muted);
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 3px 8px;
+    padding: 3px 7px;
     border-radius: 6px;
     white-space: nowrap;
 }
 
-.chat-unload-btn {
+/* Botón iconográfico de liberar modelo */
+.chat-unload-icon-btn {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 0.4rem 0.75rem;
-    border-radius: 10px;
-    border: 1px solid rgba(255, 69, 58, 0.3);
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    border: 1px solid rgba(255, 69, 58, 0.25);
     background: rgba(255, 69, 58, 0.08);
     color: var(--red);
-    font-family: var(--sans);
-    font-size: 0.72rem;
-    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
-    white-space: nowrap;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 0;
 }
 
-.chat-unload-btn:hover:not(:disabled) {
+.chat-unload-icon-btn:hover:not(:disabled) {
     background: rgba(255, 69, 58, 0.22);
     border-color: var(--red);
     transform: translateY(-1px);
-    box-shadow: 0 2px 12px rgba(255, 69, 58, 0.35);
+    box-shadow: 0 2px 8px rgba(255, 69, 58, 0.35);
 }
 
-.chat-unload-btn:disabled {
-    opacity: 0.45;
+.chat-unload-icon-btn:disabled {
+    opacity: 0.35;
     cursor: not-allowed;
 }
 
-.chat-unload-btn .y2k-icon {
+.chat-unload-icon-btn .y2k-icon {
     width: 11px;
     height: 11px;
     fill: currentColor;
 }
 
 .chat-model-load {
-    width: 85px;
+    width: 75px;
     margin: 0;
 }
 
+/* ── TOOLBAR ACTIONS (SEGMENTED APPLE HIG) ── */
 .chat-toolbar-actions {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
+    gap: 0.6rem;
 }
 
-.chat-icon-btn {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+.status-indicator-pill {
+    font-family: var(--sans);
+    font-size: 0.68rem;
+    font-weight: 600;
     color: var(--text-muted);
-    width: 32px;
-    height: 32px;
-    min-width: 32px;
-    min-height: 32px;
-    border-radius: 9px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.pulse-engine-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #00F2FE;
+    box-shadow: 0 0 6px #00F2FE;
+    animation: livePulse 2.5s infinite ease-in-out;
+}
+
+.apple-tools-segmented {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    gap: 2px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="light"] .apple-tools-segmented {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+.apple-tool-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 0;
-    position: relative;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-.chat-icon-btn:focus-visible {
-    outline: 2px solid var(--accent-color);
-    outline-offset: 2px;
-}
-
-.chat-icon-btn:hover {
-    border-color: var(--accent-2);
+.apple-tool-btn:hover {
     color: #fff;
-    background: rgba(94, 92, 230, 0.18);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(94, 92, 230, 0.3);
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
-.chat-icon-btn:active {
-    transform: scale(0.94);
-}
-
-.chat-icon-btn.primary-tool-btn {
-    background: rgba(94, 92, 230, 0.1);
-    border-color: rgba(94, 92, 230, 0.35);
-    color: #c4b5fd;
-}
-
-.chat-icon-btn.primary-tool-btn:hover {
-    background: rgba(94, 92, 230, 0.25);
-    border-color: var(--accent-color);
-    color: #fff;
-    box-shadow: 0 0 14px rgba(94, 92, 230, 0.4);
-}
-
-.chat-icon-btn.danger-tool-btn:hover {
-    border-color: var(--red);
+.apple-tool-btn.danger:hover {
     color: var(--red);
-    background: rgba(255, 69, 58, 0.12);
-    box-shadow: 0 0 12px rgba(255, 69, 58, 0.3);
+    background: rgba(255, 69, 58, 0.15);
 }
 
-.chat-icon-btn.copied {
-    border-color: #30d158 !important;
+.apple-tool-btn:active {
+    transform: scale(0.92);
+}
+
+.apple-tool-btn.copied {
     color: #30d158 !important;
-    background: rgba(48, 209, 88, 0.15) !important;
-    transform: scale(1.05);
+    background: rgba(48, 209, 88, 0.18) !important;
 }
 
 /* ── CHAT WINDOW STREAM ── */

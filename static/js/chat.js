@@ -33,17 +33,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     opt.value = model.name;
                     let label = model.name;
                     if (label === 'qwen2_5_3b.flat') {
-                        label = '⚡ QWEN 2.5 3B (qwen2_5_3b.flat · Transmutado Mmap)';
+                        label = '⚡ Qwen 2.5 3B · Principal';
                     } else if (label === 'deepseek_r1_1_5b.flat') {
-                        label = '⚡ DEEPSEEK-R1 1.5B (deepseek_r1_1_5b.flat · CoT Razonamiento)';
+                        label = '⚡ DeepSeek-R1 1.5B · CoT';
+                    } else if (label === 'feto_genomico_v1.gaje') {
+                        label = '🧬 Feto Genómico v1 · Nacido GAJE';
                     } else if (label === 'qwen2_0_5b.flat') {
-                        label = '⚡ QWEN 2 0.5B (qwen2_0_5b.flat · Micro-Rápido)';
+                        label = '⚡ Qwen 2 0.5B · Micro';
                     } else if (label === 'smollm2_135m.flat') {
-                        label = '⚡ SMOLLM2 135M (smollm2_135m.flat · Nano-Edge)';
+                        label = '⚡ SmolLM2 135M · Nano';
                     } else if (label.endsWith('.gaje')) {
-                        label = '🧬 ' + label.replace('.gaje', '').toUpperCase() + ' (Nacido por GAJE)';
+                        label = '🧬 ' + label.replace('.gaje', '');
                     } else if (label.endsWith('.flat')) {
-                        label = '⚡ ' + label.replace('.flat', '').toUpperCase() + ' (Transmutado Mmap)';
+                        label = '⚡ ' + label.replace('.flat', '');
                     } else {
                         label = '⚡ ' + label;
                     }
@@ -155,9 +157,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const selected = modelSelect.value;
         const model = modelsData.find(m => m.name === selected);
         if (!model) return;
-        if (model.date) modelDate.innerText = `Nacido el: ${model.date}`;
-        if (model.size_bytes != null) modelSize.innerText = `Peso HD: ${formatBytes(model.size_bytes)}`;
-        modelRam.innerText = `RAM: ${(model.ram_mb || 0) > 0 ? model.ram_mb.toFixed(1) + ' MB' : '—'}`;
+        if (model.date && modelDate) modelDate.innerText = model.date;
+        if (model.size_bytes != null && modelSize) modelSize.innerText = formatBytes(model.size_bytes);
+        if (modelRam) {
+            const ramMb = model.ram_mb || 0;
+            const ramText = ramMb > 0 ? (ramMb >= 1024 ? (ramMb / 1024).toFixed(2) + ' GB' : ramMb.toFixed(0) + ' MB') : '0 MB';
+            modelRam.innerHTML = `<span class="ram-led ${ramMb > 0 ? 'active' : ''}"></span><span>${ramText}</span>`;
+            modelRam.setAttribute('title', `RAM: ${ramText} · HD: ${formatBytes(model.size_bytes)} · Creado: ${model.date || '—'}`);
+        }
     }
 
     async function refreshModelMeta(modelName) {
