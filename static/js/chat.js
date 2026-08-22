@@ -472,7 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     bodyText = bodyText.replace(/<\/?thinks?>/gi, '').trim();
 
                     let metaText = '';
-                    const metaBadges = Array.from(msg.querySelectorAll('.message-meta .meta-badge:not(.meta-copy-btn)'))
+                    const metaBadges = Array.from(msg.querySelectorAll('.message-meta .meta-tag:not(.meta-btn-copy), .message-meta .meta-badge:not(.meta-copy-btn)'))
                         .map(b => b.innerText.trim())
                         .filter(Boolean)
                         .join(' | ');
@@ -661,67 +661,70 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         let html = `<p>${parseMarkdown(text)}</p>`;
         if (type === 'bot') {
             const mName = msgDiv.getAttribute('data-model') || '';
-            const shortModel = mName ? mName.replace('.gaje.flat', '').replace('.flat', '').replace('.gaje', '') : '';
-            const modelBadge = shortModel ? `<span class="meta-badge meta-model" title="Organismo genómico activo">🧬 ${escapeHtml(shortModel)}</span>` : '';
-            let islandBadge = '';
-            if (meta && meta.island) {
-                islandBadge = `<span class="meta-badge meta-island">🏝️ Island .gmem: ${escapeHtml(meta.island.retrieval_ms)} ms | +${escapeHtml(meta.island.budget_tokens)} tok</span>`;
-            }
-
-            let compBadge = '';
-            let tokensBadge = '';
-            let speedBadge = '';
-
-            if (meta) {
-                const bit = meta.bit_depth || 4;
-                const ratio = meta.ratio ? meta.ratio.toFixed(1) : '8.0';
-                const saved = meta.saved ? meta.saved.toFixed(1) : '87.5';
-                compBadge = `<span class="meta-badge meta-compression" title="Compresión de pesos cuantizados">🧬 Q${bit}_0 (${ratio}x · ${saved}% ahorro)</span>`;
-
-                const totalTok = meta.tokens_count || 0;
-                const pTok = meta.prompt_tokens != null ? meta.prompt_tokens : 0;
-                const gTok = meta.generated_tokens != null ? meta.generated_tokens : totalTok;
-                tokensBadge = `<span class="meta-badge meta-tokens" title="Tokens consumidos (Prompt + Generados)">🔢 ${totalTok} tok (${pTok}p + ${gTok}g)</span>`;
-
-                if (meta.tokens_sec) {
-                    speedBadge = `<span class="meta-badge meta-speed" title="Velocidad de generación">⚡ ${meta.tokens_sec} tok/s</span>`;
-                }
-            } else {
-                compBadge = `<span class="meta-badge meta-compression" title="Cuantización genómica GAJE">🧬 Q4_0 (8.0x)</span>`;
-            }
-
             const latencyStr = meta && meta.latency_ms ? formatLatency(meta.latency_ms) : '';
-
-            html += `
-                <div class="message-meta">
-                    ${modelBadge}
-                    ${compBadge}
-                    ${islandBadge}
-                    ${tokensBadge}
-                    ${speedBadge}
-                    ${latencyStr ? `
-                    <span class="meta-badge meta-latency" title="Tiempo de respuesta total">
-                        <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-clock"/></svg>
-                        <span>${latencyStr}</span>
-                    </span>` : ''}
-                    <button class="meta-badge meta-copy-btn" title="Copiar texto de esta respuesta" aria-label="Copiar texto de esta respuesta">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                        </svg>
-                        <span>Copiar</span>
-                    </button>
-                </div>
-            `;
+            html += renderMinimalMetaHtml(meta, mName, latencyStr, text);
         }
 
         msgDiv.innerHTML = html;
-        const copyBtn = msgDiv.querySelector('.meta-copy-btn');
+        const copyBtn = msgDiv.querySelector('.meta-btn-copy, .meta-copy-btn');
         if (copyBtn) {
             copyBtn.addEventListener('click', () => copyTextToClipboard(text, copyBtn));
         }
         chatWindow.appendChild(msgDiv);
         chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function renderMinimalMetaHtml(meta, mName, latencyStr, fullText) {
+        const rawName = mName || (modelSelect ? modelSelect.value : '') || 'GAJE';
+        const shortModel = rawName.replace('.gaje.flat', '').replace('.flat', '').replace('.gaje', '');
+        const bit = (meta && meta.bit_depth) || 4;
+        const ratio = (meta && meta.ratio) ? meta.ratio.toFixed(1) : '8.0';
+        const saved = (meta && meta.saved) ? meta.saved.toFixed(1) : '87.5';
+        
+        let statsText = '';
+        let statsTitle = '';
+        if (meta && (meta.tokens_count != null || meta.generated_tokens != null)) {
+            const totalTok = meta.tokens_count || 0;
+            const pTok = meta.prompt_tokens != null ? meta.prompt_tokens : 0;
+            const gTok = meta.generated_tokens != null ? meta.generated_tokens : totalTok;
+            const tps = meta.tokens_sec ? ` · ${meta.tokens_sec} tok/s` : '';
+            statsText = `${gTok} tok${tps}`;
+            statsTitle = `Tokens: ${gTok} generados, ${pTok} prompt (${totalTok} total)${tps} | Cuantización: Q${bit}_0 (${ratio}x · ${saved}% ahorro RAM)`;
+        } else if (fullText) {
+            const estGen = Math.ceil(fullText.split(/\s+/).filter(Boolean).length * 1.3);
+            statsText = `~${estGen} tok`;
+            statsTitle = `Generación aproximada: ~${estGen} tokens`;
+        }
+
+        const islandHtml = (meta && meta.island) ? `
+            <span class="meta-tag meta-island" title="Memoria de largo plazo .gmem: ${escapeHtml(meta.island.retrieval_ms)} ms (+${escapeHtml(meta.island.budget_tokens)} tokens inyectados)">
+                🏝️ ${escapeHtml(meta.island.retrieval_ms)}ms
+            </span>` : '';
+
+        return `
+            <div class="message-meta">
+                <span class="meta-tag meta-model" title="Modelo activo: ${escapeHtml(shortModel)} · Cuantización Q${bit}_0 (${ratio}x · ${saved}% ahorro RAM)">
+                    🧬 ${escapeHtml(shortModel)}
+                </span>
+                ${statsText ? `<span class="meta-tag meta-stats" title="${escapeHtml(statsTitle)}">${escapeHtml(statsText)}</span>` : ''}
+                ${islandHtml}
+                ${latencyStr ? `
+                <span class="meta-tag meta-latency" title="Tiempo de respuesta total: ${escapeHtml(latencyStr)}">
+                    <svg class="meta-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>${escapeHtml(latencyStr)}</span>
+                </span>` : ''}
+                <button class="meta-btn-copy" title="Copiar texto de esta respuesta" aria-label="Copiar texto de esta respuesta">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <span>Copiar</span>
+                </button>
+            </div>
+        `;
     }
 
     function updateMetrics(metrics) {
@@ -988,54 +991,14 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
 
     function addMetaTo(msgEl, elapsed, prefix = '', fullText = '', modelName = '', metrics = null) {
         const mName = modelName || msgEl.getAttribute('data-model') || '';
-        const shortModel = mName ? mName.replace('.gaje.flat', '').replace('.flat', '').replace('.gaje', '') : '';
-        const modelBadge = shortModel ? `<span class="meta-badge meta-model" title="Organismo genómico activo">🧬 ${escapeHtml(shortModel)}</span>` : '';
-        
-        let compBadge = '';
-        let tokensBadge = '';
-        let speedBadge = '';
-
-        if (metrics) {
-            const bit = metrics.bit_depth || 4;
-            const ratio = metrics.ratio ? metrics.ratio.toFixed(1) : '8.0';
-            const saved = metrics.saved ? metrics.saved.toFixed(1) : '87.5';
-            compBadge = `<span class="meta-badge meta-compression" title="Compresión de pesos cuantizados">🧬 Q${bit}_0 (${ratio}x · ${saved}% ahorro)</span>`;
-
-            const totalTok = metrics.tokens_count || 0;
-            const pTok = metrics.prompt_tokens != null ? metrics.prompt_tokens : 0;
-            const gTok = metrics.generated_tokens != null ? metrics.generated_tokens : totalTok;
-            tokensBadge = `<span class="meta-badge meta-tokens" title="Tokens consumidos (Prompt + Generados)">🔢 ${totalTok} tok (${pTok}p + ${gTok}g)</span>`;
-
-            if (metrics.tokens_sec) {
-                speedBadge = `<span class="meta-badge meta-speed" title="Velocidad de generación">⚡ ${metrics.tokens_sec} tok/s</span>`;
-            }
-        } else {
-            const estGen = fullText ? Math.ceil(fullText.split(/\s+/).filter(Boolean).length * 1.3) : 0;
-            tokensBadge = `<span class="meta-badge meta-tokens" title="Tokens generados aproximados">🔢 ~${estGen} tok</span>`;
-            compBadge = `<span class="meta-badge meta-compression" title="Cuantización genómica GAJE">🧬 Q4_0 (8.0x)</span>`;
-        }
-
         const latencyText = formatLatency(metrics && metrics.latency_ms ? metrics.latency_ms : elapsed);
-        const meta = document.createElement('div');
-        meta.className = 'message-meta';
-        meta.innerHTML = `
-            ${modelBadge}
-            ${compBadge}
-            ${tokensBadge}
-            ${speedBadge}
-            <span class="meta-badge meta-latency" title="Tiempo de respuesta total">
-                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-clock"/></svg>
-                <span>${latencyText} ${prefix ? '(' + escapeHtml(prefix) + ')' : ''}</span>
-            </span>
-            <button class="meta-badge meta-copy-btn" title="Copiar texto de esta respuesta" aria-label="Copiar texto de esta respuesta">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                </svg>
-                <span>Copiar</span>
-            </button>
-        `;
-        const copyBtn = meta.querySelector('.meta-copy-btn');
+        const finalLatency = prefix ? `${latencyText} (${prefix})` : latencyText;
+
+        const tempContainer = document.createElement('div');
+        tempContainer.innerHTML = renderMinimalMetaHtml(metrics, mName, finalLatency, fullText);
+        const meta = tempContainer.firstElementChild;
+
+        const copyBtn = meta.querySelector('.meta-btn-copy, .meta-copy-btn');
         if (copyBtn) {
             copyBtn.addEventListener('click', () => {
                 const textToCopy = fullText || msgEl.innerText;
