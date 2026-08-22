@@ -938,6 +938,26 @@ main {
     font-weight: 600;
 }
 
+.meta-badge.meta-compression {
+    border-color: rgba(168, 85, 247, 0.4);
+    color: #d8b4fe;
+    background: rgba(168, 85, 247, 0.1);
+    font-weight: 600;
+}
+
+.meta-badge.meta-tokens {
+    border-color: rgba(56, 189, 248, 0.4);
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.08);
+    font-weight: 600;
+}
+
+.meta-badge.meta-speed {
+    border-color: rgba(251, 191, 36, 0.4);
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.08);
+}
+
 .meta-badge.meta-island {
     border-color: rgba(48, 209, 88, 0.35);
     color: #30d158;

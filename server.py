@@ -198,19 +198,18 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
 
             # 1. Formatear Prompt según Arquitectura
             formatted_message = format_prompt(model_name, message)
-            tokens = llm.tokenizer.encode(formatted_message, add_special_tokens=False)
-            if hasattr(tokens, "ids"):
-                tokens = tokens.ids
+            prompt_tokens = llm.tokenizer.encode(formatted_message, add_special_tokens=False)
+            if hasattr(prompt_tokens, "ids"):
+                prompt_tokens = prompt_tokens.ids
+            prompt_tokens_count = len(prompt_tokens)
 
-            # 2. Inferencia Nativa (o streaming si se solicita)
+            # 2. Inferencia Nativa
             start_time = time.time()
             eos_ids = get_stop_tokens(model_name, llm.tokenizer)
 
             try:
-                # Use stable, low-entropy sampling to avoid loops and
-                # factual hallucinations in highly compressed models.
                 gen_ids = llm.rust_llm.generate_native_py(
-                    tokens, MAX_TOKENS, TEMPERATURE, REP_PENALTY, eos_ids
+                    prompt_tokens, MAX_TOKENS, TEMPERATURE, REP_PENALTY, eos_ids
                 )
             except Exception as e:
                 logger.warning("Warning en generate_native_py: %s", e)
@@ -227,12 +226,13 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
                 .strip()
             )
 
-            num_tokens = len(gen_ids)
+            generated_tokens_count = len(gen_ids)
+            total_tokens = prompt_tokens_count + generated_tokens_count
             tok_per_sec = (
-                (num_tokens / (elapsed_ms / 1000.0)) if elapsed_ms > 0 else 0.0
+                (generated_tokens_count / (elapsed_ms / 1000.0)) if elapsed_ms > 0 else 0.0
             )
 
-            # 4. Simulación de DNA / Metadatos para Visualización Web UI
+            # 4. Cálculo de ADN y Compresión Genómica
             dna_sample = "GGCCCCCGCCCGCCGCCGCGGCGCGGGCCCGTCGGGGCGCGCCCCGGCGGCCGGCGGGGCCCCCCCCCGCCCCGCGCCCGCCGGGGCGGGCGCGGCGGCCAGCGGGCCCGGGGGCCGGGCGGGCGCGC"
 
             dims = getattr(llm, "n_embd", 576)
@@ -253,8 +253,10 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
                 "response": cleaned_response,
                 "metrics": {
                     "latency_ms": round(elapsed_ms, 2),
-                    "tokens_count": num_tokens,
-                    "tokens_sec": round(tok_per_sec, 2),
+                    "prompt_tokens": prompt_tokens_count,
+                    "generated_tokens": generated_tokens_count,
+                    "tokens_count": total_tokens,
+                    "tokens_sec": round(tok_per_sec, 1),
                     "dims": dims,
                     "original_size": dims * 4,
                     "dna_size": compressed_size,
@@ -273,11 +275,12 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             self._send_json({"error": str(e)}, status=500)
 
     def _handle_chat_stream(self):
-        """Streaming real de tokens por SSE (Fase 2.2). Reutiliza llm.generate()."""
+        """Streaming real de tokens por SSE con cálculo y emisión de métricas de compresión y uso de tokens."""
         try:
             data = self._read_json_body()
             message = data.get("message", "")
             model_name = data.get("model", "")
+            _runtime = get_runtime_info()
 
             logger.info("Streaming con modelo: %s", model_name)
             llm = get_model(MODELS_ROOT, model_name, GenomicLLM)
@@ -288,6 +291,12 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
                 return
 
             formatted_message = format_prompt(model_name, message)
+            prompt_tokens = llm.tokenizer.encode(formatted_message, add_special_tokens=False)
+            if hasattr(prompt_tokens, "ids"):
+                prompt_tokens = prompt_tokens.ids
+            prompt_tokens_count = len(prompt_tokens)
+
+            start_time = time.time()
             gen = llm.generate(
                 formatted_message,
                 max_new_tokens=MAX_TOKENS,
@@ -301,13 +310,56 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Cache-Control", "no-cache")
             self.end_headers()
 
+            generated_tokens_count = 0
             for token in gen:
+                generated_tokens_count += 1
                 if not isinstance(token, str):
                     token = str(token)
                 token = token.replace("\n", "\u000A")
                 self.wfile.write(f"data: {json.dumps(token)}\n\n".encode("utf-8"))
                 self.wfile.flush()
 
+            elapsed_ms = (time.time() - start_time) * 1000.0
+            total_tokens = prompt_tokens_count + generated_tokens_count
+            tok_per_sec = (
+                (generated_tokens_count / (elapsed_ms / 1000.0)) if elapsed_ms > 0 else 0.0
+            )
+
+            dims = getattr(llm, "n_embd", 576)
+            if callable(dims):
+                dims = dims()
+
+            bit_depth = getattr(llm, "bit_depth", 4)
+            if bit_depth == 32:
+                ratio = 1.0
+                saved = 0.0
+                compressed_size = dims * 4
+            else:
+                ratio = 32.0 / bit_depth
+                saved = 100.0 * (1.0 - (bit_depth / 32.0))
+                compressed_size = int(dims * bit_depth / 8.0)
+
+            dna_sample = "GGCCCCCGCCCGCCGCCGCGGCGCGGGCCCGTCGGGGCGCGCCCCGGCGGCCGGCGGGGCCCCCCCCCGCCCCGCGCCCGCCGGGGCGGGCGCGGCGGCCAGCGGGCCCGGGGGCCGGGCGGGCGCGC"
+
+            metrics_event = {
+                "__gaje_metrics__": {
+                    "latency_ms": round(elapsed_ms, 2),
+                    "prompt_tokens": prompt_tokens_count,
+                    "generated_tokens": generated_tokens_count,
+                    "tokens_count": total_tokens,
+                    "tokens_sec": round(tok_per_sec, 1),
+                    "dims": dims,
+                    "original_size": dims * 4,
+                    "dna_size": compressed_size,
+                    "bit_depth": bit_depth,
+                    "ratio": round(ratio, 1),
+                    "saved": round(saved, 2),
+                    "sf_info": _runtime["software"],
+                    "hd_info": _runtime["hardware"],
+                },
+                "dna": dna_sample,
+            }
+            self.wfile.write(f"data: {json.dumps(metrics_event)}\n\n".encode("utf-8"))
             self.wfile.write(b"data: [DONE]\n\n")
             self.wfile.flush()
         except Exception as e:

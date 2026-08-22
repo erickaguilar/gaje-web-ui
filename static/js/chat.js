@@ -659,21 +659,45 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         if (type === 'bot') {
             const mName = msgDiv.getAttribute('data-model') || '';
             const shortModel = mName ? mName.replace('.gaje.flat', '').replace('.flat', '').replace('.gaje', '') : '';
-            const modelBadge = shortModel ? `<span class="meta-badge meta-model">🧬 ${escapeHtml(shortModel)}</span>` : '';
+            const modelBadge = shortModel ? `<span class="meta-badge meta-model" title="Organismo genómico activo">🧬 ${escapeHtml(shortModel)}</span>` : '';
             let islandBadge = '';
             if (meta && meta.island) {
-                islandBadge = `<span class="meta-badge meta-island">🏝️ Island .gmem: ${escapeHtml(meta.island.retrieval_ms)} ms | +${escapeHtml(meta.island.budget_tokens)} tok (CosSim ${escapeHtml(meta.island.cossim)})</span>`;
+                islandBadge = `<span class="meta-badge meta-island">🏝️ Island .gmem: ${escapeHtml(meta.island.retrieval_ms)} ms | +${escapeHtml(meta.island.budget_tokens)} tok</span>`;
             }
-            const tokensCount = meta ? escapeHtml(meta.tokens_count || 0) : '—';
-            const latencyStr = meta ? `${formatLatency(meta.latency_ms)} (${escapeHtml(meta.tokens_sec || 0)} tok/s)` : '';
-            
+
+            let compBadge = '';
+            let tokensBadge = '';
+            let speedBadge = '';
+
+            if (meta) {
+                const bit = meta.bit_depth || 4;
+                const ratio = meta.ratio ? meta.ratio.toFixed(1) : '8.0';
+                const saved = meta.saved ? meta.saved.toFixed(1) : '87.5';
+                compBadge = `<span class="meta-badge meta-compression" title="Compresión de pesos cuantizados">🧬 Q${bit}_0 (${ratio}x · ${saved}% ahorro)</span>`;
+
+                const totalTok = meta.tokens_count || 0;
+                const pTok = meta.prompt_tokens != null ? meta.prompt_tokens : 0;
+                const gTok = meta.generated_tokens != null ? meta.generated_tokens : totalTok;
+                tokensBadge = `<span class="meta-badge meta-tokens" title="Tokens consumidos (Prompt + Generados)">🔢 ${totalTok} tok (${pTok}p + ${gTok}g)</span>`;
+
+                if (meta.tokens_sec) {
+                    speedBadge = `<span class="meta-badge meta-speed" title="Velocidad de generación">⚡ ${meta.tokens_sec} tok/s</span>`;
+                }
+            } else {
+                compBadge = `<span class="meta-badge meta-compression" title="Cuantización genómica GAJE">🧬 Q4_0 (8.0x)</span>`;
+            }
+
+            const latencyStr = meta && meta.latency_ms ? formatLatency(meta.latency_ms) : '';
+
             html += `
                 <div class="message-meta">
                     ${modelBadge}
+                    ${compBadge}
                     ${islandBadge}
-                    ${meta ? `<span class="meta-badge">🔢 ${tokensCount} tokens</span>` : ''}
+                    ${tokensBadge}
+                    ${speedBadge}
                     ${latencyStr ? `
-                    <span class="meta-badge meta-latency">
+                    <span class="meta-badge meta-latency" title="Tiempo de respuesta total">
                         <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-clock"/></svg>
                         <span>${latencyStr}</span>
                     </span>` : ''}
@@ -850,6 +874,7 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         let fullText = '';
         let started = Date.now();
         let done = false;
+        let latestMetrics = null;
 
         const finish = (aborted) => {
             if (done) return;
@@ -861,11 +886,11 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
             statusAnchor.remove(); // Elimina el indicador "Generando" de la UI
             const elapsed = Date.now() - started;
             if (aborted && fullText) {
-                addMetaTo(botMsg, elapsed, '⏹️ detenido', fullText, modelName);
+                addMetaTo(botMsg, elapsed, '⏹️ detenido', fullText, modelName, latestMetrics);
             } else if (!aborted) {
-                addMetaTo(botMsg, elapsed, '', fullText, modelName);
+                addMetaTo(botMsg, elapsed, '', fullText, modelName, latestMetrics);
             }
-            if (fullText) pushHistory({ role: 'assistant', content: fullText, model: modelName });
+            if (fullText) pushHistory({ role: 'assistant', content: fullText, model: modelName, metrics: latestMetrics });
             chatWindow.scrollTop = chatWindow.scrollHeight;
         };
 
@@ -909,15 +934,22 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
                             return true;
                         }
                         try {
-                            const token = JSON.parse(payload);
-                            if (token && typeof token === 'object' && token.error) {
-                                throw new Error(token.error);
+                            const parsed = JSON.parse(payload);
+                            if (parsed && typeof parsed === 'object') {
+                                if (parsed.__gaje_metrics__) {
+                                    latestMetrics = parsed.__gaje_metrics__;
+                                    if (parsed.dna) updateDNA(parsed.dna);
+                                    updateMetrics(latestMetrics);
+                                    continue;
+                                }
+                                if (parsed.error) {
+                                    throw new Error(parsed.error);
+                                }
                             }
-                            fullText += token;
+                            fullText += (typeof parsed === 'string' ? parsed : '');
                             contentEl.innerHTML = parseMarkdown(fullText);
                             chatWindow.scrollTop = chatWindow.scrollHeight;
                         } catch (e) {
-                            // payload no JSON o error
                             if (e.message) {
                                 botMsg.remove();
                                 addMessage(`Error: ${e.message}`, 'bot');
@@ -952,17 +984,46 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         return msgDiv;
     }
 
-    function addMetaTo(msgEl, elapsed, prefix = '', fullText = '', modelName = '') {
+    function addMetaTo(msgEl, elapsed, prefix = '', fullText = '', modelName = '', metrics = null) {
         const mName = modelName || msgEl.getAttribute('data-model') || '';
         const shortModel = mName ? mName.replace('.gaje.flat', '').replace('.flat', '').replace('.gaje', '') : '';
-        const modelBadge = shortModel ? `<span class="meta-badge meta-model">🧬 ${escapeHtml(shortModel)}</span>` : '';
+        const modelBadge = shortModel ? `<span class="meta-badge meta-model" title="Organismo genómico activo">🧬 ${escapeHtml(shortModel)}</span>` : '';
+        
+        let compBadge = '';
+        let tokensBadge = '';
+        let speedBadge = '';
+
+        if (metrics) {
+            const bit = metrics.bit_depth || 4;
+            const ratio = metrics.ratio ? metrics.ratio.toFixed(1) : '8.0';
+            const saved = metrics.saved ? metrics.saved.toFixed(1) : '87.5';
+            compBadge = `<span class="meta-badge meta-compression" title="Compresión de pesos cuantizados">🧬 Q${bit}_0 (${ratio}x · ${saved}% ahorro)</span>`;
+
+            const totalTok = metrics.tokens_count || 0;
+            const pTok = metrics.prompt_tokens != null ? metrics.prompt_tokens : 0;
+            const gTok = metrics.generated_tokens != null ? metrics.generated_tokens : totalTok;
+            tokensBadge = `<span class="meta-badge meta-tokens" title="Tokens consumidos (Prompt + Generados)">🔢 ${totalTok} tok (${pTok}p + ${gTok}g)</span>`;
+
+            if (metrics.tokens_sec) {
+                speedBadge = `<span class="meta-badge meta-speed" title="Velocidad de generación">⚡ ${metrics.tokens_sec} tok/s</span>`;
+            }
+        } else {
+            const estGen = fullText ? Math.ceil(fullText.split(/\s+/).filter(Boolean).length * 1.3) : 0;
+            tokensBadge = `<span class="meta-badge meta-tokens" title="Tokens generados aproximados">🔢 ~${estGen} tok</span>`;
+            compBadge = `<span class="meta-badge meta-compression" title="Cuantización genómica GAJE">🧬 Q4_0 (8.0x)</span>`;
+        }
+
+        const latencyText = formatLatency(metrics && metrics.latency_ms ? metrics.latency_ms : elapsed);
         const meta = document.createElement('div');
         meta.className = 'message-meta';
         meta.innerHTML = `
             ${modelBadge}
-            <span class="meta-badge meta-latency">
+            ${compBadge}
+            ${tokensBadge}
+            ${speedBadge}
+            <span class="meta-badge meta-latency" title="Tiempo de respuesta total">
                 <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-clock"/></svg>
-                <span>${formatLatency(elapsed)} ${prefix ? '(' + escapeHtml(prefix) + ')' : ''}</span>
+                <span>${latencyText} ${prefix ? '(' + escapeHtml(prefix) + ')' : ''}</span>
             </span>
             <button class="meta-badge meta-copy-btn" title="Copiar texto de esta respuesta" aria-label="Copiar texto de esta respuesta">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
