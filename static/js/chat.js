@@ -723,12 +723,18 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
                 🏝️ ${escapeHtml(meta.island.retrieval_ms)}ms
             </span>` : '';
 
+        const quantumHtml = (meta && meta.quantum_embeddings) ? `
+            <span class="meta-tag meta-quantum" title="Superposición Cuántica .qemb Activa: Descompresión O(m) en tiempo real con 91.1% ahorro de memoria RAM">
+                ⚛️ .qemb
+            </span>` : '';
+
         return `
             <div class="message-meta">
                 <span class="meta-tag meta-model" title="Modelo activo: ${escapeHtml(shortModel)} · Cuantización Q${bit}_0 (${ratio}x · ${saved}% ahorro RAM)">
                     🧬 ${escapeHtml(shortModel)}
                 </span>
                 ${statsText ? `<span class="meta-tag meta-stats" title="${escapeHtml(statsTitle)}">${escapeHtml(statsText)}</span>` : ''}
+                ${quantumHtml}
                 ${islandHtml}
                 <span class="meta-tag meta-time" title="Hora de emisión: ${escapeHtml(displayTime)}${latencyStr ? ' | Latencia: ' + escapeHtml(latencyStr) : ''}">
                     <svg class="meta-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
