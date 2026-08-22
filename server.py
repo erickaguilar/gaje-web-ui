@@ -337,10 +337,24 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
 
             generated_tokens_count = 0
             streamed_tokens = []
+            stop_tokens_str = ["<|im_end|>", "<|endoftext|>", "<end_of_turn>", "</s>"]
             for token in gen:
-                generated_tokens_count += 1
                 if not isinstance(token, str):
                     token = str(token)
+
+                # Detener y filtrar tokens de parada especiales
+                if token in stop_tokens_str or any(st in token for st in stop_tokens_str):
+                    token_clean = token
+                    for st in stop_tokens_str:
+                        token_clean = token_clean.replace(st, "")
+                    if token_clean:
+                        streamed_tokens.append(token_clean)
+                        token_clean = token_clean.replace("\n", "\u000A")
+                        self.wfile.write(f"data: {json.dumps(token_clean)}\n\n".encode("utf-8"))
+                        self.wfile.flush()
+                    break
+
+                generated_tokens_count += 1
                 streamed_tokens.append(token)
                 token = token.replace("\n", "\u000A")
                 self.wfile.write(f"data: {json.dumps(token)}\n\n".encode("utf-8"))

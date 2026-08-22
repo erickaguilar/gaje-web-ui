@@ -572,9 +572,11 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
     function parseMarkdown(text) {
         if (!text) return '';
 
+        // Limpiar tokens de parada especiales residuales
+        let cleanText = text.replace(/<\|im_end\|>|<\|endoftext\|>|<end_of_turn>|<\/s>/gi, '').trim();
+
         // Renderizar pensamiento <think>...</think> al estilo Apple HIG (Cupertino Thought Disclosure)
         let thoughtHtml = '';
-        let cleanText = text;
 
         const thinkMatch = cleanText.match(/<think>([\s\S]*?)(?:<\/think>|$)/i);
         if (thinkMatch) {
