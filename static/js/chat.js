@@ -76,11 +76,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const info = await response.json();
             if (!info || info.error) return true;
             envData = info;
-            document.getElementById('sf-val').innerText = info.software || '---';
-            document.getElementById('hd-val').innerText = info.hardware || '---';
-            if (info.architecture) document.getElementById('arch-val').innerText = info.architecture;
-            if (info.simd) document.getElementById('simd-val').innerText = info.simd;
-            if (info.cores) document.getElementById('cores-val').innerText = info.cores;
+            const sfEl = document.getElementById('sf-val');
+            if (sfEl) sfEl.innerText = info.software || '---';
+            const hdEl = document.getElementById('hd-val');
+            if (hdEl) hdEl.innerText = info.hardware || '---';
+            const archEl = document.getElementById('arch-val');
+            if (archEl && info.architecture) archEl.innerText = info.architecture;
+            const simdEl = document.getElementById('simd-val');
+            if (simdEl && info.simd) simdEl.innerText = info.simd;
+            const coresEl = document.getElementById('cores-val');
+            if (coresEl && info.cores) coresEl.innerText = info.cores;
             const status = document.querySelector('.status-text');
             if (status && info.simd) status.innerText = info.simd + ' Optimized';
 
@@ -704,37 +709,51 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
 
         const modalMetrics = document.getElementById('modal-metrics-content');
         if (modalMetrics) {
-            modalMetrics.innerHTML = metricsContent.innerHTML;
+            modalMetrics.innerHTML = metricsContent ? metricsContent.innerHTML : `
+                <div class="metric-row"><span>Dims:</span> <span class="metric-val">${metrics.dims}</span></div>
+                <div class="metric-row"><span>Original:</span> <span class="metric-val">${metrics.original_size}B</span></div>
+                <div class="metric-row"><span>${sizeLabel}</span> <span class="metric-val">${metrics.dna_size}B (${metrics.bit_depth || 4}-bit)</span></div>
+                <div class="metric-row"><span>Ratio:</span> <span class="metric-val">${metrics.ratio.toFixed(1)}x</span></div>
+                <div class="metric-row"><span>Ahorro:</span> <span class="metric-val">${metrics.saved.toFixed(2)}%</span></div>
+                <div class="progress-bar-container"><div class="progress-bar-fill" style="width: ${metrics.saved}%"></div></div>
+                <div class="metric-row"><span>Tokens Usados:</span> <span class="metric-val">${metrics.tokens_count || 0} tok</span></div>
+                <div class="metric-row"><span>Tiempo Resp:</span> <span class="metric-val">${formatLatency(metrics.latency_ms)}</span></div>
+            `;
         }
 
         if (metrics.sf_info) {
-            document.getElementById('sf-val').innerText = metrics.sf_info;
+            const sf = document.getElementById('sf-val');
+            if (sf) sf.innerText = metrics.sf_info;
             const mSf = document.getElementById('modal-sf-val');
             if (mSf) mSf.innerText = metrics.sf_info;
         }
         if (metrics.hd_info) {
-            document.getElementById('hd-val').innerText = metrics.hd_info;
+            const hd = document.getElementById('hd-val');
+            if (hd) hd.innerText = metrics.hd_info;
             const mHd = document.getElementById('modal-hd-val');
             if (mHd) mHd.innerText = metrics.hd_info;
         }
         if (metrics.latency_ms) {
             const latText = `${formatLatency(metrics.latency_ms)} (${metrics.tokens_sec || 0} tok/s)`;
-            document.getElementById('latency-val').innerText = latText;
+            const lat = document.getElementById('latency-val');
+            if (lat) lat.innerText = latText;
             const mLat = document.getElementById('modal-latency-val');
             if (mLat) mLat.innerText = latText;
         }
     }
 
     function updateDNA(strand) {
-        dnaStrand.innerHTML = '';
+        if (dnaStrand) dnaStrand.innerHTML = '';
         const modalStrand = document.getElementById('modal-dna-strand');
         if (modalStrand) modalStrand.innerHTML = '';
 
         strand.split('').forEach(base => {
-            const span = document.createElement('span');
-            span.className = `dna-char-${base}`;
-            span.innerText = base;
-            dnaStrand.appendChild(span);
+            if (dnaStrand) {
+                const span = document.createElement('span');
+                span.className = `dna-char-${base}`;
+                span.innerText = base;
+                dnaStrand.appendChild(span);
+            }
 
             if (modalStrand) {
                 const spanM = document.createElement('span');
