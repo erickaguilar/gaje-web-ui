@@ -688,6 +688,99 @@ main {
     background: rgba(48, 209, 88, 0.18) !important;
 }
 
+/* ============================================================
+   APPLE HIG GLASSMORPHIC TOOLTIPS (DATA-TOOLTIP)
+   ============================================================ */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px) scale(0.96);
+    padding: 5px 10px;
+    border-radius: 8px;
+    background: rgba(18, 20, 32, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #f1f5f9;
+    font-family: var(--sans);
+    font-size: 0.69rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+                visibility 0.18s;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    z-index: 1000;
+}
+
+[data-tooltip]::before {
+    content: '';
+    position: absolute;
+    top: calc(100% + 3px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    border-width: 0 5px 5px 5px;
+    border-style: solid;
+    border-color: transparent transparent rgba(255, 255, 255, 0.15) transparent;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+                visibility 0.18s;
+    z-index: 1000;
+}
+
+[data-tooltip]:hover::after,
+[data-tooltip]:focus-visible::after,
+[data-tooltip]:hover::before,
+[data-tooltip]:focus-visible::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0) scale(1);
+}
+
+/* Tooltips alineados a la izquierda para evitar corte en el borde derecho */
+[data-tooltip-pos="left"]::after {
+    left: auto;
+    right: 0;
+    transform: translateX(0) translateY(4px) scale(0.96);
+}
+[data-tooltip-pos="left"]::before {
+    left: auto;
+    right: 9px;
+    transform: translateX(0) translateY(4px);
+}
+[data-tooltip-pos="left"]:hover::after,
+[data-tooltip-pos="left"]:focus-visible::after {
+    transform: translateX(0) translateY(0) scale(1);
+}
+[data-tooltip-pos="left"]:hover::before,
+[data-tooltip-pos="left"]:focus-visible::before {
+    transform: translateX(0) translateY(0);
+}
+
+[data-theme="light"] [data-tooltip]::after {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(0, 0, 0, 0.12);
+    color: #1e293b;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] [data-tooltip]::before {
+    border-color: transparent transparent rgba(0, 0, 0, 0.12) transparent;
+}
+
 /* ── CHAT WINDOW STREAM ── */
 .chat-window {
     flex: 1;

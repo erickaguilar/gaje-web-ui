@@ -27,14 +27,14 @@
                     <!-- Left: macOS Lights + Clean Model Selector + RAM -->
                     <div class="chat-toolbar-left">
                         <div class="chat-window-mac-dots" aria-hidden="true">
-                            <span class="traffic-dot dot-close"></span>
-                            <span class="traffic-dot dot-min"></span>
-                            <span class="traffic-dot dot-max"></span>
+                            <span class="traffic-dot dot-close" data-tooltip="Cerrar"></span>
+                            <span class="traffic-dot dot-min" data-tooltip="Minimizar"></span>
+                            <span class="traffic-dot dot-max" data-tooltip="Maximizar"></span>
                         </div>
 
-                        <div class="model-select-wrapper">
+                        <div class="model-select-wrapper" data-tooltip="Seleccionar modelo de lenguaje activo (.flat / .gaje)">
                             <label for="model-select" class="visually-hidden">Seleccionar Modelo</label>
-                            <select id="model-select" class="header-model-dropdown">
+                            <select id="model-select" class="header-model-dropdown" aria-label="Seleccionar Modelo">
                                 <option value="qwen2_5_3b.flat" selected>⚡ Qwen 2.5 3B · Principal</option>
                                 <option value="deepseek_r1_1_5b.flat">⚡ DeepSeek-R1 1.5B · CoT</option>
                                 <option value="feto_genomico_v1.gaje">🧬 Feto Genómico v1 · Nacido GAJE</option>
@@ -43,16 +43,16 @@
                             </select>
                         </div>
 
-                        <span class="chat-pill-ram" id="model-ram" title="Uso de memoria RAM residente">
+                        <span class="chat-pill-ram" id="model-ram" data-tooltip="Memoria RAM residente consumida">
                             <span class="ram-led"></span><span>RAM —</span>
                         </span>
 
-                        <div id="model-meta-block" class="chat-model-meta">
+                        <div id="model-meta-block" class="chat-model-meta" data-tooltip="Tamaño del archivo de pesos en disco">
                             <span id="model-size" class="chat-pill-meta">2.2 GB</span>
                             <span id="model-date" class="chat-pill-meta" hidden>—</span>
                         </div>
 
-                        <button id="unload-model-btn" class="chat-unload-icon-btn" title="Liberar modelo de la RAM" aria-label="Liberar modelo de la memoria RAM">
+                        <button id="unload-model-btn" class="chat-unload-icon-btn" data-tooltip="Liberar todos los modelos de la RAM" aria-label="Liberar modelo de la memoria RAM">
                             <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
                         </button>
 
@@ -63,13 +63,13 @@
 
                     <!-- Right: Apple Segmented Tool Group (Exportar, Copiar, Borrar) -->
                     <div class="chat-toolbar-actions">
-                        <span class="status-indicator-pill" title="Núcleo GAJE Activo">
+                        <span class="status-indicator-pill" data-tooltip="Motor GAJE de compresión semántica activo">
                             <span class="pulse-engine-dot"></span>
                             <span>Core</span>
                         </span>
 
                         <div class="apple-tools-segmented" role="toolbar" aria-label="Herramientas de conversación">
-                            <button id="export-log-btn" class="apple-tool-btn" title="Exportar bitácora completa (.md)" aria-label="Exportar bitácora y log del proyecto">
+                            <button id="export-log-btn" class="apple-tool-btn" data-tooltip="Exportar bitácora del proyecto (.md)" data-tooltip-pos="left" aria-label="Exportar bitácora y log del proyecto">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                                     <polyline points="14 2 14 8 20 8"></polyline>
@@ -78,14 +78,14 @@
                                 </svg>
                                 <span class="visually-hidden">Exportar Bitácora</span>
                             </button>
-                            <button id="copy-all-btn" class="apple-tool-btn" title="Copiar toda la conversación" aria-label="Copiar toda la conversación al portapapeles">
+                            <button id="copy-all-btn" class="apple-tool-btn" data-tooltip="Copiar toda la conversación" data-tooltip-pos="left" aria-label="Copiar toda la conversación al portapapeles">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                                 </svg>
                                 <span class="visually-hidden">Copiar Conversación</span>
                             </button>
-                            <button id="clear-history-btn" class="apple-tool-btn danger" title="Borrar historial local" aria-label="Borrar historial local de la conversación">
+                            <button id="clear-history-btn" class="apple-tool-btn danger" data-tooltip="Borrar historial local" data-tooltip-pos="left" aria-label="Borrar historial local de la conversación">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="3 6 5 6 21 6"></polyline>
                                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
