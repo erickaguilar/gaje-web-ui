@@ -874,11 +874,11 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
                 wasmActiveModelName = data.modelName;
                 if (modelLoadBar) modelLoadBar.hidden = true;
                 if (modelRam) modelRam.innerHTML = `<span class="ram-led active"></span><span>WASM ${data.loadTimeMs}ms</span>`;
-                addSystemAlert(`Modelo ${data.modelName} listo en WebAssembly (${data.loadTimeMs} ms).`);
+                addMessage(`Modelo ${data.modelName} listo en WebAssembly (${data.loadTimeMs} ms).`, 'system');
             } else if (data.status === 'error') {
                 console.error('🔥 [GAJE-WASM Error]:', data.error);
                 if (modelLoadBar) modelLoadBar.hidden = true;
-                addSystemAlert(`Error WASM: ${data.error}`);
+                addMessage(`Error WASM: ${data.error}`, 'system');
             }
         };
         return wasmWorker;
@@ -891,14 +891,22 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
             if (mode === 'wasm') {
                 if (wasmHeaderBadge) wasmHeaderBadge.style.display = 'inline-flex';
                 if (gpuHeaderBadge) gpuHeaderBadge.style.display = 'none';
+
+                // En navegador WASM (32-bit), sugerir modelo nano / micro (<1GB)
+                if (modelSelect && (modelSelect.value === 'qwen2_5_3b.flat' || modelSelect.value === 'deepseek_r1_1_5b.flat')) {
+                    modelSelect.value = 'smollm2_135m.flat';
+                    updateModelMeta();
+                    addMessage('⚡ [WASM] Seleccionado SmolLM2 135M (optimizado para memoria del navegador).', 'system');
+                }
+
                 initWasmWorker();
-                addSystemAlert('Modo In-Browser WASM (Zero-Server) activado.');
+                addMessage('Modo In-Browser WASM (Zero-Server) activado.', 'system');
             } else {
                 if (wasmHeaderBadge) wasmHeaderBadge.style.display = 'none';
                 if (envData && envData.gpu && gpuHeaderBadge) {
                     gpuHeaderBadge.style.display = 'inline-flex';
                 }
-                addSystemAlert('Modo Servidor Nativo (AVX2/GPU) activado.');
+                addMessage('Modo Servidor Nativo (AVX2/GPU) activado.', 'system');
             }
         });
     }

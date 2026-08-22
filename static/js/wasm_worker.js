@@ -14,7 +14,7 @@ self.onmessage = async (e) => {
     try {
         if (action === 'init') {
             if (!isInitialized) {
-                await init('/static/wasm/_impl_bg.wasm');
+                await init({ module_or_path: '/static/wasm/_impl_bg.wasm' });
                 GajeWasmEngine.init_engine();
                 isInitialized = true;
             }
