@@ -1008,156 +1008,7 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         msgEl.appendChild(meta);
     }
 
-    // ===== IndexedDB Storage Engine (GajeHelixDB v1) =====
-    const DB_NAME = 'GajeHelixDB';
-    const DB_VERSION = 1;
-
-    class GajeIndexedStorage {
-        constructor() {
-            this.db = null;
-            this.readyPromise = this.init();
-        }
-
-        async init() {
-            if (!window.indexedDB) {
-                console.warn('[GajeStorage] IndexedDB no soportado en este entorno. Usando localStorage como fallback.');
-                return null;
-            }
-            return new Promise((resolve) => {
-                const req = indexedDB.open(DB_NAME, DB_VERSION);
-                req.onupgradeneeded = (e) => {
-                    const db = e.target.result;
-                    if (!db.objectStoreNames.contains('messages')) {
-                        const msgStore = db.createObjectStore('messages', { keyPath: 'id', autoIncrement: true });
-                        msgStore.createIndex('role', 'role', { unique: false });
-                        msgStore.createIndex('time', 'time', { unique: false });
-                        msgStore.createIndex('model', 'model', { unique: false });
-                    }
-                    if (!db.objectStoreNames.contains('sessions')) {
-                        db.createObjectStore('sessions', { keyPath: 'sessionId' });
-                    }
-                };
-                req.onsuccess = (e) => {
-                    this.db = e.target.result;
-                    console.log('⚡ [GajeStorage] IndexedDB inicializada con éxito (GajeHelixDB v1)');
-                    this.migrateFromLocalStorage();
-                    resolve(this.db);
-                };
-                req.onerror = (e) => {
-                    console.warn('[GajeStorage] Error al inicializar IndexedDB:', e);
-                    resolve(null);
-                };
-            });
-        }
-
-        async migrateFromLocalStorage() {
-            try {
-                const legacy = localStorage.getItem('gaje_chat_history');
-                if (legacy) {
-                    const arr = JSON.parse(legacy);
-                    if (Array.isArray(arr) && arr.length > 0) {
-                        const count = await this.getMessageCount();
-                        if (count === 0) {
-                            for (const item of arr) {
-                                await this.saveMessage(item);
-                            }
-                            console.log(`📦 [GajeStorage] Migrados ${arr.length} mensajes desde localStorage a IndexedDB.`);
-                        }
-                    }
-                }
-            } catch (e) { /* ignore */ }
-        }
-
-        async saveMessage(entry) {
-            await this.readyPromise;
-            if (!this.db) {
-                this.fallbackPush(entry);
-                return;
-            }
-            return new Promise((resolve) => {
-                try {
-                    const tx = this.db.transaction('messages', 'readwrite');
-                    const store = tx.objectStore('messages');
-                    const item = {
-                        ...entry,
-                        savedAt: Date.now()
-                    };
-                    const req = store.add(item);
-                    req.onsuccess = () => resolve(req.result);
-                    req.onerror = () => {
-                        this.fallbackPush(entry);
-                        resolve(null);
-                    };
-                } catch (e) {
-                    this.fallbackPush(entry);
-                    resolve(null);
-                }
-            });
-        }
-
-        async getAllMessages() {
-            await this.readyPromise;
-            if (!this.db) {
-                return this.fallbackGet();
-            }
-            return new Promise((resolve) => {
-                try {
-                    const tx = this.db.transaction('messages', 'readonly');
-                    const store = tx.objectStore('messages');
-                    const req = store.getAll();
-                    req.onsuccess = () => {
-                        resolve(req.result || []);
-                    };
-                    req.onerror = () => resolve(this.fallbackGet());
-                } catch (e) {
-                    resolve(this.fallbackGet());
-                }
-            });
-        }
-
-        async clearAllMessages() {
-            await this.readyPromise;
-            if (this.db) {
-                try {
-                    const tx = this.db.transaction('messages', 'readwrite');
-                    tx.objectStore('messages').clear();
-                } catch (e) { /* ignore */ }
-            }
-            try { localStorage.removeItem('gaje_chat_history'); } catch (e) {}
-        }
-
-        async getMessageCount() {
-            if (!this.db) return 0;
-            return new Promise((resolve) => {
-                try {
-                    const tx = this.db.transaction('messages', 'readonly');
-                    const req = tx.objectStore('messages').count();
-                    req.onsuccess = () => resolve(req.result || 0);
-                    req.onerror = () => resolve(0);
-                } catch (e) { resolve(0); }
-            });
-        }
-
-        fallbackPush(entry) {
-            try {
-                const raw = localStorage.getItem('gaje_chat_history');
-                const arr = raw ? JSON.parse(raw) : [];
-                arr.push(entry);
-                if (arr.length > 200) arr.splice(0, arr.length - 200);
-                localStorage.setItem('gaje_chat_history', JSON.stringify(arr));
-            } catch (e) {}
-        }
-
-        fallbackGet() {
-            try {
-                const raw = localStorage.getItem('gaje_chat_history');
-                return raw ? JSON.parse(raw) : [];
-            } catch (e) { return []; }
-        }
-    }
-
-    const gajeStorage = new GajeIndexedStorage();
-
+    // ===== Historial y Persistencia (GajeHelixDB via window.GajeDB) =====
     function pushHistory(entry) {
         if (!entry.time) {
             entry.time = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -1165,15 +1016,20 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         if (entry.role === 'assistant' && !entry.model) {
             entry.model = modelSelect ? modelSelect.value : 'GAJE';
         }
-        gajeStorage.saveMessage(entry);
+        if (window.GajeDB) {
+            window.GajeDB.saveMessage(entry);
+        }
     }
 
     function clearHistory() {
-        gajeStorage.clearAllMessages();
+        if (window.GajeDB) {
+            window.GajeDB.clearAllMessages();
+        }
     }
 
     async function renderHistory() {
-        const arr = await gajeStorage.getAllMessages();
+        if (!window.GajeDB) return;
+        const arr = await window.GajeDB.getAllMessages();
         if (!arr || arr.length === 0) return;
         arr.forEach(entry => {
             if (entry.role === 'user') addMessage(entry.content, 'user', null, entry.time);
@@ -1191,7 +1047,22 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         const openHeaderBtn = document.getElementById('y2k-open-monitor-btn');
         const openSidebarBtn = document.getElementById('sidebar-open-monitor-btn');
 
+        async function updateStorageTabStats() {
+            if (!window.GajeDB) return;
+            const countEl = document.getElementById('modal-storage-msg-count');
+            const usageEl = document.getElementById('modal-storage-usage-val');
+            const quotaEl = document.getElementById('modal-storage-quota-val');
+
+            const count = await window.GajeDB.getMessageCount();
+            const est = await window.GajeDB.getStorageEstimate();
+
+            if (countEl) countEl.innerText = `${count} mensajes`;
+            if (usageEl) usageEl.innerText = est.usageFormatted;
+            if (quotaEl) quotaEl.innerText = est.quotaFormatted !== 'N/A' ? `${est.quotaFormatted} (${est.percentUsed}% en uso)` : 'Ilimitada / No restringida';
+        }
+
         function openModal() {
+            updateStorageTabStats();
             if (typeof modal.showModal === 'function') {
                 modal.showModal();
             } else {
@@ -1276,8 +1147,64 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
                     targetPane.classList.add('active');
                     targetPane.removeAttribute('hidden');
                 }
+                if (targetId === 'tab-storage') {
+                    updateStorageTabStats();
+                }
             });
         });
+
+        // Suscribirse a eventos de cambio en la BD
+        window.addEventListener('gaje:db:changed', () => {
+            updateStorageTabStats();
+        });
+
+        // Botones de Soberanía de Datos (Backup, Import y Clear)
+        const exportDbBtn = document.getElementById('modal-export-db-btn');
+        if (exportDbBtn) {
+            exportDbBtn.addEventListener('click', async () => {
+                if (window.GajeDB) {
+                    await window.GajeDB.exportFullDatabase();
+                }
+            });
+        }
+
+        const importDbBtn = document.getElementById('modal-import-db-btn');
+        const importDbFile = document.getElementById('modal-import-db-file');
+        if (importDbBtn && importDbFile) {
+            importDbBtn.addEventListener('click', () => importDbFile.click());
+            importDbFile.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = async (evt) => {
+                    if (window.GajeDB) {
+                        const res = await window.GajeDB.importFullDatabase(evt.target.result);
+                        if (res.success) {
+                            alert(`✅ Base de datos restaurada con éxito: ${res.count} mensajes.`);
+                            chatWindow.innerHTML = '';
+                            await renderHistory();
+                        } else {
+                            alert(`❌ Error al importar backup: ${res.error}`);
+                        }
+                    }
+                };
+                reader.readAsText(file);
+                importDbFile.value = '';
+            });
+        }
+
+        const clearDbBtn = document.getElementById('modal-clear-db-btn');
+        if (clearDbBtn) {
+            clearDbBtn.addEventListener('click', async () => {
+                if (confirm('¿Estás seguro de que deseas vaciar completamente la base de datos local IndexedDB? Esta acción es irreversible.')) {
+                    if (window.GajeDB) {
+                        await window.GajeDB.clearAllMessages();
+                        chatWindow.innerHTML = '';
+                        updateStorageTabStats();
+                    }
+                }
+            });
+        }
     }
 
     sendBtn.addEventListener('click', sendMessage);

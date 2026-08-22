@@ -162,6 +162,10 @@
                     <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg>
                     <span>Audit Logs</span>
                 </button>
+                <button class="seg-tab" role="tab" aria-selected="false" data-tab="tab-storage">
+                    <svg class="y2k-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                    <span>IndexedDB</span>
+                </button>
             </nav>
 
             <!-- Modal Content Panels -->
@@ -246,6 +250,39 @@
                         </div>
                     </div>
                 </section>
+
+                <!-- Tab 5: Sovereign Storage (IndexedDB) -->
+                <section id="tab-storage" class="tab-pane" role="tabpanel" hidden>
+                    <div class="modal-card-grid">
+                        <div class="hud-card">
+                            <h4 class="hud-card-title">Inspector GajeHelixDB (IndexedDB v1)</h4>
+                            <div class="hud-stat-box">
+                                <div class="metric-row"><span>Motor Local:</span> <span class="metric-val" style="color: var(--neon-cyan)">IndexedDB (Soberano)</span></div>
+                                <div class="metric-row"><span>Mensajes Almacenados:</span> <span id="modal-storage-msg-count" class="metric-val">0</span></div>
+                                <div class="metric-row"><span>Espacio Ocupado:</span> <span id="modal-storage-usage-val" class="metric-val">0 B</span></div>
+                                <div class="metric-row"><span>Cuota Disponible:</span> <span id="modal-storage-quota-val" class="metric-val">Ilimitada</span></div>
+                            </div>
+                        </div>
+                        <div class="hud-card">
+                            <h4 class="hud-card-title">Soberanía de Datos & Backup</h4>
+                            <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.8rem;">
+                                Exporta o restaura tu base de datos de conversaciones completas en formato JSON sin intermediarios ni nube externa.
+                            </p>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <button id="modal-export-db-btn" class="apple-pill-btn" style="flex: 1; min-width: 130px; font-size: 0.7rem;">
+                                    📥 Exportar JSON
+                                </button>
+                                <button id="modal-import-db-btn" class="apple-pill-btn" style="flex: 1; min-width: 130px; font-size: 0.7rem;">
+                                    📤 Importar JSON
+                                </button>
+                                <input type="file" id="modal-import-db-file" accept=".json" style="display: none;">
+                                <button id="modal-clear-db-btn" class="apple-pill-btn" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.35); color: #fca5a5; font-size: 0.7rem;">
+                                    🗑️ Vaciar DB
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
 
             <!-- Modal Footer Actions -->
@@ -257,6 +294,7 @@
     </dialog>
 
     <footer id="gaje-footer"></footer>
+    <script src="static/js/storage.js?v=1.6.2"></script>
     <script src="static/js/ui.js?v=1.6.2"></script>
     <script src="static/js/chat.js?v=1.6.2"></script>
 </body>
