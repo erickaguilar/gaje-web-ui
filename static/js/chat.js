@@ -1008,44 +1008,173 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         msgEl.appendChild(meta);
     }
 
-    // ===== Historial local (Fase 2.3) =====
-    const HISTORY_KEY = 'gaje_chat_history';
+    // ===== IndexedDB Storage Engine (GajeHelixDB v1) =====
+    const DB_NAME = 'GajeHelixDB';
+    const DB_VERSION = 1;
 
-    function loadHistory() {
-        try {
-            const raw = localStorage.getItem(HISTORY_KEY);
-            if (!raw) return [];
-            const arr = JSON.parse(raw);
-            return Array.isArray(arr) ? arr : [];
-        } catch (e) {
-            return [];
+    class GajeIndexedStorage {
+        constructor() {
+            this.db = null;
+            this.readyPromise = this.init();
+        }
+
+        async init() {
+            if (!window.indexedDB) {
+                console.warn('[GajeStorage] IndexedDB no soportado en este entorno. Usando localStorage como fallback.');
+                return null;
+            }
+            return new Promise((resolve) => {
+                const req = indexedDB.open(DB_NAME, DB_VERSION);
+                req.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains('messages')) {
+                        const msgStore = db.createObjectStore('messages', { keyPath: 'id', autoIncrement: true });
+                        msgStore.createIndex('role', 'role', { unique: false });
+                        msgStore.createIndex('time', 'time', { unique: false });
+                        msgStore.createIndex('model', 'model', { unique: false });
+                    }
+                    if (!db.objectStoreNames.contains('sessions')) {
+                        db.createObjectStore('sessions', { keyPath: 'sessionId' });
+                    }
+                };
+                req.onsuccess = (e) => {
+                    this.db = e.target.result;
+                    console.log('⚡ [GajeStorage] IndexedDB inicializada con éxito (GajeHelixDB v1)');
+                    this.migrateFromLocalStorage();
+                    resolve(this.db);
+                };
+                req.onerror = (e) => {
+                    console.warn('[GajeStorage] Error al inicializar IndexedDB:', e);
+                    resolve(null);
+                };
+            });
+        }
+
+        async migrateFromLocalStorage() {
+            try {
+                const legacy = localStorage.getItem('gaje_chat_history');
+                if (legacy) {
+                    const arr = JSON.parse(legacy);
+                    if (Array.isArray(arr) && arr.length > 0) {
+                        const count = await this.getMessageCount();
+                        if (count === 0) {
+                            for (const item of arr) {
+                                await this.saveMessage(item);
+                            }
+                            console.log(`📦 [GajeStorage] Migrados ${arr.length} mensajes desde localStorage a IndexedDB.`);
+                        }
+                    }
+                }
+            } catch (e) { /* ignore */ }
+        }
+
+        async saveMessage(entry) {
+            await this.readyPromise;
+            if (!this.db) {
+                this.fallbackPush(entry);
+                return;
+            }
+            return new Promise((resolve) => {
+                try {
+                    const tx = this.db.transaction('messages', 'readwrite');
+                    const store = tx.objectStore('messages');
+                    const item = {
+                        ...entry,
+                        savedAt: Date.now()
+                    };
+                    const req = store.add(item);
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => {
+                        this.fallbackPush(entry);
+                        resolve(null);
+                    };
+                } catch (e) {
+                    this.fallbackPush(entry);
+                    resolve(null);
+                }
+            });
+        }
+
+        async getAllMessages() {
+            await this.readyPromise;
+            if (!this.db) {
+                return this.fallbackGet();
+            }
+            return new Promise((resolve) => {
+                try {
+                    const tx = this.db.transaction('messages', 'readonly');
+                    const store = tx.objectStore('messages');
+                    const req = store.getAll();
+                    req.onsuccess = () => {
+                        resolve(req.result || []);
+                    };
+                    req.onerror = () => resolve(this.fallbackGet());
+                } catch (e) {
+                    resolve(this.fallbackGet());
+                }
+            });
+        }
+
+        async clearAllMessages() {
+            await this.readyPromise;
+            if (this.db) {
+                try {
+                    const tx = this.db.transaction('messages', 'readwrite');
+                    tx.objectStore('messages').clear();
+                } catch (e) { /* ignore */ }
+            }
+            try { localStorage.removeItem('gaje_chat_history'); } catch (e) {}
+        }
+
+        async getMessageCount() {
+            if (!this.db) return 0;
+            return new Promise((resolve) => {
+                try {
+                    const tx = this.db.transaction('messages', 'readonly');
+                    const req = tx.objectStore('messages').count();
+                    req.onsuccess = () => resolve(req.result || 0);
+                    req.onerror = () => resolve(0);
+                } catch (e) { resolve(0); }
+            });
+        }
+
+        fallbackPush(entry) {
+            try {
+                const raw = localStorage.getItem('gaje_chat_history');
+                const arr = raw ? JSON.parse(raw) : [];
+                arr.push(entry);
+                if (arr.length > 200) arr.splice(0, arr.length - 200);
+                localStorage.setItem('gaje_chat_history', JSON.stringify(arr));
+            } catch (e) {}
+        }
+
+        fallbackGet() {
+            try {
+                const raw = localStorage.getItem('gaje_chat_history');
+                return raw ? JSON.parse(raw) : [];
+            } catch (e) { return []; }
         }
     }
+
+    const gajeStorage = new GajeIndexedStorage();
 
     function pushHistory(entry) {
         if (!entry.time) {
             entry.time = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         }
         if (entry.role === 'assistant' && !entry.model) {
-            entry.model = modelSelect.value;
+            entry.model = modelSelect ? modelSelect.value : 'GAJE';
         }
-        const arr = loadHistory();
-        arr.push(entry);
-        if (arr.length > 100) arr.splice(0, arr.length - 100);
-        try {
-            localStorage.setItem(HISTORY_KEY, JSON.stringify(arr));
-        } catch (e) { /* almacenamiento lleno */ }
+        gajeStorage.saveMessage(entry);
     }
 
     function clearHistory() {
-        try {
-            localStorage.removeItem(HISTORY_KEY);
-        } catch (e) { /* ignore */ }
+        gajeStorage.clearAllMessages();
     }
 
-    function renderHistory() {
-        const arr = loadHistory();
-        if (arr.length === 0) return;
+    async function renderHistory() {
+        const arr = await gajeStorage.getAllMessages();
+        if (!arr || arr.length === 0) return;
         arr.forEach(entry => {
             if (entry.role === 'user') addMessage(entry.content, 'user', null, entry.time);
             else if (entry.role === 'assistant') addMessage(entry.content, 'bot', entry.meta || null, entry.time, entry.model);
