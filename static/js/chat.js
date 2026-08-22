@@ -458,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     let bodyText = '';
-                    const respBody = msg.querySelector('.response-body');
+                    const respBody = msg.querySelector('.response-body, .stream-text');
                     if (respBody) {
                         bodyText = respBody.innerText.trim();
                     } else {
@@ -467,6 +467,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (box) box.remove();
                         const meta = pClone.querySelector('.message-meta');
                         if (meta) meta.remove();
+                        const statusRow = pClone.querySelector('.stream-status-row, .stream-status');
+                        if (statusRow) statusRow.remove();
                         bodyText = pClone.innerText.trim();
                     }
                     bodyText = bodyText.replace(/<\/?thinks?>/gi, '').trim();
@@ -825,10 +827,20 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         userInput.focus();
     }
 
+    async function getRecentHistory(limit = 8) {
+        if (!window.GajeDB) return [];
+        try {
+            const msgs = await window.GajeDB.getAllMessages();
+            return (msgs || []).slice(-limit).map(e => ({ role: e.role, content: e.content }));
+        } catch (e) {
+            return [];
+        }
+    }
+
     // Fallback no-streaming con métricas (si el stream falla)
     async function fallbackChat(text, modelName) {
         try {
-            const recentHistory = loadHistory().slice(-8).map(e => ({ role: e.role, content: e.content }));
+            const recentHistory = await getRecentHistory(8);
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -852,7 +864,7 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
     // ===== Streaming SSE (Fase 2.2) =====
     let abortController = null;
 
-    function streamChat(message, modelName) {
+    async function streamChat(message, modelName) {
         const botMsg = createBotMessage(modelName);
         botMsg.classList.add('streaming');
         const statusEl = document.createElement('span');
@@ -902,7 +914,7 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         };
         stopBtn.onclick = onStop;
 
-        const recentHistory = loadHistory().slice(-8).map(e => ({ role: e.role, content: e.content }));
+        const recentHistory = await getRecentHistory(8);
 
         return fetch('/api/chat/stream', {
             method: 'POST',
