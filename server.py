@@ -24,6 +24,12 @@ from gaje.processing.island_memory import IslandMemoryManager  # noqa: E402
 from model_manager import get_model, list_available_models, unload_model  # noqa: E402
 from prompt_templates import format_prompt, get_stop_tokens  # noqa: E402
 
+try:
+    from gaje.core._impl import get_gpu_info_py, is_gpu_available_py  # noqa: E402
+except ImportError:
+    get_gpu_info_py = lambda: None  # noqa: E731
+    is_gpu_available_py = lambda: False  # noqa: E731
+
 # ============ Configuración por variables de entorno (Fase 2.1) ============
 PORT = int(os.environ.get("GAJE_PORT", "8080"))
 MODELS_ROOT = os.environ.get("GAJE_MODELS_ROOT", os.path.join(PROJECT_ROOT, "models"))
@@ -124,10 +130,16 @@ def get_runtime_info() -> dict:
         "hardware": f"{cpu} - {arch} ({cores} cores)",
         "island": ISLAND_CONFIG,
         "auto_load_model": AUTO_LOAD_MODEL,
+        "gpu": (lambda: get_gpu_info_py() if 'get_gpu_info_py' in globals() else None)(),
     }
 
 
 class GajeHandler(http.server.SimpleHTTPRequestHandler):
+    extensions_map = http.server.SimpleHTTPRequestHandler.extensions_map.copy()
+    extensions_map['.wasm'] = 'application/wasm'
+    extensions_map['.js'] = 'application/javascript'
+    extensions_map['.mjs'] = 'application/javascript'
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=SERVER_DIR, **kwargs)
 
@@ -145,6 +157,27 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             self._send_json({"models": models})
         elif self.path == "/api/info":
             self._send_json(get_runtime_info())
+        elif self.path.startswith("/models/"):
+            rel_path = self.path[len("/models/"):].split("?")[0]
+            target_path = os.path.join(MODELS_ROOT, rel_path)
+            if not os.path.exists(target_path):
+                target_path = os.path.join(MODELS_ROOT, "production", rel_path)
+            if os.path.exists(target_path) and os.path.isfile(target_path):
+                try:
+                    with open(target_path, "rb") as f:
+                        content = f.read()
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/octet-stream")
+                    self.send_header("Content-Length", str(len(content)))
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    self.wfile.write(content)
+                    return
+                except Exception as e:
+                    logger.error("Error sirviendo modelo binario %s: %s", target_path, e)
+                    self.send_error(500, "Error leyendo archivo binario")
+                    return
+            self.send_error(404, "Modelo no encontrado")
         else:
             super().do_GET()
 
@@ -281,6 +314,8 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
                     "ratio": round(ratio, 1),
                     "saved": round(saved, 2),
                     "quantum_embeddings": bool(llm.has_quantum_embeddings()),
+                    "gpu_active": bool(_runtime.get("gpu")),
+                    "gpu_info": _runtime.get("gpu"),
                     "sf_info": _runtime["software"],
                     "hd_info": _runtime["hardware"],
                 },
@@ -403,6 +438,8 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
                     "ratio": round(ratio, 1),
                     "saved": round(saved, 2),
                     "quantum_embeddings": bool(llm.has_quantum_embeddings()),
+                    "gpu_active": bool(_runtime.get("gpu")),
+                    "gpu_info": _runtime.get("gpu"),
                     "sf_info": _runtime["software"],
                     "hd_info": _runtime["hardware"],
                 },

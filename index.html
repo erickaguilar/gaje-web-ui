@@ -43,6 +43,14 @@
                             </select>
                         </div>
 
+                        <!-- Selector de Backend: Nativo vs In-Browser WASM -->
+                        <div class="engine-mode-wrapper" data-tooltip="Modo de Ejecución: Servidor Nativo (AVX2/GPU) o In-Browser WASM (Zero-Server)">
+                            <select id="engine-mode-select" class="header-model-dropdown engine-mode-dropdown" aria-label="Modo de Ejecución">
+                                <option value="native" selected>🌐 Servidor (Nativo)</option>
+                                <option value="wasm">⚡ Browser (WASM)</option>
+                            </select>
+                        </div>
+
                         <span class="chat-pill-ram" id="model-ram" data-tooltip="Memoria RAM residente consumida">
                             <span class="ram-led"></span><span>RAM —</span>
                         </span>
@@ -63,6 +71,16 @@
 
                     <!-- Right: Apple Segmented Tool Group (Exportar, Copiar, Borrar) -->
                     <div class="chat-toolbar-actions">
+                        <span id="wasm-header-badge" class="status-indicator-pill wasm-indicator-pill" data-tooltip="Motor WebAssembly In-Browser Activo (Zero-Server)" style="display: none; background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.4); color: #c084fc;">
+                            <span class="pulse-engine-dot" style="background: #c084fc; box-shadow: 0 0 8px #c084fc;"></span>
+                            <span id="wasm-header-text">⚡ WASM</span>
+                        </span>
+
+                        <span id="gpu-header-badge" class="status-indicator-pill gpu-indicator-pill" data-tooltip="Aceleración GPU Vulkan Activa (AMD Radeon)" style="display: none; background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;">
+                            <span class="pulse-engine-dot" style="background: #38bdf8; box-shadow: 0 0 8px #38bdf8;"></span>
+                            <span id="gpu-header-text">🎮 GPU</span>
+                        </span>
+
                         <span class="status-indicator-pill" data-tooltip="Motor GAJE de compresión semántica activo">
                             <span class="pulse-engine-dot"></span>
                             <span>Core</span>
@@ -232,7 +250,8 @@
                             <div class="hud-stat-box">
                                 <div class="metric-row"><span>Cores Activos:</span> <span id="modal-cores-val" class="metric-val">16 Cores</span></div>
                                 <div class="metric-row"><span>Latencia Inferencia:</span> <span id="modal-latency-val" class="metric-val">Sub-milisegundo</span></div>
-                                <div class="metric-row"><span>Aceleración:</span> <span class="metric-val" style="color: var(--neon-cyan)">q4_0_dot SIMD AVX2</span></div>
+                                <div class="metric-row"><span>Aceleración CPU:</span> <span class="metric-val" style="color: var(--neon-cyan)">q4_0_dot SIMD AVX2</span></div>
+                                <div class="metric-row"><span>Aceleración GPU:</span> <span id="modal-gpu-val" class="metric-val" style="color: #38bdf8">🎮 AMD Radeon Vega (Vulkan)</span></div>
                                 <div class="metric-row"><span>Kernel Ingesta:</span> <span class="metric-val">Zero-Allocation Direct</span></div>
                             </div>
                         </div>

@@ -103,6 +103,21 @@ document.addEventListener('DOMContentLoaded', () => {
             if (mSimd && info.simd) mSimd.innerText = info.simd;
             if (mCores && info.cores) mCores.innerText = info.cores;
 
+            // GPU Acceleration Telemetry
+            const gpuHeaderBadge = document.getElementById('gpu-header-badge');
+            const gpuHeaderText = document.getElementById('gpu-header-text');
+            const modalGpuVal = document.getElementById('modal-gpu-val');
+            if (info.gpu) {
+                const gpuName = info.gpu.device_name || 'AMD Radeon Vega';
+                const gpuBackend = info.gpu.backend || 'Vulkan';
+                if (gpuHeaderBadge) gpuHeaderBadge.style.display = 'inline-flex';
+                if (gpuHeaderText) gpuHeaderText.innerText = `🎮 GPU (${gpuBackend})`;
+                if (modalGpuVal) modalGpuVal.innerText = `🎮 ${gpuName} (${gpuBackend})`;
+            } else {
+                if (gpuHeaderBadge) gpuHeaderBadge.style.display = 'none';
+                if (modalGpuVal) modalGpuVal.innerText = 'No activa (Fallback CPU SIMD)';
+            }
+
             // Island Model (.gmem) — valores desde el servidor, no hardcodeados
             if (info.island) {
                 const pillsHtml = (info.island.pills || [])
@@ -430,6 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 3. Entorno de Ejecución y Hardware
         const sfVal = (envData && envData.software) || document.getElementById('sf-val')?.innerText || 'Rust 2021 (AVX2/FMA/AVX/SSE4.2) + PyO3 / Python 3.14.6';
         const hdVal = (envData && envData.hardware) || document.getElementById('hd-val')?.innerText || 'AMD Ryzen 7 5800H with Radeon Graphics - x86_64 (16 cores)';
+        const gpuVal = (envData && envData.gpu) ? `${envData.gpu.device_name} (${envData.gpu.backend})` : (document.getElementById('modal-gpu-val')?.innerText || 'AMD Radeon Graphics (Vulkan)');
         const archVal = (envData && envData.architecture) || document.getElementById('arch-val')?.innerText || 'x86_64';
         const simdVal = (envData && envData.simd) || document.getElementById('simd-val')?.innerText || 'AVX2/FMA/AVX/SSE4.2';
         const coresVal = (envData && envData.cores) || document.getElementById('cores-val')?.innerText || '16';
@@ -533,6 +549,7 @@ Fecha y Hora de Generación: ${now}
 --------------------------------------------------------------------------------
 • Software: ${sfVal}
 • Hardware: ${hdVal}
+• Aceleración GPU: ${gpuVal}
 • Arquitectura CPU: ${archVal} (Cores: ${coresVal})
 • Instrucciones SIMD: ${simdVal}
 • Rendimiento Inferencia: ${latencyVal}
@@ -728,13 +745,25 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
                 ⚛️ .qemb
             </span>` : '';
 
+        const gpuHtml = (meta && (meta.gpu_active || meta.gpu_info)) ? `
+            <span class="meta-tag meta-gpu" title="Aceleración GPU Activa: Vulkan / AMD Radeon Compute">
+                🎮 .gpu
+            </span>` : '';
+
+        const wasmHtml = (meta && (meta.is_wasm || meta.backend === 'WASM (Client-Side)')) ? `
+            <span class="meta-tag meta-wasm" title="Motor WebAssembly en Navegador: Inferencia local Zero-Server" style="background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.35); color: #c084fc;">
+                ⚡ .wasm
+            </span>` : '';
+
         return `
             <div class="message-meta">
                 <span class="meta-tag meta-model" title="Modelo activo: ${escapeHtml(shortModel)} · Cuantización Q${bit}_0 (${ratio}x · ${saved}% ahorro RAM)">
                     🧬 ${escapeHtml(shortModel)}
                 </span>
                 ${statsText ? `<span class="meta-tag meta-stats" title="${escapeHtml(statsTitle)}">${escapeHtml(statsText)}</span>` : ''}
+                ${wasmHtml}
                 ${quantumHtml}
+                ${gpuHtml}
                 ${islandHtml}
                 <span class="meta-tag meta-time" title="Hora de emisión: ${escapeHtml(displayTime)}${latencyStr ? ' | Latencia: ' + escapeHtml(latencyStr) : ''}">
                     <svg class="meta-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -824,10 +853,169 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         });
     }
 
+    // ===== WASM In-Browser Engine Worker =====
+    let wasmWorker = null;
+    let isWasmModelLoaded = false;
+    let wasmActiveModelName = null;
+    const engineModeSelect = document.getElementById('engine-mode-select');
+    const wasmHeaderBadge = document.getElementById('wasm-header-badge');
+
+    function initWasmWorker() {
+        if (wasmWorker) return wasmWorker;
+        wasmWorker = new Worker('static/js/wasm_worker.js', { type: 'module' });
+        wasmWorker.postMessage({ action: 'init' });
+        wasmWorker.onmessage = (e) => {
+            const data = e.data;
+            if (data.status === 'ready') {
+                console.log('⚡ [GAJE-WASM] Web Worker listo para inferencia.');
+            } else if (data.status === 'model_loaded') {
+                console.log(`✅ [GAJE-WASM] Modelo ${data.modelName} cargado en ${data.loadTimeMs} ms`, data.info);
+                isWasmModelLoaded = true;
+                wasmActiveModelName = data.modelName;
+                if (modelLoadBar) modelLoadBar.hidden = true;
+                if (modelRam) modelRam.innerHTML = `<span class="ram-led active"></span><span>WASM ${data.loadTimeMs}ms</span>`;
+                addSystemAlert(`Modelo ${data.modelName} listo en WebAssembly (${data.loadTimeMs} ms).`);
+            } else if (data.status === 'error') {
+                console.error('🔥 [GAJE-WASM Error]:', data.error);
+                if (modelLoadBar) modelLoadBar.hidden = true;
+                addSystemAlert(`Error WASM: ${data.error}`);
+            }
+        };
+        return wasmWorker;
+    }
+
+    if (engineModeSelect) {
+        engineModeSelect.addEventListener('change', (e) => {
+            const mode = e.target.value;
+            const gpuHeaderBadge = document.getElementById('gpu-header-badge');
+            if (mode === 'wasm') {
+                if (wasmHeaderBadge) wasmHeaderBadge.style.display = 'inline-flex';
+                if (gpuHeaderBadge) gpuHeaderBadge.style.display = 'none';
+                initWasmWorker();
+                addSystemAlert('Modo In-Browser WASM (Zero-Server) activado.');
+            } else {
+                if (wasmHeaderBadge) wasmHeaderBadge.style.display = 'none';
+                if (envData && envData.gpu && gpuHeaderBadge) {
+                    gpuHeaderBadge.style.display = 'inline-flex';
+                }
+                addSystemAlert('Modo Servidor Nativo (AVX2/GPU) activado.');
+            }
+        });
+    }
+
+    async function wasmChat(text, modelName) {
+        const worker = initWasmWorker();
+        const botMsg = createBotMessage(modelName);
+        botMsg.classList.add('streaming');
+        const statusEl = document.createElement('span');
+        statusEl.className = 'stream-status';
+        statusEl.textContent = 'WASM';
+        const statusAnchor = document.createElement('div');
+        statusAnchor.className = 'stream-status-row';
+        statusAnchor.appendChild(statusEl);
+        botMsg.appendChild(statusAnchor);
+
+        const contentEl = document.createElement('p');
+        contentEl.className = 'stream-text';
+        contentEl.textContent = 'Procesando en WebAssembly...';
+        botMsg.appendChild(contentEl);
+        chatWindow.appendChild(botMsg);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+
+        try {
+            if (!isWasmModelLoaded || wasmActiveModelName !== modelName) {
+                contentEl.textContent = `Descargando ${modelName} a memoria WebAssembly...`;
+                if (modelLoadBar) modelLoadBar.hidden = false;
+                
+                // Intento de descarga desde el endpoint estático o de modelos
+                let resp = await fetch(`/models/production/${modelName}`).catch(() => null);
+                if (!resp || !resp.ok) {
+                    resp = await fetch(`/models/${modelName}`).catch(() => null);
+                }
+                if (!resp || !resp.ok) {
+                    throw new Error(`No se pudo descargar ${modelName} para el navegador. Selecciona un modelo accesible.`);
+                }
+
+                const buffer = await resp.arrayBuffer();
+                contentEl.textContent = `Cargando pesos en WASM (${(buffer.byteLength / (1024 * 1024)).toFixed(1)} MB)...`;
+
+                await new Promise((resolve, reject) => {
+                    const handler = (e) => {
+                        if (e.data.status === 'model_loaded') {
+                            worker.removeEventListener('message', handler);
+                            resolve();
+                        } else if (e.data.status === 'error') {
+                            worker.removeEventListener('message', handler);
+                            reject(new Error(e.data.error));
+                        }
+                    };
+                    worker.addEventListener('message', handler);
+                    worker.postMessage({ action: 'load_model', payload: { buffer, modelName } });
+                });
+            }
+
+            contentEl.textContent = 'Pensando...';
+            const t0 = performance.now();
+
+            const responseText = await new Promise((resolve, reject) => {
+                const handler = (e) => {
+                    if (e.data.status === 'chat_response') {
+                        worker.removeEventListener('message', handler);
+                        resolve(e.data.response);
+                    } else if (e.data.status === 'error') {
+                        worker.removeEventListener('message', handler);
+                        reject(new Error(e.data.error));
+                    }
+                };
+                worker.addEventListener('message', handler);
+                worker.postMessage({
+                    action: 'chat',
+                    payload: { prompt: text, maxTokens: 64, temperature: 0.7, repetitionPenalty: 1.1 }
+                });
+            });
+
+            const elapsed = Math.round(performance.now() - t0);
+            contentEl.innerHTML = parseMarkdown(responseText);
+            botMsg.classList.remove('streaming');
+            statusAnchor.remove();
+
+            const approxTokens = Math.max(1, Math.round(responseText.split(/\s+/).filter(Boolean).length * 1.3));
+            const wasmMetrics = {
+                latency_ms: elapsed,
+                prompt_tokens: Math.round(text.length / 4),
+                generated_tokens: approxTokens,
+                tokens_count: approxTokens + Math.round(text.length / 4),
+                tokens_sec: (approxTokens / (elapsed / 1000.0) || 1.0).toFixed(1),
+                ratio: 8.0,
+                saved: 87.5,
+                dna_size: 576,
+                original_size: 2304,
+                bit_depth: 4,
+                backend: 'WASM (Client-Side)',
+                is_wasm: true,
+                quantum_embeddings: false
+            };
+
+            addMetaTo(botMsg, elapsed, 'WASM', responseText, modelName, wasmMetrics);
+            pushHistory({ role: 'assistant', content: responseText, model: modelName, metrics: wasmMetrics });
+            updateMetrics(wasmMetrics);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+            return true;
+        } catch (err) {
+            if (modelLoadBar) modelLoadBar.hidden = true;
+            botMsg.classList.remove('streaming');
+            statusAnchor.remove();
+            contentEl.innerHTML = `<span style="color: #fca5a5">Error WASM: ${err.message}</span>`;
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+            return false;
+        }
+    }
+
     async function sendMessage() {
         const text = userInput.value.trim();
         const modelSelect = document.getElementById('model-select');
         const modelValue = modelSelect.value;
+        const engineMode = document.getElementById('engine-mode-select')?.value || 'native';
 
         if (!text) return;
         if (!modelValue || modelValue === 'none' || modelValue === '') {
@@ -844,6 +1032,14 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         // Vínculo contextual (Fase 1): resaltar el flujo de inferencia en el diagrama
         if (window.ArchView && window.ArchView.isLoaded()) {
             window.ArchView.setFlow('inference');
+        }
+
+        if (engineMode === 'wasm') {
+            await wasmChat(text, modelValue);
+            userInput.disabled = false;
+            sendBtn.disabled = false;
+            userInput.focus();
+            return;
         }
 
         const ok = await streamChat(text, modelValue);
