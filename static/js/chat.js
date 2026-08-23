@@ -872,6 +872,8 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
                 console.log(`✅ [GAJE-WASM] Modelo ${data.modelName} cargado en ${data.loadTimeMs} ms`, data.info);
                 isWasmModelLoaded = true;
                 wasmActiveModelName = data.modelName;
+                resetAutonomicCycle();
+                startAutonomicTick();
                 if (modelLoadBar) modelLoadBar.hidden = true;
                 if (modelRam) modelRam.innerHTML = `<span class="ram-led active"></span><span>WASM ${data.loadTimeMs}ms</span>`;
                 addMessage(`Modelo ${data.modelName} listo en WebAssembly (${data.loadTimeMs} ms).`, 'system');
@@ -882,6 +884,106 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
             }
         };
         return wasmWorker;
+    }
+
+    // ===== Ciclo Autonómico Periódico (Consolidación Automática en Background) =====
+    // Dispara autonomic_sleep_cycle en el Worker sin intervención del usuario:
+    //   1. Cada N interacciones de chat exitosas (ritmo de uso).
+    //   2. Fallback temporal: si pasaron MAX_AUTONOMIC_INTERVAL_MS desde el último ciclo
+    //      y hubo actividad nueva, se consolida en cuanto el navegador esté idle.
+    // Usa requestIdleCallback para nunca competir con la UI; el Worker mantiene la
+    // inferencia fuera del hilo principal.
+    const AUTONOMIC_INTERACTIONS_LIMIT = 12;
+    const AUTONOMIC_MAX_INTERVAL_MS = 5 * 60 * 1000;
+    const AUTONOMIC_TICK_MS = 60 * 1000;
+    let autonomicInteractions = 0;
+    let lastAutonomicCycleAt = Date.now();
+    let autonomicTickTimer = null;
+    let autonomicInFlight = false;
+
+    function scheduleIdleWork(fn, timeoutMs = 4000) {
+        if (typeof requestIdleCallback === 'function') {
+            requestIdleCallback(fn, { timeout: timeoutMs });
+        } else {
+            setTimeout(fn, Math.min(timeoutMs, 2000));
+        }
+    }
+
+    function runAutonomicSleepCycle(reason) {
+        const worker = initWasmWorker();
+        if (!isWasmModelLoaded || autonomicInFlight || !wasmActiveModelName) return;
+        autonomicInFlight = true;
+        console.log(`💤 [GAJE-WASM] Ciclo autonómico automático (${reason})...`);
+
+        const modelName = wasmActiveModelName;
+        const onCycleDone = async (ev) => {
+            worker.removeEventListener('message', onCycleDone);
+            worker.removeEventListener('message', onCycleError);
+            try {
+                if (ev.data.status === 'sleep_cycle_completed') {
+                    // Persistir la isla documental consolidada en IndexedDB
+                    worker.postMessage({ action: 'export_memory', payload: { niche: 'documental' } });
+                    const expHandler = async (exp) => {
+                        if (exp.data.status === 'memory_exported' && window.GajeDB && exp.data.niche === 'documental') {
+                            worker.removeEventListener('message', expHandler);
+                            await window.GajeDB.saveMemoryIsland(modelName, exp.data.niche, exp.data.buffer);
+                        }
+                    };
+                    worker.addEventListener('message', expHandler);
+
+                    const s = ev.data.stats || {};
+                    addMessage(`💤 Consolidación autonómica: ${s.episodic_transferred || 0} transferidos, ${s.duplicates_pruned || 0} podados.`, 'system');
+                }
+            } finally {
+                autonomicInFlight = false;
+                lastAutonomicCycleAt = Date.now();
+                autonomicInteractions = 0;
+            }
+        };
+        const onCycleError = (ev) => {
+            if (ev.data.status !== 'error') return;
+            worker.removeEventListener('message', onCycleDone);
+            worker.removeEventListener('message', onCycleError);
+            console.warn('🔥 [GAJE-WASM] Falló ciclo autonómico:', ev.data.error);
+            autonomicInFlight = false;
+            lastAutonomicCycleAt = Date.now();
+            autonomicInteractions = 0;
+        };
+
+        worker.addEventListener('message', onCycleDone);
+        worker.addEventListener('message', onCycleError);
+        worker.postMessage({ action: 'sleep_cycle', payload: { dedupThreshold: 0.95 } });
+    }
+
+    function maybeRunAutonomicCycle(reason) {
+        if (!isWasmModelLoaded || autonomicInFlight) return;
+        const dueByUsage = autonomicInteractions >= AUTONOMIC_INTERACTIONS_LIMIT;
+        const dueByTime = (Date.now() - lastAutonomicCycleAt) >= AUTONOMIC_MAX_INTERVAL_MS && autonomicInteractions > 0;
+        if (dueByUsage || dueByTime) {
+            scheduleIdleWork(() => runAutonomicSleepCycle(reason));
+        }
+    }
+
+    function registerWasmInteraction() {
+        autonomicInteractions += 1;
+        maybeRunAutonomicCycle(`uso: ${autonomicInteractions} interacciones`);
+    }
+
+    function resetAutonomicCycle() {
+        autonomicInteractions = 0;
+        lastAutonomicCycleAt = Date.now();
+    }
+
+    function startAutonomicTick() {
+        if (autonomicTickTimer) return;
+        autonomicTickTimer = setInterval(() => maybeRunAutonomicCycle('temporal'), AUTONOMIC_TICK_MS);
+    }
+
+    function stopAutonomicTick() {
+        if (autonomicTickTimer) {
+            clearInterval(autonomicTickTimer);
+            autonomicTickTimer = null;
+        }
     }
 
     if (engineModeSelect) {
@@ -903,6 +1005,7 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
                 addMessage('Modo In-Browser WASM (Zero-Server) activado.', 'system');
             } else {
                 if (wasmHeaderBadge) wasmHeaderBadge.style.display = 'none';
+                stopAutonomicTick();
                 if (envData && envData.gpu && gpuHeaderBadge) {
                     gpuHeaderBadge.style.display = 'inline-flex';
                 }
@@ -1061,6 +1164,9 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
                 }
             };
             worker.addEventListener('message', memExportHandler);
+
+            // Registrar interacción para el ciclo autonómico periódico
+            registerWasmInteraction();
 
             const approxTokens = Math.max(1, Math.round(responseText.split(/\s+/).filter(Boolean).length * 1.3));
             const wasmMetrics = {
