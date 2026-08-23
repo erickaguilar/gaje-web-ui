@@ -41,7 +41,7 @@ def format_prompt(
         parts = [f"<|im_start|>system\n{sys_msg}<|im_end|>"]
         for turn in valid_history:
             parts.append(f"<|im_start|>{turn['role']}\n{turn['content']}<|im_end|>")
-        parts.append(f"<|im_start|>user\n{message}<|im_end|>\n<|im_start|>assistant\n<think>\n")
+        parts.append(f"<|im_start|>user\n{message}<|im_end|>\n<|im_start|>assistant\n")
         return "\n".join(parts)
 
     # === Arquitectura 2: Qwen2 / Qwen2.5 / SmolLM2 (Estándar ChatML) ===
