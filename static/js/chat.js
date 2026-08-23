@@ -911,6 +911,59 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         });
     }
 
+    // Soporte para carga de archivos .flat locales 100% Offline / Privada
+    const btnLoadLocalFlat = document.getElementById('load-local-flat-btn');
+    const inputLocalFlat = document.getElementById('local-flat-file-input');
+
+    if (btnLoadLocalFlat && inputLocalFlat) {
+        btnLoadLocalFlat.addEventListener('click', () => {
+            inputLocalFlat.click();
+        });
+
+        inputLocalFlat.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (engineModeSelect) {
+                engineModeSelect.value = 'wasm';
+                engineModeSelect.dispatchEvent(new Event('change'));
+            }
+
+            const worker = initWasmWorker();
+            if (modelLoadBar) modelLoadBar.hidden = false;
+            addMessage(`📂 Cargando modelo local ${file.name} (${(file.size / (1024 * 1024)).toFixed(1)} MB)...`, 'system');
+
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const buffer = event.target.result;
+                const modelName = file.name;
+
+                await new Promise((resolve, reject) => {
+                    const handler = async (ev) => {
+                        if (ev.data.status === 'model_loaded') {
+                            worker.removeEventListener('message', handler);
+                            
+                            // Restaurar islas de memoria desde IndexedDB
+                            if (window.GajeDB) {
+                                const docBuf = await window.GajeDB.loadMemoryIsland(modelName, 'documental');
+                                if (docBuf) worker.postMessage({ action: 'import_memory', payload: { niche: 'documental', buffer: docBuf } });
+                                const convBuf = await window.GajeDB.loadMemoryIsland(modelName, 'conversational');
+                                if (convBuf) worker.postMessage({ action: 'import_memory', payload: { niche: 'conversational', buffer: convBuf } });
+                            }
+                            resolve();
+                        } else if (ev.data.status === 'error') {
+                            worker.removeEventListener('message', handler);
+                            reject(new Error(ev.data.error));
+                        }
+                    };
+                    worker.addEventListener('message', handler);
+                    worker.postMessage({ action: 'load_model', payload: { buffer, modelName } }, [buffer]);
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
     async function wasmChat(text, modelName) {
         const worker = initWasmWorker();
         const botMsg = createBotMessage(modelName);
@@ -941,16 +994,23 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
                     resp = await fetch(`/models/${modelName}`).catch(() => null);
                 }
                 if (!resp || !resp.ok) {
-                    throw new Error(`No se pudo descargar ${modelName} para el navegador. Selecciona un modelo accesible.`);
+                    throw new Error(`No se pudo descargar ${modelName} para el navegador. Selecciona un modelo accesible o usa el botón de carga local.`);
                 }
 
                 const buffer = await resp.arrayBuffer();
                 contentEl.textContent = `Cargando pesos en WASM (${(buffer.byteLength / (1024 * 1024)).toFixed(1)} MB)...`;
 
                 await new Promise((resolve, reject) => {
-                    const handler = (e) => {
+                    const handler = async (e) => {
                         if (e.data.status === 'model_loaded') {
                             worker.removeEventListener('message', handler);
+                            // Restaurar islas de memoria desde IndexedDB
+                            if (window.GajeDB) {
+                                const docBuf = await window.GajeDB.loadMemoryIsland(modelName, 'documental');
+                                if (docBuf) worker.postMessage({ action: 'import_memory', payload: { niche: 'documental', buffer: docBuf } });
+                                const convBuf = await window.GajeDB.loadMemoryIsland(modelName, 'conversational');
+                                if (convBuf) worker.postMessage({ action: 'import_memory', payload: { niche: 'conversational', buffer: convBuf } });
+                            }
                             resolve();
                         } else if (e.data.status === 'error') {
                             worker.removeEventListener('message', handler);
@@ -958,18 +1018,18 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
                         }
                     };
                     worker.addEventListener('message', handler);
-                    worker.postMessage({ action: 'load_model', payload: { buffer, modelName } });
+                    worker.postMessage({ action: 'load_model', payload: { buffer, modelName } }, [buffer]);
                 });
             }
 
             contentEl.textContent = 'Pensando...';
             const t0 = performance.now();
 
-            const responseText = await new Promise((resolve, reject) => {
+            const responseData = await new Promise((resolve, reject) => {
                 const handler = (e) => {
                     if (e.data.status === 'chat_response') {
                         worker.removeEventListener('message', handler);
-                        resolve(e.data.response);
+                        resolve(e.data);
                     } else if (e.data.status === 'error') {
                         worker.removeEventListener('message', handler);
                         reject(new Error(e.data.error));
@@ -978,14 +1038,25 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
                 worker.addEventListener('message', handler);
                 worker.postMessage({
                     action: 'chat',
-                    payload: { prompt: text, maxTokens: 64, temperature: 0.7, repetitionPenalty: 1.1 }
+                    payload: { prompt: text, maxTokens: 64, temperature: 0.7, repetitionPenalty: 1.1, injectRag: true }
                 });
             });
 
+            const responseText = responseData.response;
             const elapsed = Math.round(performance.now() - t0);
             contentEl.innerHTML = parseMarkdown(responseText);
             botMsg.classList.remove('streaming');
             statusAnchor.remove();
+
+            // Exportar memoria conversacional a IndexedDB
+            worker.postMessage({ action: 'export_memory', payload: { niche: 'conversational' } });
+            const memExportHandler = async (ev) => {
+                if (ev.data.status === 'memory_exported' && window.GajeDB) {
+                    worker.removeEventListener('message', memExportHandler);
+                    await window.GajeDB.saveMemoryIsland(modelName, ev.data.niche, ev.data.buffer);
+                }
+            };
+            worker.addEventListener('message', memExportHandler);
 
             const approxTokens = Math.max(1, Math.round(responseText.split(/\s+/).filter(Boolean).length * 1.3));
             const wasmMetrics = {
@@ -1307,8 +1378,180 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
             if (quotaEl) quotaEl.innerText = est.quotaFormatted !== 'N/A' ? `${est.quotaFormatted} (${est.percentUsed}% en uso)` : 'Ilimitada / No restringida';
         }
 
+        async function updateEpochsTab() {
+            const tableBody = document.getElementById('modal-epochs-table-body');
+            const feedback = document.getElementById('epoch-action-feedback');
+            if (!tableBody) return;
+
+            const selectedModel = modelSelect ? modelSelect.value : 'qwen2_5_3b.flat';
+            const organism = selectedModel.replace('.flat', '').replace('.gaje', '');
+
+            try {
+                const res = await fetch(`/api/memory/epochs?organism=${encodeURIComponent(organism)}`);
+                const data = await res.json();
+                if (!data || data.error || !data.epochs) {
+                    tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 0.8rem; color: var(--text-muted);">${data?.error || 'Sin épocas registradas'}</td></tr>`;
+                    return;
+                }
+
+                tableBody.innerHTML = '';
+                data.epochs.forEach(ep => {
+                    const isActive = ep.epoch_id === data.active_epoch_id;
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom = '1px solid rgba(255,255,255,0.04)';
+                    if (isActive) {
+                        tr.style.background = 'rgba(56, 189, 248, 0.08)';
+                    }
+
+                    const verdictColor = ep.verdict === 'PROMOTED' || ep.verdict === 'SEALED' ? '#4ade80' : (ep.verdict === 'REJECTED' ? '#f87171' : '#38bdf8');
+                    const badge = `<span style="display: inline-block; padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.65rem; background: ${verdictColor}22; color: ${verdictColor}; border: 1px solid ${verdictColor}55;">${ep.verdict}</span>`;
+                    const dateStr = ep.created_at ? ep.created_at.substring(0, 19).replace('T', ' ') : '—';
+
+                    tr.innerHTML = `
+                        <td style="padding: 0.4rem; font-weight: ${isActive ? 'bold' : 'normal'}; color: ${isActive ? 'var(--neon-cyan)' : 'inherit'};">
+                            ${isActive ? '★ ' : ''}${ep.epoch_id}
+                        </td>
+                        <td style="padding: 0.4rem; color: var(--text-muted);">${ep.parent_epoch}</td>
+                        <td style="padding: 0.4rem;">${badge}</td>
+                        <td style="padding: 0.4rem;">${ep.entries_count}</td>
+                        <td style="padding: 0.4rem; font-family: monospace; font-size: 0.68rem; color: var(--text-muted);">${dateStr}</td>
+                        <td style="padding: 0.4rem; color: var(--text-muted); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${ep.comment}">${ep.comment}</td>
+                        <td style="padding: 0.4rem; text-align: center;">
+                            ${isActive ? '<span style="font-size: 0.65rem; color: var(--neon-cyan);">ACTIVA</span>' : `<button class="apple-pill-btn btn-rollback-epoch" data-epoch-id="${ep.epoch_id}" style="font-size: 0.62rem; padding: 0.15rem 0.45rem;">⚡ Rollback</button>`}
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+
+                tableBody.querySelectorAll('.btn-rollback-epoch').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const epId = parseInt(e.target.getAttribute('data-epoch-id'), 10);
+                        if (!epId) return;
+                        if (feedback) {
+                            feedback.style.display = 'block';
+                            feedback.innerText = `Ejecutando rollback determinista a Época ${epId}...`;
+                        }
+                        try {
+                            const rbRes = await fetch('/api/memory/epochs/rollback', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ organism, epoch_id: epId })
+                            });
+                            const rbData = await rbRes.json();
+                            if (feedback) {
+                                feedback.innerText = `✓ Rollback completado a Época ${rbData.active_epoch_id}`;
+                                setTimeout(() => { feedback.style.display = 'none'; }, 3000);
+                            }
+                            updateEpochsTab();
+                        } catch (err) {
+                            if (feedback) feedback.innerText = `Error: ${err.message}`;
+                        }
+                    });
+                });
+            } catch (err) {
+                tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 0.8rem; color: #f87171;">Error cargando épocas: ${err.message}</td></tr>`;
+            }
+        }
+
+        const btnSnapshot = document.getElementById('btn-epoch-snapshot');
+        const btnSleep = document.getElementById('btn-epoch-sleep');
+        const btnRefresh = document.getElementById('btn-epoch-refresh');
+        const feedback = document.getElementById('epoch-action-feedback');
+
+        if (btnRefresh) btnRefresh.addEventListener('click', updateEpochsTab);
+
+        if (btnSnapshot) {
+            btnSnapshot.addEventListener('click', async () => {
+                const selectedModel = modelSelect ? modelSelect.value : 'qwen2_5_3b.flat';
+                const organism = selectedModel.replace('.flat', '').replace('.gaje', '');
+                const comment = prompt('Comentario para el Snapshot de Memoria:', 'Snapshot Manual Web UI');
+                if (comment === null) return;
+                if (feedback) {
+                    feedback.style.display = 'block';
+                    feedback.innerText = 'Creando snapshot inmutable de memoria...';
+                }
+                try {
+                    const res = await fetch('/api/memory/epochs/snapshot', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ organism, comment })
+                    });
+                    const data = await res.json();
+                    if (feedback) {
+                        feedback.innerText = `✓ Snapshot creado: Época ID ${data.epoch_id}`;
+                        setTimeout(() => { feedback.style.display = 'none'; }, 3500);
+                    }
+                    updateEpochsTab();
+                } catch (err) {
+                    if (feedback) feedback.innerText = `Error: ${err.message}`;
+                }
+            });
+        }
+
+        if (btnSleep) {
+            btnSleep.addEventListener('click', async () => {
+                const selectedModel = modelSelect ? modelSelect.value : 'qwen2_5_3b.flat';
+                const organism = selectedModel.replace('.flat', '').replace('.gaje', '');
+                if (feedback) {
+                    feedback.style.display = 'block';
+                    feedback.innerText = '💤 Ejecutando Ciclo de Sueño: Consolidando y podando memoria volátil...';
+                }
+                try {
+                    if (engineModeSelect && engineModeSelect.value === 'wasm') {
+                        const worker = initWasmWorker();
+                        const sleepResult = await new Promise((resolve, reject) => {
+                            const handler = (ev) => {
+                                if (ev.data.status === 'sleep_cycle_completed') {
+                                    worker.removeEventListener('message', handler);
+                                    resolve(ev.data);
+                                } else if (ev.data.status === 'error') {
+                                    worker.removeEventListener('message', handler);
+                                    reject(new Error(ev.data.error));
+                                }
+                            };
+                            worker.addEventListener('message', handler);
+                            worker.postMessage({ action: 'sleep_cycle', payload: { dedupThreshold: 0.95 } });
+                        });
+
+                        // Exportar y persistir memoria documental en IndexedDB
+                        worker.postMessage({ action: 'export_memory', payload: { niche: 'documental' } });
+                        const expHandler = async (ev) => {
+                            if (ev.data.status === 'memory_exported' && window.GajeDB) {
+                                worker.removeEventListener('message', expHandler);
+                                await window.GajeDB.saveMemoryIsland(selectedModel, 'documental', ev.data.buffer);
+                            }
+                        };
+                        worker.addEventListener('message', expHandler);
+
+                        if (feedback) {
+                            const s = sleepResult.stats || {};
+                            feedback.innerText = `✓ [WASM] Ciclo de Sueño completado: ${s.episodic_transferred || 0} transferidos, ${s.duplicates_pruned || 0} podados (Total: ${s.total_documental_entries || 0} docs)`;
+                            setTimeout(() => { feedback.style.display = 'none'; }, 4500);
+                        }
+                        return;
+                    }
+
+                    const res = await fetch('/api/memory/epochs/consolidate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ organism, dedup_threshold: 0.95 })
+                    });
+                    const data = await res.json();
+                    if (feedback) {
+                        const s = data.stats || {};
+                        feedback.innerText = `✓ Ciclo de Sueño completado: Época ${data.epoch_id} (${s.episodic_transferred || 0} transferidos, ${s.duplicates_pruned || 0} podados)`;
+                        setTimeout(() => { feedback.style.display = 'none'; }, 4500);
+                    }
+                    updateEpochsTab();
+                } catch (err) {
+                    if (feedback) feedback.innerText = `Error: ${err.message}`;
+                }
+            });
+        }
+
         function openModal() {
             updateStorageTabStats();
+            updateEpochsTab();
             if (typeof modal.showModal === 'function') {
                 modal.showModal();
             } else {
@@ -1395,6 +1638,9 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
                 }
                 if (targetId === 'tab-storage') {
                     updateStorageTabStats();
+                }
+                if (targetId === 'tab-island') {
+                    updateEpochsTab();
                 }
             });
         });

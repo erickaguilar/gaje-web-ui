@@ -5,7 +5,7 @@ with multi-turn conversational memory, Island Model (.gmem) long-term memory inj
 and strict context window budget clamping.
 """
 
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional
 
 
 def format_prompt(
@@ -46,7 +46,7 @@ def format_prompt(
 
     # === Arquitectura 2: Qwen2 / Qwen2.5 / SmolLM2 (Estándar ChatML) ===
     elif "pro" in model_name_lower or "turbo" in model_name_lower or "nano" in model_name_lower or "smollm" in model_name_lower or "qwen" in model_name_lower or ".flat" in model_name_lower:
-        base_sys = system_prompt or "You are a helpful, concise and precise assistant."
+        base_sys = system_prompt or "Eres un asistente de inteligencia artificial conciso, claro y preciso."
         sys_msg = f"{base_sys}{mem_suffix}"
         parts = [f"<|im_start|>system\n{sys_msg}<|im_end|>"]
         for turn in valid_history:
@@ -79,7 +79,16 @@ def format_prompt(
 
 def get_stop_tokens(model_name: str, tokenizer) -> list:
     """Get the appropriate EOS / stop token IDs for the model."""
-    eos_ids = [2, 151643, 151645]
+    eos_ids = [2, 151643, 151644, 151645]
     if hasattr(tokenizer, "eos_token_id") and tokenizer.eos_token_id is not None:
         eos_ids.append(tokenizer.eos_token_id)
-    return eos_ids
+    # Extraer IDs de tokens especiales del tokenizador si existen
+    for special_name in ["<|im_end|>", "<|im_start|>", "<|endoftext|>", "<end_of_turn>", "</s>"]:
+        try:
+            if hasattr(tokenizer, "token_to_id"):
+                tid = tokenizer.token_to_id(special_name)
+                if tid is not None and tid not in eos_ids:
+                    eos_ids.append(tid)
+        except Exception:
+            pass
+    return list(set(eos_ids))

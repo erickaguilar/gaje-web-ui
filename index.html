@@ -64,6 +64,11 @@
                             <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
                         </button>
 
+                        <button id="load-local-flat-btn" class="chat-unload-icon-btn" data-tooltip="Cargar modelo .flat local (100% Offline / Privado)" aria-label="Cargar modelo flat local">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        </button>
+                        <input type="file" id="local-flat-file-input" accept=".flat" style="display: none;">
+
                         <div id="model-load-bar" class="model-load chat-model-load" role="progressbar" aria-label="Cargando modelo" aria-valuemin="0" aria-valuemax="100" aria-valuetext="inactivo" hidden>
                             <span class="model-load-track"><span class="model-load-fill"></span></span>
                         </div>
@@ -213,6 +218,39 @@
                                 <div class="metric-row"><span>Presupuesto Contexto:</span> <span id="modal-island-budget-val" class="metric-val">512 tokens</span></div>
                                 <div class="metric-row"><span>Vector Index:</span> <span class="metric-val">AVX2 Cosine Distance</span></div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Linaje y Épocas de Memoria (.gmem v2) -->
+                    <div class="hud-card" style="margin-top: 1rem;">
+                        <div class="hud-card-head" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h4 class="hud-card-title">🧬 Linaje y Épocas de Memoria (.gmem v2)</h4>
+                            <div style="display: flex; gap: 0.4rem; align-items: center;">
+                                <button id="btn-epoch-snapshot" class="apple-pill-btn" style="font-size: 0.68rem; padding: 0.25rem 0.6rem;">📸 Snapshot</button>
+                                <button id="btn-epoch-sleep" class="apple-pill-btn" style="font-size: 0.68rem; padding: 0.25rem 0.6rem; background: rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.4); color: #c084fc;">💤 Ciclo de Sueño</button>
+                                <button id="btn-epoch-refresh" class="apple-pill-btn" style="font-size: 0.68rem; padding: 0.25rem 0.6rem;">🔄</button>
+                            </div>
+                        </div>
+                        <div id="epoch-action-feedback" style="font-size: 0.72rem; color: var(--neon-cyan); margin-bottom: 0.5rem; display: none;"></div>
+                        <div class="table-responsive" style="max-height: 180px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px;">
+                            <table class="y2k-table" style="width: 100%; font-size: 0.72rem; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background: rgba(255,255,255,0.04); text-align: left; color: var(--text-muted);">
+                                        <th style="padding: 0.4rem;">ÉPOCA</th>
+                                        <th style="padding: 0.4rem;">PADRE</th>
+                                        <th style="padding: 0.4rem;">ESTADO</th>
+                                        <th style="padding: 0.4rem;">ENTRADAS</th>
+                                        <th style="padding: 0.4rem;">FECHA UTC</th>
+                                        <th style="padding: 0.4rem;">COMENTARIO</th>
+                                        <th style="padding: 0.4rem; text-align: center;">ACCIÓN</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modal-epochs-table-body">
+                                    <tr>
+                                        <td colspan="7" style="text-align: center; padding: 0.8rem; color: var(--text-muted);">Cargando linaje de épocas...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </section>

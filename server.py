@@ -30,14 +30,21 @@ except ImportError:
     get_gpu_info_py = lambda: None  # noqa: E731
     is_gpu_available_py = lambda: False  # noqa: E731
 
+try:
+    from gaje.core._impl import EpochManager, IslandOrchestrator  # noqa: E402
+except ImportError:
+    EpochManager = None
+    IslandOrchestrator = None
+
 # ============ Configuración por variables de entorno (Fase 2.1) ============
 PORT = int(os.environ.get("GAJE_PORT", "8080"))
 MODELS_ROOT = os.environ.get("GAJE_MODELS_ROOT", os.path.join(PROJECT_ROOT, "models"))
+EPOCHS_ROOT = os.environ.get("GAJE_EPOCHS_ROOT", os.path.join(PROJECT_ROOT, "models", "memory_epochs"))
 GMEM_ACTIVE_PATH = os.environ.get("GAJE_GMEM_PATH", os.path.join(PROJECT_ROOT, "data", "memory", "island_active.gmem"))
 MAX_TOKENS = int(os.environ.get("GAJE_MAX_TOKENS", "512"))
-TEMPERATURE = float(os.environ.get("GAJE_TEMPERATURE", "0.2"))
+TEMPERATURE = float(os.environ.get("GAJE_TEMPERATURE", "0.6"))
 TOP_P = float(os.environ.get("GAJE_TOP_P", "0.9"))
-REP_PENALTY = float(os.environ.get("GAJE_REP_PENALTY", "1.1"))
+REP_PENALTY = float(os.environ.get("GAJE_REP_PENALTY", "1.15"))
 LOG_LEVEL = os.environ.get("GAJE_LOG_LEVEL", "INFO")
 AUTO_LOAD_MODEL = os.environ.get("GAJE_AUTO_LOAD_MODEL", "true").lower() in ("true", "1", "yes")
 
@@ -157,6 +164,8 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             self._send_json({"models": models})
         elif self.path == "/api/info":
             self._send_json(get_runtime_info())
+        elif self.path.startswith("/api/memory/epochs"):
+            self._handle_get_epochs()
         elif self.path.startswith("/models/"):
             rel_path = self.path[len("/models/"):].split("?")[0]
             target_path = os.path.join(MODELS_ROOT, rel_path)
@@ -190,8 +199,132 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             self._handle_chat_stream()
         elif self.path == "/api/chat":
             self._handle_chat()
+        elif self.path == "/api/memory/epochs/snapshot":
+            self._handle_epoch_snapshot()
+        elif self.path == "/api/memory/epochs/rollback":
+            self._handle_epoch_rollback()
+        elif self.path == "/api/memory/epochs/consolidate":
+            self._handle_epoch_consolidate()
+        elif self.path == "/api/memory/epochs/promote":
+            self._handle_epoch_promote()
         else:
             self.send_error(404, "Endpoint not found")
+
+    def _handle_get_epochs(self):
+        try:
+            import urllib.parse
+            query = urllib.parse.urlparse(self.path).query
+            params = urllib.parse.parse_qs(query)
+            organism = params.get("organism", ["smollm2_adult"])[0]
+            dim = int(params.get("dim", [576])[0])
+
+            if EpochManager is None:
+                self._send_json({"error": "EpochManager no disponible en runtime"}, status=500)
+                return
+
+            mgr = EpochManager(EPOCHS_ROOT, organism, dim)
+            epochs_json = mgr.list_epochs_py()
+            epochs = json.loads(epochs_json)
+            self._send_json({
+                "status": "ok",
+                "organism": organism,
+                "active_epoch_id": mgr.active_epoch_id,
+                "total_epochs": len(epochs),
+                "epochs": epochs,
+            })
+        except Exception as e:
+            logger.exception("Error listando épocas de memoria")
+            self._send_json({"error": str(e)}, status=500)
+
+    def _handle_epoch_snapshot(self):
+        try:
+            data = self._read_json_body()
+            organism = data.get("organism", "smollm2_adult")
+            comment = data.get("comment", "Snapshot Web UI")
+            dim = int(data.get("dim", 576))
+
+            if EpochManager is None:
+                self._send_json({"error": "EpochManager no disponible"}, status=500)
+                return
+
+            mgr = EpochManager(EPOCHS_ROOT, organism, dim)
+            orch = mgr.rollback_to_py(mgr.active_epoch_id)
+            new_epoch_id = mgr.create_snapshot_py(orch, comment, None)
+            self._send_json({
+                "status": "ok",
+                "epoch_id": new_epoch_id,
+                "active_epoch_id": mgr.active_epoch_id,
+            })
+        except Exception as e:
+            logger.exception("Error creando snapshot de memoria")
+            self._send_json({"error": str(e)}, status=500)
+
+    def _handle_epoch_rollback(self):
+        try:
+            data = self._read_json_body()
+            organism = data.get("organism", "smollm2_adult")
+            epoch_id = int(data.get("epoch_id", 1))
+            dim = int(data.get("dim", 576))
+
+            if EpochManager is None:
+                self._send_json({"error": "EpochManager no disponible"}, status=500)
+                return
+
+            mgr = EpochManager(EPOCHS_ROOT, organism, dim)
+            _orch = mgr.rollback_to_py(epoch_id)
+            self._send_json({
+                "status": "ok",
+                "active_epoch_id": mgr.active_epoch_id,
+            })
+        except Exception as e:
+            logger.exception("Error ejecutando rollback de época")
+            self._send_json({"error": str(e)}, status=500)
+
+    def _handle_epoch_consolidate(self):
+        try:
+            data = self._read_json_body()
+            organism = data.get("organism", "smollm2_adult")
+            threshold = float(data.get("dedup_threshold", 0.95))
+            dim = int(data.get("dim", 576))
+
+            if EpochManager is None:
+                self._send_json({"error": "EpochManager no disponible"}, status=500)
+                return
+
+            mgr = EpochManager(EPOCHS_ROOT, organism, dim)
+            orch = mgr.rollback_to_py(mgr.active_epoch_id)
+            stats_json = orch.consolidate_memory_py(threshold)
+            stats = json.loads(stats_json)
+            new_epoch_id = mgr.create_snapshot_py(
+                orch, "Consolidación Autonómica (Ciclo de Sueño Web UI)", None
+            )
+            self._send_json({
+                "status": "ok",
+                "epoch_id": new_epoch_id,
+                "active_epoch_id": mgr.active_epoch_id,
+                "stats": stats,
+            })
+        except Exception as e:
+            logger.exception("Error en ciclo de sueño y consolidación autonómica")
+            self._send_json({"error": str(e)}, status=500)
+
+    def _handle_epoch_promote(self):
+        try:
+            data = self._read_json_body()
+            organism = data.get("organism", "smollm2_adult")
+            epoch_id = int(data.get("epoch_id", 1))
+            dim = int(data.get("dim", 576))
+
+            if EpochManager is None:
+                self._send_json({"error": "EpochManager no disponible"}, status=500)
+                return
+
+            mgr = EpochManager(EPOCHS_ROOT, organism, dim)
+            mgr.promote_epoch_py(epoch_id)
+            self._send_json({"status": "ok", "promoted_epoch_id": epoch_id})
+        except Exception as e:
+            logger.exception("Error promoviendo época")
+            self._send_json({"error": str(e)}, status=500)
 
     def _handle_load_model(self):
         try:
@@ -251,10 +384,13 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             # 3. Inferencia Nativa
             start_time = time.time()
             eos_ids = get_stop_tokens(model_name, llm.tokenizer)
+            max_tokens = int(data.get("max_tokens", MAX_TOKENS))
+            temperature = float(data.get("temperature", TEMPERATURE))
+            rep_penalty = float(data.get("repetition_penalty", REP_PENALTY))
 
             try:
                 gen_ids = llm.rust_llm.generate_native_py(
-                    prompt_tokens, MAX_TOKENS, TEMPERATURE, REP_PENALTY, eos_ids
+                    prompt_tokens, max_tokens, temperature, rep_penalty, eos_ids
                 )
             except Exception as e:
                 logger.warning("Warning en generate_native_py: %s", e)
@@ -266,6 +402,7 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             full_response = llm.tokenizer.decode(gen_ids)
             cleaned_response = (
                 full_response.split("<|im_end|>")[0]
+                .split("<|im_start|>")[0]
                 .split("<|endoftext|>")[0]
                 .split("<end_of_turn>")[0]
                 .strip()
@@ -358,12 +495,17 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             prompt_tokens_count = len(prompt_tokens)
 
             start_time = time.time()
+            max_tokens = int(data.get("max_tokens", MAX_TOKENS))
+            temperature = float(data.get("temperature", TEMPERATURE))
+            top_p = float(data.get("top_p", TOP_P))
+            rep_penalty = float(data.get("repetition_penalty", REP_PENALTY))
+
             gen = llm.generate(
                 formatted_message,
-                max_new_tokens=MAX_TOKENS,
-                temperature=TEMPERATURE,
-                top_p=TOP_P,
-                repetition_penalty=REP_PENALTY,
+                max_new_tokens=max_tokens,
+                temperature=temperature,
+                top_p=top_p,
+                repetition_penalty=rep_penalty,
             )
 
             self.send_response(200)
@@ -373,7 +515,7 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
 
             generated_tokens_count = 0
             streamed_tokens = []
-            stop_tokens_str = ["<|im_end|>", "<|endoftext|>", "<end_of_turn>", "</s>"]
+            stop_tokens_str = ["<|im_end|>", "<|im_start|>", "<|endoftext|>", "<end_of_turn>", "</s>"]
             for token in gen:
                 if not isinstance(token, str):
                     token = str(token)

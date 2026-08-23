@@ -7,7 +7,7 @@
     'use strict';
 
     const DB_NAME = 'GajeHelixDB';
-    const DB_VERSION = 1;
+    const DB_VERSION = 2;
 
     class GajeIndexedStorage {
         constructor() {
@@ -50,11 +50,19 @@
                         const auditStore = db.createObjectStore('audit_logs', { keyPath: 'id', autoIncrement: true });
                         auditStore.createIndex('timestamp', 'timestamp', { unique: false });
                     }
+
+                    // 4. Islas de Memoria Soberanas .gmem v2 (WASM In-Browser)
+                    if (!db.objectStoreNames.contains('memory_islands')) {
+                        const memStore = db.createObjectStore('memory_islands', { keyPath: 'key' });
+                        memStore.createIndex('organism', 'organism', { unique: false });
+                        memStore.createIndex('niche', 'niche', { unique: false });
+                        memStore.createIndex('updatedAt', 'updatedAt', { unique: false });
+                    }
                 };
 
                 req.onsuccess = (e) => {
                     this.db = e.target.result;
-                    console.log('⚡ [GajeStorage] GajeHelixDB v1 inicializada exitosamente en IndexedDB.');
+                    console.log('⚡ [GajeStorage] GajeHelixDB v2 (con Islas .gmem) inicializada exitosamente en IndexedDB.');
                     this.migrateFromLocalStorage();
                     this.notifyChange('init');
                     resolve(this.db);
@@ -193,6 +201,137 @@
                     req.onerror = () => resolve(0);
                 } catch (e) {
                     resolve(0);
+                }
+            });
+        }
+
+        // =====================================================================
+        // PERSISTENCIA SOBERANA DE ISLAS DE MEMORIA (.gmem v2) EN INDEXEDDB
+        // =====================================================================
+
+        /**
+         * Guarda un búfer binario .gmem v2 para un organismo y nicho específico.
+         */
+        async saveMemoryIsland(organism, niche, arrayBuffer) {
+            await this.readyPromise;
+            if (!this.db) return false;
+
+            return new Promise((resolve) => {
+                try {
+                    const tx = this.db.transaction('memory_islands', 'readwrite');
+                    const store = tx.objectStore('memory_islands');
+                    const key = `${organism}:${niche}`;
+                    const entry = {
+                        key,
+                        organism,
+                        niche,
+                        buffer: arrayBuffer,
+                        byteLength: arrayBuffer.byteLength,
+                        updatedAt: Date.now()
+                    };
+                    const req = store.put(entry);
+                    req.onsuccess = () => {
+                        this.notifyChange('memory_island_saved');
+                        resolve(true);
+                    };
+                    req.onerror = () => resolve(false);
+                } catch (err) {
+                    console.error('[GajeStorage] Error guardando isla .gmem:', err);
+                    resolve(false);
+                }
+            });
+        }
+
+        /**
+         * Carga el búfer binario .gmem v2 para un organismo y nicho específico.
+         */
+        async loadMemoryIsland(organism, niche) {
+            await this.readyPromise;
+            if (!this.db) return null;
+
+            return new Promise((resolve) => {
+                try {
+                    const tx = this.db.transaction('memory_islands', 'readonly');
+                    const store = tx.objectStore('memory_islands');
+                    const key = `${organism}:${niche}`;
+                    const req = store.get(key);
+                    req.onsuccess = () => {
+                        if (req.result && req.result.buffer) {
+                            resolve(req.result.buffer);
+                        } else {
+                            resolve(null);
+                        }
+                    };
+                    req.onerror = () => resolve(null);
+                } catch (err) {
+                    console.error('[GajeStorage] Error cargando isla .gmem:', err);
+                    resolve(null);
+                }
+            });
+        }
+
+        /**
+         * Lista todas las islas de memoria guardadas en IndexedDB.
+         */
+        async listMemoryIslands(organism = null) {
+            await this.readyPromise;
+            if (!this.db) return [];
+
+            return new Promise((resolve) => {
+                try {
+                    const tx = this.db.transaction('memory_islands', 'readonly');
+                    const store = tx.objectStore('memory_islands');
+                    const req = store.getAll();
+                    req.onsuccess = () => {
+                        let list = req.result || [];
+                        if (organism) {
+                            list = list.filter(item => item.organism === organism);
+                        }
+                        resolve(list.map(item => ({
+                            key: item.key,
+                            organism: item.organism,
+                            niche: item.niche,
+                            byteLength: item.byteLength,
+                            updatedAt: item.updatedAt
+                        })));
+                    };
+                    req.onerror = () => resolve([]);
+                } catch (err) {
+                    resolve([]);
+                }
+            });
+        }
+
+        /**
+         * Borra todas las islas de memoria de un organismo o de todos.
+         */
+        async clearMemoryIslands(organism = null) {
+            await this.readyPromise;
+            if (!this.db) return false;
+
+            return new Promise((resolve) => {
+                try {
+                    const tx = this.db.transaction('memory_islands', 'readwrite');
+                    const store = tx.objectStore('memory_islands');
+                    if (!organism) {
+                        const req = store.clear();
+                        req.onsuccess = () => resolve(true);
+                        req.onerror = () => resolve(false);
+                    } else {
+                        const req = store.getAllKeys();
+                        req.onsuccess = () => {
+                            const keys = req.result || [];
+                            keys.forEach(k => {
+                                if (String(k).startsWith(`${organism}:`)) {
+                                    store.delete(k);
+                                }
+                            });
+                            resolve(true);
+                        };
+                        req.onerror = () => resolve(false);
+                    }
+                } catch (err) {
+                    resolve(false);
                 }
             });
         }
