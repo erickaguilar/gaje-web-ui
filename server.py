@@ -39,14 +39,25 @@ except ImportError:
 # ============ Configuración por variables de entorno (Fase 2.1) ============
 PORT = int(os.environ.get("GAJE_PORT", "8080"))
 MODELS_ROOT = os.environ.get("GAJE_MODELS_ROOT", os.path.join(PROJECT_ROOT, "models"))
-EPOCHS_ROOT = os.environ.get("GAJE_EPOCHS_ROOT", os.path.join(PROJECT_ROOT, "models", "memory_epochs"))
-GMEM_ACTIVE_PATH = os.environ.get("GAJE_GMEM_PATH", os.path.join(PROJECT_ROOT, "data", "memory", "island_active.gmem"))
+EPOCHS_ROOT = os.environ.get(
+    "GAJE_EPOCHS_ROOT", os.path.join(PROJECT_ROOT, "models", "memory_epochs")
+)
+GMEM_ACTIVE_PATH = os.environ.get(
+    "GAJE_GMEM_PATH", os.path.join(PROJECT_ROOT, "data", "memory", "island_active.gmem")
+)
 MAX_TOKENS = int(os.environ.get("GAJE_MAX_TOKENS", "512"))
 TEMPERATURE = float(os.environ.get("GAJE_TEMPERATURE", "0.6"))
 TOP_P = float(os.environ.get("GAJE_TOP_P", "0.9"))
 REP_PENALTY = float(os.environ.get("GAJE_REP_PENALTY", "1.15"))
+MAX_HISTORY_MESSAGES = int(
+    os.environ.get("GAJE_MAX_HISTORY_MESSAGES", "12")
+)
 LOG_LEVEL = os.environ.get("GAJE_LOG_LEVEL", "INFO")
-AUTO_LOAD_MODEL = os.environ.get("GAJE_AUTO_LOAD_MODEL", "true").lower() in ("true", "1", "yes")
+AUTO_LOAD_MODEL = os.environ.get("GAJE_AUTO_LOAD_MODEL", "true").lower() in (
+    "true",
+    "1",
+    "yes",
+)
 
 # Inicialización del gestor de memoria Island Model (.gmem)
 island_memory = IslandMemoryManager(GMEM_ACTIVE_PATH)
@@ -73,13 +84,13 @@ def _model_quality(name: str) -> float:
     if "3b" in n or "pro" in n or "qwen2_5_3b" in n:
         return 100.0  # Modelo insignia general y multilingüe (Qwen 2.5 3B)
     if "deepseek" in n or "r1" in n or "max" in n:
-        return 80.0   # Modelo de razonamiento CoT (DeepSeek-R1)
+        return 80.0  # Modelo de razonamiento CoT (DeepSeek-R1)
     if "gaje" in n and n.endswith(".gaje"):
-        return 70.0   # Modelo nacido por GAJE
+        return 70.0  # Modelo nacido por GAJE
     if "0_5b" in n or "turbo" in n:
-        return 50.0   # Micro-modelo rápido (Qwen 2 0.5B)
+        return 50.0  # Micro-modelo rápido (Qwen 2 0.5B)
     if "smollm" in n or "135" in n or "nano" in n:
-        return 30.0   # Nano-agente edge (SmolLM2 135M)
+        return 30.0  # Nano-agente edge (SmolLM2 135M)
     return 0.0
 
 
@@ -137,15 +148,17 @@ def get_runtime_info() -> dict:
         "hardware": f"{cpu} - {arch} ({cores} cores)",
         "island": ISLAND_CONFIG,
         "auto_load_model": AUTO_LOAD_MODEL,
-        "gpu": (lambda: get_gpu_info_py() if 'get_gpu_info_py' in globals() else None)(),
+        "gpu": (
+            lambda: get_gpu_info_py() if "get_gpu_info_py" in globals() else None
+        )(),
     }
 
 
 class GajeHandler(http.server.SimpleHTTPRequestHandler):
     extensions_map = http.server.SimpleHTTPRequestHandler.extensions_map.copy()
-    extensions_map['.wasm'] = 'application/wasm'
-    extensions_map['.js'] = 'application/javascript'
-    extensions_map['.mjs'] = 'application/javascript'
+    extensions_map[".wasm"] = "application/wasm"
+    extensions_map[".js"] = "application/javascript"
+    extensions_map[".mjs"] = "application/javascript"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=SERVER_DIR, **kwargs)
@@ -167,7 +180,7 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
         elif self.path.startswith("/api/memory/epochs"):
             self._handle_get_epochs()
         elif self.path.startswith("/models/"):
-            rel_path = self.path[len("/models/"):].split("?")[0]
+            rel_path = self.path[len("/models/") :].split("?")[0]
             target_path = os.path.join(MODELS_ROOT, rel_path)
             if not os.path.exists(target_path):
                 target_path = os.path.join(MODELS_ROOT, "production", rel_path)
@@ -183,7 +196,9 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
                             self.wfile.write(chunk)
                     return
                 except Exception as e:
-                    logger.error("Error sirviendo modelo binario %s: %s", target_path, e)
+                    logger.error(
+                        "Error sirviendo modelo binario %s: %s", target_path, e
+                    )
                     return
             self.send_error(404, "Modelo no encontrado")
         else:
@@ -212,25 +227,30 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
     def _handle_get_epochs(self):
         try:
             import urllib.parse
+
             query = urllib.parse.urlparse(self.path).query
             params = urllib.parse.parse_qs(query)
             organism = params.get("organism", ["smollm2_adult"])[0]
             dim = int(params.get("dim", [576])[0])
 
             if EpochManager is None:
-                self._send_json({"error": "EpochManager no disponible en runtime"}, status=500)
+                self._send_json(
+                    {"error": "EpochManager no disponible en runtime"}, status=500
+                )
                 return
 
             mgr = EpochManager(EPOCHS_ROOT, organism, dim)
             epochs_json = mgr.list_epochs_py()
             epochs = json.loads(epochs_json)
-            self._send_json({
-                "status": "ok",
-                "organism": organism,
-                "active_epoch_id": mgr.active_epoch_id,
-                "total_epochs": len(epochs),
-                "epochs": epochs,
-            })
+            self._send_json(
+                {
+                    "status": "ok",
+                    "organism": organism,
+                    "active_epoch_id": mgr.active_epoch_id,
+                    "total_epochs": len(epochs),
+                    "epochs": epochs,
+                }
+            )
         except Exception as e:
             logger.exception("Error listando épocas de memoria")
             self._send_json({"error": str(e)}, status=500)
@@ -249,11 +269,13 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             mgr = EpochManager(EPOCHS_ROOT, organism, dim)
             orch = mgr.rollback_to_py(mgr.active_epoch_id)
             new_epoch_id = mgr.create_snapshot_py(orch, comment, None)
-            self._send_json({
-                "status": "ok",
-                "epoch_id": new_epoch_id,
-                "active_epoch_id": mgr.active_epoch_id,
-            })
+            self._send_json(
+                {
+                    "status": "ok",
+                    "epoch_id": new_epoch_id,
+                    "active_epoch_id": mgr.active_epoch_id,
+                }
+            )
         except Exception as e:
             logger.exception("Error creando snapshot de memoria")
             self._send_json({"error": str(e)}, status=500)
@@ -271,10 +293,12 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
 
             mgr = EpochManager(EPOCHS_ROOT, organism, dim)
             _orch = mgr.rollback_to_py(epoch_id)
-            self._send_json({
-                "status": "ok",
-                "active_epoch_id": mgr.active_epoch_id,
-            })
+            self._send_json(
+                {
+                    "status": "ok",
+                    "active_epoch_id": mgr.active_epoch_id,
+                }
+            )
         except Exception as e:
             logger.exception("Error ejecutando rollback de época")
             self._send_json({"error": str(e)}, status=500)
@@ -297,12 +321,14 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             new_epoch_id = mgr.create_snapshot_py(
                 orch, "Consolidación Autonómica (Ciclo de Sueño Web UI)", None
             )
-            self._send_json({
-                "status": "ok",
-                "epoch_id": new_epoch_id,
-                "active_epoch_id": mgr.active_epoch_id,
-                "stats": stats,
-            })
+            self._send_json(
+                {
+                    "status": "ok",
+                    "epoch_id": new_epoch_id,
+                    "active_epoch_id": mgr.active_epoch_id,
+                    "stats": stats,
+                }
+            )
         except Exception as e:
             logger.exception("Error en ciclo de sueño y consolidación autonómica")
             self._send_json({"error": str(e)}, status=500)
@@ -360,7 +386,20 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             system_prompt = data.get("system_prompt", None)
             _runtime = get_runtime_info()
 
-            logger.info("Procesando mensaje con modelo: %s (Historial: %d turnos)", model_name, len(history))
+            # Ventana deslizante de contexto (misma política que el streaming)
+            if len(history) > MAX_HISTORY_MESSAGES:
+                logger.info(
+                    "Historial truncado: %d → %d mensajes (ventana deslizante)",
+                    len(history),
+                    MAX_HISTORY_MESSAGES,
+                )
+                history = history[-MAX_HISTORY_MESSAGES:]
+
+            logger.info(
+                "Procesando mensaje con modelo: %s (Historial: %d turnos)",
+                model_name,
+                len(history),
+            )
             llm = get_model(MODELS_ROOT, model_name, GenomicLLM)
             if not llm:
                 self._send_json(
@@ -373,9 +412,15 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
 
             # 2. Formatear Prompt según Arquitectura con Memoria Multi-Turno e Island Model
             formatted_message = format_prompt(
-                model_name, message, history=history, system_prompt=system_prompt, island_context=island_ctx
+                model_name,
+                message,
+                history=history,
+                system_prompt=system_prompt,
+                island_context=island_ctx,
             )
-            prompt_tokens = llm.tokenizer.encode(formatted_message, add_special_tokens=False)
+            prompt_tokens = llm.tokenizer.encode(
+                formatted_message, add_special_tokens=False
+            )
             if hasattr(prompt_tokens, "ids"):
                 prompt_tokens = prompt_tokens.ids
             prompt_tokens_count = len(prompt_tokens)
@@ -409,13 +454,18 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
 
             # 5. Registrar en memoria episódica .gmem para turnos futuros
             if cleaned_response:
-                island_memory.add_memory("conversational", f"Usuario: {message[:100]} | Asistente: {cleaned_response[:100]}")
+                island_memory.add_memory(
+                    "conversational",
+                    f"Usuario: {message[:100]} | Asistente: {cleaned_response[:100]}",
+                )
                 island_memory.save()
 
             generated_tokens_count = len(gen_ids)
             total_tokens = prompt_tokens_count + generated_tokens_count
             tok_per_sec = (
-                (generated_tokens_count / (elapsed_ms / 1000.0)) if elapsed_ms > 0 else 0.0
+                (generated_tokens_count / (elapsed_ms / 1000.0))
+                if elapsed_ms > 0
+                else 0.0
             )
 
             # 6. Cálculo de ADN y Compresión Genómica
@@ -473,7 +523,22 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             system_prompt = data.get("system_prompt", None)
             _runtime = get_runtime_info()
 
-            logger.info("Streaming con modelo: %s (Historial: %d turnos)", model_name, len(history))
+            # Ventana deslizante de contexto: el prefill re-procesa TODO el historial
+            # en cada turno, por lo que sin límite el costo crece con la sesión y
+            # el throughput percibido cae (ej. 4.9 → 1.1 tok/s con historial largo).
+            if len(history) > MAX_HISTORY_MESSAGES:
+                logger.info(
+                    "Historial truncado: %d → %d mensajes (ventana deslizante)",
+                    len(history),
+                    MAX_HISTORY_MESSAGES,
+                )
+                history = history[-MAX_HISTORY_MESSAGES:]
+
+            logger.info(
+                "Streaming con modelo: %s (Historial: %d turnos)",
+                model_name,
+                len(history),
+            )
             llm = get_model(MODELS_ROOT, model_name, GenomicLLM)
             if not llm:
                 self._send_json(
@@ -486,9 +551,15 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
 
             # 2. Formatear Prompt según Arquitectura con Memoria Multi-Turno e Island Model
             formatted_message = format_prompt(
-                model_name, message, history=history, system_prompt=system_prompt, island_context=island_ctx
+                model_name,
+                message,
+                history=history,
+                system_prompt=system_prompt,
+                island_context=island_ctx,
             )
-            prompt_tokens = llm.tokenizer.encode(formatted_message, add_special_tokens=False)
+            prompt_tokens = llm.tokenizer.encode(
+                formatted_message, add_special_tokens=False
+            )
             if hasattr(prompt_tokens, "ids"):
                 prompt_tokens = prompt_tokens.ids
             prompt_tokens_count = len(prompt_tokens)
@@ -514,39 +585,82 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
 
             generated_tokens_count = 0
             streamed_tokens = []
-            stop_tokens_str = ["<|im_end|>", "<|im_start|>", "<|endoftext|>", "<end_of_turn>", "</s>"]
-            for token in gen:
-                if not isinstance(token, str):
-                    token = str(token)
+            first_token_at = None
+            client_gone = False
+            stop_tokens_str = [
+                "<|im_end|>",
+                "<|im_start|>",
+                "<|endoftext|>",
+                "<end_of_turn>",
+                "</s>",
+            ]
+            try:
+                for token in gen:
+                    if not isinstance(token, str):
+                        token = str(token)
 
-                # Detener y filtrar tokens de parada especiales
-                if token in stop_tokens_str or any(st in token for st in stop_tokens_str):
-                    token_clean = token
-                    for st in stop_tokens_str:
-                        token_clean = token_clean.replace(st, "")
-                    if token_clean:
-                        streamed_tokens.append(token_clean)
-                        token_clean = token_clean.replace("\n", "\u000A")
-                        self.wfile.write(f"data: {json.dumps(token_clean)}\n\n".encode("utf-8"))
-                        self.wfile.flush()
-                    break
+                    if first_token_at is None:
+                        # El primer token marca el fin del prefill (TTFT)
+                        first_token_at = time.time()
 
-                generated_tokens_count += 1
-                streamed_tokens.append(token)
-                token = token.replace("\n", "\u000A")
-                self.wfile.write(f"data: {json.dumps(token)}\n\n".encode("utf-8"))
-                self.wfile.flush()
+                    # Detener y filtrar tokens de parada especiales
+                    if token in stop_tokens_str or any(
+                        st in token for st in stop_tokens_str
+                    ):
+                        token_clean = token
+                        for st in stop_tokens_str:
+                            token_clean = token_clean.replace(st, "")
+                        if token_clean:
+                            streamed_tokens.append(token_clean)
+                            token_clean = token_clean.replace("\n", "\u000A")
+                            self.wfile.write(
+                                f"data: {json.dumps(token_clean)}\n\n".encode("utf-8")
+                            )
+                            self.wfile.flush()
+                        break
+
+                    generated_tokens_count += 1
+                    streamed_tokens.append(token)
+                    token = token.replace("\n", "\u000A")
+                    self.wfile.write(f"data: {json.dumps(token)}\n\n".encode("utf-8"))
+                    self.wfile.flush()
+            except (BrokenPipeError, ConnectionResetError):
+                # El cliente abortó (refresh/stop/timeout): es un evento normal de
+                # una sesión larga, no un error del servidor. Se corta la generación
+                # temprano para no gastar CPU en tokens que nadie leerá.
+                client_gone = True
+                logger.info(
+                    "Cliente desconectado tras %d tokens; streaming detenido de forma limpia",
+                    generated_tokens_count,
+                )
+                return
 
             # Registrar en memoria episódica .gmem
             full_stream_text = "".join(streamed_tokens).strip()
             if full_stream_text:
-                island_memory.add_memory("conversational", f"Usuario: {message[:100]} | Asistente: {full_stream_text[:100]}")
+                marker = " (interrumpido)" if client_gone else ""
+                island_memory.add_memory(
+                    "conversational",
+                    f"Usuario: {message[:100]} | Asistente: {full_stream_text[:100]}{marker}",
+                )
                 island_memory.save()
 
             elapsed_ms = (time.time() - start_time) * 1000.0
             total_tokens = prompt_tokens_count + generated_tokens_count
+
+            # Métricas separadas: prefill (TTFT) vs decode. El tok/s agregado
+            # amortiza el prefill y castiga artificialmente los turnos largos.
+            prefill_ms = (
+                (first_token_at - start_time) * 1000.0 if first_token_at else elapsed_ms
+            )
+            decode_s = max(0.0, (elapsed_ms - prefill_ms) / 1000.0)
             tok_per_sec = (
-                (generated_tokens_count / (elapsed_ms / 1000.0)) if elapsed_ms > 0 else 0.0
+                (generated_tokens_count / (elapsed_ms / 1000.0))
+                if elapsed_ms > 0
+                else 0.0
+            )
+            decode_tok_per_sec = (
+                (generated_tokens_count / decode_s) if decode_s > 0 else 0.0
             )
 
             dims = getattr(llm, "n_embd", 576)
@@ -568,6 +682,8 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             metrics_event = {
                 "__gaje_metrics__": {
                     "latency_ms": round(elapsed_ms, 2),
+                    "prefill_ms": round(prefill_ms, 2),
+                    "decode_tokens_sec": round(decode_tok_per_sec, 1),
                     "prompt_tokens": prompt_tokens_count,
                     "generated_tokens": generated_tokens_count,
                     "tokens_count": total_tokens,
