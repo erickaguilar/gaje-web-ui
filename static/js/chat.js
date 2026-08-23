@@ -727,8 +727,18 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
             const pTok = meta.prompt_tokens != null ? meta.prompt_tokens : 0;
             const gTok = meta.generated_tokens != null ? meta.generated_tokens : totalTok;
             const tps = meta.tokens_sec ? ` · ${meta.tokens_sec} tok/s` : '';
-            statsText = `${gTok} tok${tps}`;
-            statsTitle = `Tokens: ${gTok} generados, ${pTok} prompt (${totalTok} total)${tps} | Cuantización: Q${bit}_0 (${ratio}x · ${saved}% ahorro RAM)`;
+            // Métricas separadas prefill/decode (servidor v1.6.2+):
+            //  - decode_tokens_sec: velocidad pura de generación (excluye el prefill)
+            //  - prefill_ms: tiempo de carga del contexto (TTFT) antes del primer token
+            const hasSplit = meta.decode_tokens_sec != null || meta.prefill_ms != null;
+            const decTps = meta.decode_tokens_sec != null ? ` · ⚡${meta.decode_tokens_sec} gen` : '';
+            const prefillS = meta.prefill_ms != null ? (meta.prefill_ms / 1000).toFixed(1) : null;
+            statsText = `${gTok} tok${tps}${decTps}`;
+            let splitInfo = '';
+            if (hasSplit) {
+                splitInfo = ` | Prefill (carga de contexto): ${prefillS}s | Decode real: ${meta.decode_tokens_sec} tok/s`;
+            }
+            statsTitle = `Tokens: ${gTok} generados, ${pTok} prompt (${totalTok} total)${tps}${splitInfo} | Cuantización: Q${bit}_0 (${ratio}x · ${saved}% ahorro RAM)`;
         } else if (fullText) {
             const estGen = Math.ceil(fullText.split(/\s+/).filter(Boolean).length * 1.3);
             statsText = `~${estGen} tok`;
@@ -823,7 +833,9 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
             if (mHd) mHd.innerText = metrics.hd_info;
         }
         if (metrics.latency_ms) {
-            const latText = `${formatLatency(metrics.latency_ms)} (${metrics.tokens_sec || 0} tok/s)`;
+            const decTps = metrics.decode_tokens_sec != null ? ` · ⚡${metrics.decode_tokens_sec} gen` : '';
+            const prefillS = metrics.prefill_ms != null ? ` · prefill ${(metrics.prefill_ms / 1000).toFixed(1)}s` : '';
+            const latText = `${formatLatency(metrics.latency_ms)} (${metrics.tokens_sec || 0} tok/s${decTps}${prefillS})`;
             const lat = document.getElementById('latency-val');
             if (lat) lat.innerText = latText;
             const mLat = document.getElementById('modal-latency-val');
