@@ -984,6 +984,10 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         chatWindow.scrollTop = chatWindow.scrollHeight;
 
         try {
+            if (modelName === 'qwen2_5_3b.flat' || modelName.includes('3b')) {
+                throw new Error(`El modelo [${modelName}] (2.25 GB) supera el límite de memoria de WebAssembly (32-bit). Para modelos de 3B, selecciona el modo "Servidor Nativo (AVX2/GPU)".`);
+            }
+
             if (!isWasmModelLoaded || wasmActiveModelName !== modelName) {
                 contentEl.textContent = `Descargando ${modelName} a memoria WebAssembly...`;
                 if (modelLoadBar) modelLoadBar.hidden = false;

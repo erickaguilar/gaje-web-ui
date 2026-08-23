@@ -171,20 +171,19 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             target_path = os.path.join(MODELS_ROOT, rel_path)
             if not os.path.exists(target_path):
                 target_path = os.path.join(MODELS_ROOT, "production", rel_path)
-            if os.path.exists(target_path) and os.path.isfile(target_path):
                 try:
-                    with open(target_path, "rb") as f:
-                        content = f.read()
+                    file_size = os.path.getsize(target_path)
                     self.send_response(200)
                     self.send_header("Content-Type", "application/octet-stream")
-                    self.send_header("Content-Length", str(len(content)))
+                    self.send_header("Content-Length", str(file_size))
                     self.send_header("Access-Control-Allow-Origin", "*")
                     self.end_headers()
-                    self.wfile.write(content)
+                    with open(target_path, "rb") as f:
+                        while chunk := f.read(4 * 1024 * 1024):
+                            self.wfile.write(chunk)
                     return
                 except Exception as e:
                     logger.error("Error sirviendo modelo binario %s: %s", target_path, e)
-                    self.send_error(500, "Error leyendo archivo binario")
                     return
             self.send_error(404, "Modelo no encontrado")
         else:
