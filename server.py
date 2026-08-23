@@ -586,6 +586,7 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             generated_tokens_count = 0
             streamed_tokens = []
             first_token_at = None
+            last_token_at = None
             client_gone = False
             stop_tokens_str = [
                 "<|im_end|>",
@@ -621,6 +622,7 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
 
                     generated_tokens_count += 1
                     streamed_tokens.append(token)
+                    last_token_at = time.time()
                     token = token.replace("\n", "\u000A")
                     self.wfile.write(f"data: {json.dumps(token)}\n\n".encode("utf-8"))
                     self.wfile.flush()
@@ -650,17 +652,34 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
 
             # Métricas separadas: prefill (TTFT) vs decode. El tok/s agregado
             # amortiza el prefill y castiga artificialmente los turnos largos.
-            prefill_ms = (
-                (first_token_at - start_time) * 1000.0 if first_token_at else elapsed_ms
-            )
-            decode_s = max(0.0, (elapsed_ms - prefill_ms) / 1000.0)
+            #
+            # IMPORTANTE: en la ruta nativa rápida (`generate_native_py`), el FFI
+            # calcula TODO dentro de Rust y luego hace yield instantáneo de los
+            # tokens: la ventana entre primer y último token es ~0 aunque el
+            # decode real haya tardado segundos. Solo reportamos el split cuando
+            # la generación fue genuinamente incremental.
+            prefill_ms = None
+            decode_tok_per_sec = None
+            if (
+                first_token_at is not None
+                and last_token_at is not None
+                and generated_tokens_count > 1
+            ):
+                stream_window_s = last_token_at - first_token_at
+                min_window = max(0.05, 0.05 * elapsed_ms / 1000.0)
+                if stream_window_s >= min_window:
+                    prefill_ms = (first_token_at - start_time) * 1000.0
+                    # La primera iteración incluye el bloqueo del cómputo; las
+                    # restantes son puro streaming incremental.
+                    decode_tok_per_sec = (
+                        (generated_tokens_count - 1) / stream_window_s
+                        if stream_window_s > 0
+                        else None
+                    )
             tok_per_sec = (
                 (generated_tokens_count / (elapsed_ms / 1000.0))
                 if elapsed_ms > 0
                 else 0.0
-            )
-            decode_tok_per_sec = (
-                (generated_tokens_count / decode_s) if decode_s > 0 else 0.0
             )
 
             dims = getattr(llm, "n_embd", 576)
@@ -682,8 +701,12 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             metrics_event = {
                 "__gaje_metrics__": {
                     "latency_ms": round(elapsed_ms, 2),
-                    "prefill_ms": round(prefill_ms, 2),
-                    "decode_tokens_sec": round(decode_tok_per_sec, 1),
+                    "prefill_ms": round(prefill_ms, 2) if prefill_ms is not None else None,
+                    "decode_tokens_sec": (
+                        round(decode_tok_per_sec, 1)
+                        if decode_tok_per_sec is not None
+                        else None
+                    ),
                     "prompt_tokens": prompt_tokens_count,
                     "generated_tokens": generated_tokens_count,
                     "tokens_count": total_tokens,
