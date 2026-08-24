@@ -1227,13 +1227,68 @@ main {
 /* Burbuja del Asistente (Apple HIG Glassmorphism + Neon Accent) */
 .message.bot {
     align-self: flex-start;
-    background: rgba(28, 30, 46, 0.62);
-    border: 1px solid rgba(255, 255, 255, 0.09);
+    background: rgba(24, 26, 40, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-left: 3.5px solid var(--accent-2);
-    border-radius: 20px 20px 20px 6px;
-    backdrop-filter: blur(28px) saturate(180%);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border-radius: 18px 18px 18px 6px;
+    backdrop-filter: blur(32px) saturate(180%);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+/* Cabecera de Autor Bot */
+.bot-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 0.45rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 0.2rem;
+}
+
+.bot-author {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.bot-author-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, rgba(10, 132, 255, 0.2), rgba(94, 92, 230, 0.2));
+    border: 1px solid rgba(10, 132, 255, 0.4);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-color);
+}
+
+.bot-author-title {
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--text-color);
+    letter-spacing: 0.3px;
+}
+
+.bot-model-chip {
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: rgba(167, 139, 250, 0.12);
+    border: 1px solid rgba(167, 139, 250, 0.25);
+    color: #c4b5fd;
+}
+
+.bot-timestamp {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: var(--text-muted);
 }
 
 [data-theme="light"] .message.bot {
@@ -1242,8 +1297,26 @@ main {
     border-left: 4px solid var(--accent);
     color: var(--text);
     box-shadow: 0 4px 16px rgba(44, 53, 57, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    border-radius: 4px 16px 16px 16px;
+    border-radius: 0px !important;
     position: relative;
+}
+
+[data-theme="light"] .bot-card-header {
+    border-bottom-color: rgba(44, 82, 52, 0.1);
+}
+
+[data-theme="light"] .bot-author-icon {
+    background: rgba(44, 82, 52, 0.08);
+    border-color: rgba(44, 82, 52, 0.25);
+    color: var(--accent);
+    border-radius: 0px !important;
+}
+
+[data-theme="light"] .bot-model-chip {
+    background: rgba(44, 82, 52, 0.08);
+    border-color: rgba(44, 82, 52, 0.2);
+    color: var(--accent);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .message.bot::after {
@@ -1259,9 +1332,57 @@ main {
     background: #fbfaf8;
     color: #b45309;
     padding: 1px 7px;
-    border-radius: 4px;
+    border-radius: 0px !important;
     border: 1px solid rgba(180, 83, 9, 0.25);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+/* Tipografía de Markdown en respuestas */
+.response-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    font-size: 0.94rem;
+    line-height: 1.68;
+    color: var(--text-color);
+}
+
+[data-theme="light"] .response-body {
+    color: var(--text);
+}
+
+.md-heading {
+    margin-top: 0.5rem;
+    margin-bottom: 0.2rem;
+    font-weight: 700;
+    color: var(--text-color);
+    letter-spacing: -0.2px;
+}
+
+h1.md-heading { font-size: 1.25rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 4px; }
+h2.md-heading { font-size: 1.1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 3px; }
+h3.md-heading { font-size: 1.0rem; color: var(--accent-2); }
+h4.md-heading { font-size: 0.92rem; color: var(--text-muted); }
+
+[data-theme="light"] .md-heading { color: #1a1a1a; }
+[data-theme="light"] h3.md-heading { color: var(--accent); }
+[data-theme="light"] h1.md-heading,
+[data-theme="light"] h2.md-heading { border-bottom-color: rgba(44, 82, 52, 0.12); }
+
+.md-quote {
+    border-left: 3px solid var(--accent-2);
+    padding: 0.4rem 0.8rem;
+    margin: 0.4rem 0;
+    background: rgba(255, 255, 255, 0.025);
+    border-radius: 0 6px 6px 0;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+[data-theme="light"] .md-quote {
+    border-left-color: var(--accent);
+    background: rgba(44, 82, 52, 0.04);
+    border-radius: 0px !important;
 }
 
 /* Mensaje del Sistema (Holograma Cyberpunk) */

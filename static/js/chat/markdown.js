@@ -18,9 +18,10 @@ window.ChatMarkdown = {
                 thoughtHtml = `
                     <details class="apple-thought-box" open>
                         <summary class="apple-thought-summary">
-                            <span class="thought-icon">💡</span>
+                            <svg class="y2k-icon thought-icon" style="color: var(--accent-2);"><use href="static/icons/y2k/sprite.svg#i-brain"/></svg>
                             <span class="thought-label">Proceso de Razonamiento</span>
                             <span class="thought-badge">CoT</span>
+                            <span class="thought-chevron">›</span>
                         </summary>
                         <div class="apple-thought-content">${parsedThought}</div>
                     </details>
@@ -30,7 +31,7 @@ window.ChatMarkdown = {
         }
 
         const bodyHtml = this.formatMarkdownBody(cleanText);
-        return thoughtHtml ? `${thoughtHtml}<div class="response-body">${bodyHtml}</div>` : bodyHtml;
+        return thoughtHtml ? `${thoughtHtml}<div class="response-body">${bodyHtml}</div>` : `<div class="response-body">${bodyHtml}</div>`;
     },
 
     formatMarkdownBody(txt) {
@@ -38,17 +39,29 @@ window.ChatMarkdown = {
 
         // Bloques de código
         txt = txt.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (match, lang, code) => {
-            const langLabel = lang ? `<span class="code-lang">${lang.toUpperCase()}</span>` : '';
+            const langLabel = lang ? `<span class="code-lang">${lang.toUpperCase()}</span>` : '<span class="code-lang">CODE</span>';
             return `
                 <div class="code-block-wrapper">
                     <div class="code-block-header">
                         ${langLabel}
-                        <button class="code-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.code-block-wrapper').querySelector('code').innerText); this.innerText='¡Copiado!'; setTimeout(() => this.innerText='Copiar', 1800);">Copiar</button>
+                        <button class="code-copy-btn" onclick="window.ChatUtils?.copyTextToClipboard(this.closest('.code-block-wrapper').querySelector('code').innerText, this);">
+                            <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-copy"/></svg>
+                            <span>Copiar</span>
+                        </button>
                     </div>
                     <pre><code>${window.ChatUtils.escapeHtml(code.trim())}</code></pre>
                 </div>
             `;
         });
+
+        // Encabezados H1, H2, H3, H4
+        txt = txt.replace(/^#### (.*$)/gim, '<h4 class="md-heading">$1</h4>');
+        txt = txt.replace(/^### (.*$)/gim, '<h3 class="md-heading">$1</h3>');
+        txt = txt.replace(/^## (.*$)/gim, '<h2 class="md-heading">$1</h2>');
+        txt = txt.replace(/^# (.*$)/gim, '<h1 class="md-heading">$1</h1>');
+
+        // Blockquotes
+        txt = txt.replace(/^\> (.*$)/gim, '<blockquote class="md-quote">$1</blockquote>');
 
         // Código inline
         txt = txt.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
@@ -66,7 +79,7 @@ window.ChatMarkdown = {
         const paragraphs = txt.split(/\n\n+/).map(p => {
             p = p.trim();
             if (!p) return '';
-            if (p.startsWith('<div class="code-block-wrapper"') || p.startsWith('<ul') || p.startsWith('<details')) {
+            if (p.startsWith('<div class="code-block-wrapper"') || p.startsWith('<ul') || p.startsWith('<details') || p.startsWith('<h') || p.startsWith('<blockquote')) {
                 return p;
             }
             return `<p>${p.replace(/\n/g, '<br>')}</p>`;

@@ -146,7 +146,18 @@ window.ChatComposerController = {
         msgDiv.setAttribute('data-model', mName);
 
         if (type === 'bot') {
-            msgDiv.innerHTML = window.ChatMarkdown?.parse(text) || text;
+            const shortName = mName ? mName.replace('.gaje.flat', '').replace('.flat', '').replace('.gaje', '') : 'GAJE';
+            const headerHtml = `
+                <div class="bot-card-header">
+                    <div class="bot-author">
+                        <span class="bot-author-icon"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg></span>
+                        <span class="bot-author-title">GAJE AI</span>
+                        <span class="bot-model-chip">${shortName}</span>
+                    </div>
+                    <span class="bot-timestamp">${timeStr}</span>
+                </div>
+            `;
+            msgDiv.innerHTML = headerHtml + (window.ChatMarkdown?.parse(text) || text);
             const latencyMs = meta && meta.latency_ms ? meta.latency_ms : null;
             const latencyStr = window.ChatUtils.formatLatency(latencyMs);
 
