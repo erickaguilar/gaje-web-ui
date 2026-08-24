@@ -205,9 +205,9 @@ window.ChatUtils = {
         const chatWindow = document.getElementById('chat-window');
 
         const selectedModelName = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'Desconocido');
-        const modelDateText = modelDate ? modelDate.innerText : '—';
-        const modelSizeText = modelSize ? modelSize.innerText : '—';
-        const modelRamText = modelRam ? modelRam.innerText : '—';
+        const modelDateText = modelDate ? modelDate.innerText.trim() : '';
+        const modelSizeText = modelSize ? modelSize.innerText.trim() : '';
+        const modelRamText = modelRam ? modelRam.innerText.trim() : '';
 
         const envData = window.ChatState?.envData;
         const clientHw = this.detectClientHardware();
@@ -222,11 +222,28 @@ window.ChatUtils = {
 
         const sfVal = (envData && envData.software) || clientHw.software;
         const hdVal = (envData && envData.hardware) || clientHw.hardware;
-        const gpuVal = (envData && envData.gpu) ? `${envData.gpu.device_name} (${envData.gpu.backend})` : clientHw.gpu;
-        const archVal = (envData && envData.architecture) || clientHw.architecture;
+
+        let gpuVal = clientHw.gpu;
+        if (envData && envData.gpu) {
+            if (typeof envData.gpu === 'object' && envData.gpu.device_name) {
+                gpuVal = envData.gpu.backend ? `${envData.gpu.device_name} (${envData.gpu.backend})` : envData.gpu.device_name;
+            } else if (typeof envData.gpu === 'string' && envData.gpu.trim().length > 0) {
+                gpuVal = envData.gpu;
+            }
+        }
+        if (!gpuVal || gpuVal === 'undefined (undefined)' || gpuVal.includes('undefined')) {
+            gpuVal = clientHw.gpu || 'Aceleración WebGL Integrada';
+        }
+
+        let archVal = (envData && envData.architecture) || clientHw.architecture || 'x86_64';
+        const coresVal = (envData && envData.cores) || clientHw.cores || '—';
+        let archFormatted = archVal;
+        if (!archFormatted.includes('Cores:') && !archFormatted.includes('Cores') && coresVal && coresVal !== '—') {
+            archFormatted = `${archFormatted} (Cores: ${coresVal})`;
+        }
+
         const simdVal = (envData && envData.simd) || clientHw.simd;
-        const coresVal = (envData && envData.cores) || clientHw.cores;
-        let latencyVal = (envData && envData.latency) || clientHw.latency;
+        let latencyVal = (envData && envData.latency) || (envData && envData.throughput) || clientHw.latency;
 
         let alertItems = '';
         if (window.ChatState?.systemAlertsHistory && window.ChatState.systemAlertsHistory.length > 0) {
@@ -299,6 +316,17 @@ window.ChatUtils = {
             });
         }
 
+        const modelInfoLines = [`• Archivo del Modelo: ${selectedModelName}`];
+        if (modelDateText && modelDateText !== '—' && modelDateText !== '---') {
+            modelInfoLines.push(`• Fecha de Compilación: ${modelDateText}`);
+        }
+        if (modelSizeText && modelSizeText !== '—' && modelSizeText !== '---') {
+            modelInfoLines.push(`• Tamaño: ${modelSizeText}`);
+        }
+        if (modelRamText && modelRamText !== '—' && modelRamText !== '---') {
+            modelInfoLines.push(`• Inicialización: ${modelRamText}`);
+        }
+
         const logContent = `================================================================================
 🧬 GAJE HELIX — BITÁCORA Y REGISTRO COMPLETO DEL PROYECTO (SYSTEM AUDIT LOG)
 Fecha y Hora de Generación: ${now}
@@ -306,10 +334,7 @@ Fecha y Hora de Generación: ${now}
 
 📦 1. MODELO GENÓMICO ACTIVO
 --------------------------------------------------------------------------------
-• Archivo del Modelo: ${selectedModelName}
-• ${modelDateText}
-• ${modelSizeText}
-• ${modelRamText}
+${modelInfoLines.join('\n')}
 
 🏝️ 2. MEMORIA ISLAND MODEL (.gmem)
 --------------------------------------------------------------------------------
@@ -323,7 +348,7 @@ Fecha y Hora de Generación: ${now}
 • Software: ${sfVal}
 • Hardware: ${hdVal}
 • Aceleración GPU: ${gpuVal}
-• Arquitectura CPU: ${archVal} (Cores: ${coresVal})
+• Arquitectura CPU: ${archFormatted}
 • Instrucciones SIMD: ${simdVal}
 • Rendimiento Inferencia: ${latencyVal}
 

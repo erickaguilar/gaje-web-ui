@@ -189,9 +189,9 @@
             const chatWindow = document.getElementById('chat-window');
 
             const selectedModelName = modelSelect ? modelSelect.value : (ChatState.activeModel || 'Desconocido');
-            const modelDateText = modelDate ? modelDate.innerText : '—';
-            const modelSizeText = modelSize ? modelSize.innerText : '—';
-            const modelRamText = modelRam ? modelRam.innerText : '—';
+            const modelDateText = modelDate ? modelDate.innerText.trim() : '';
+            const modelSizeText = modelSize ? modelSize.innerText.trim() : '';
+            const modelRamText = modelRam ? modelRam.innerText.trim() : '';
 
             const islandMem = (ChatState.envData && ChatState.envData.island && ChatState.envData.island.memory_type) || document.getElementById('island-mem-val')?.innerText || '.gmem (Zero-Copy Mmap)';
             const islandLat = (ChatState.envData && ChatState.envData.island && ChatState.envData.island.retrieval_latency_ms != null) ? `${ChatState.envData.island.retrieval_latency_ms} ms` : (document.getElementById('island-lat-val')?.innerText || '0.75 ms');
@@ -203,11 +203,28 @@
 
             const sfVal = (ChatState.envData && ChatState.envData.software) || document.getElementById('sf-val')?.innerText || 'Rust 2021 (AVX2/FMA/AVX/SSE4.2) + PyO3 / Python 3.14.6';
             const hdVal = (ChatState.envData && ChatState.envData.hardware) || document.getElementById('hd-val')?.innerText || 'AMD Ryzen 7 5800H with Radeon Graphics - x86_64 (16 cores)';
-            const gpuVal = (ChatState.envData && ChatState.envData.gpu) ? `${ChatState.envData.gpu.device_name} (${ChatState.envData.gpu.backend})` : (document.getElementById('modal-gpu-val')?.innerText || 'AMD Radeon Graphics (Vulkan)');
-            const archVal = (ChatState.envData && ChatState.envData.architecture) || document.getElementById('arch-val')?.innerText || 'x86_64';
+
+            let gpuVal = document.getElementById('modal-gpu-val')?.innerText || 'Aceleración WebGL Integrada';
+            if (ChatState.envData && ChatState.envData.gpu) {
+                if (typeof ChatState.envData.gpu === 'object' && ChatState.envData.gpu.device_name) {
+                    gpuVal = ChatState.envData.gpu.backend ? `${ChatState.envData.gpu.device_name} (${ChatState.envData.gpu.backend})` : ChatState.envData.gpu.device_name;
+                } else if (typeof ChatState.envData.gpu === 'string' && ChatState.envData.gpu.trim().length > 0) {
+                    gpuVal = ChatState.envData.gpu;
+                }
+            }
+            if (!gpuVal || gpuVal === 'undefined (undefined)' || gpuVal.includes('undefined')) {
+                gpuVal = 'Aceleración WebGL Integrada';
+            }
+
+            let archVal = (ChatState.envData && ChatState.envData.architecture) || document.getElementById('arch-val')?.innerText || 'x86_64';
+            const coresVal = (ChatState.envData && ChatState.envData.cores) || document.getElementById('cores-val')?.innerText || '—';
+            let archFormatted = archVal;
+            if (!archFormatted.includes('Cores:') && !archFormatted.includes('Cores') && coresVal && coresVal !== '—') {
+                archFormatted = `${archFormatted} (Cores: ${coresVal})`;
+            }
+
             const simdVal = (ChatState.envData && ChatState.envData.simd) || document.getElementById('simd-val')?.innerText || 'AVX2/FMA/AVX/SSE4.2';
-            const coresVal = (ChatState.envData && ChatState.envData.cores) || document.getElementById('cores-val')?.innerText || '16';
-            let latencyVal = document.getElementById('latency-val')?.innerText || '';
+            let latencyVal = (ChatState.envData && ChatState.envData.latency) || (ChatState.envData && ChatState.envData.throughput) || document.getElementById('latency-val')?.innerText || 'Optimizado para baja latencia';
             if (!latencyVal || latencyVal.trim() === '—') latencyVal = 'Optimizado para baja latencia SIMD AVX2';
 
             let alertItems = '';
@@ -281,6 +298,17 @@
                 });
             }
 
+            const modelInfoLines = [`• Archivo del Modelo: ${selectedModelName}`];
+            if (modelDateText && modelDateText !== '—' && modelDateText !== '---') {
+                modelInfoLines.push(`• Fecha de Compilación: ${modelDateText}`);
+            }
+            if (modelSizeText && modelSizeText !== '—' && modelSizeText !== '---') {
+                modelInfoLines.push(`• Tamaño: ${modelSizeText}`);
+            }
+            if (modelRamText && modelRamText !== '—' && modelRamText !== '---') {
+                modelInfoLines.push(`• Inicialización: ${modelRamText}`);
+            }
+
             const logContent = `================================================================================
 🧬 GAJE HELIX — BITÁCORA Y REGISTRO COMPLETO DEL PROYECTO (SYSTEM AUDIT LOG)
 Fecha y Hora de Generación: ${now}
@@ -288,10 +316,7 @@ Fecha y Hora de Generación: ${now}
 
 📦 1. MODELO GENÓMICO ACTIVO
 --------------------------------------------------------------------------------
-• Archivo del Modelo: ${selectedModelName}
-• ${modelDateText}
-• ${modelSizeText}
-• ${modelRamText}
+${modelInfoLines.join('\n')}
 
 🏝️ 2. MEMORIA ISLAND MODEL (.gmem)
 --------------------------------------------------------------------------------
@@ -305,7 +330,7 @@ Fecha y Hora de Generación: ${now}
 • Software: ${sfVal}
 • Hardware: ${hdVal}
 • Aceleración GPU: ${gpuVal}
-• Arquitectura CPU: ${archVal} (Cores: ${coresVal})
+• Arquitectura CPU: ${archFormatted}
 • Instrucciones SIMD: ${simdVal}
 • Rendimiento Inferencia: ${latencyVal}
 
