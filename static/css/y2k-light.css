@@ -484,3 +484,103 @@
     border-radius: 0px !important;
     border: 1px solid rgba(44, 82, 52, 0.2);
 }
+
+/* ── REFUERZO DE CONTRASTE Y VISIBILIDAD PARA TODOS LOS BOTONES EN LIGHT MODE ── */
+[data-theme="light"] .y2k-theme-toggle-direct,
+[data-theme="light"] .y2k-github-icon-btn,
+[data-theme="light"] .y2k-menu-btn,
+[data-theme="light"] .y2k-pwa-btn,
+[data-theme="light"] .chat-header-pill-btn,
+[data-theme="light"] .chat-header-icon-btn,
+[data-theme="light"] .model-status-btn,
+[data-theme="light"] .copy-btn,
+[data-theme="light"] .code-copy-btn,
+[data-theme="light"] .meta-btn-copy,
+[data-theme="light"] .meta-copy-btn {
+    background: #ffffff !important;
+    border: 1px solid rgba(44, 82, 52, 0.35) !important;
+    color: #2c3539 !important;
+    box-shadow: 0 1px 3px rgba(44, 53, 57, 0.08) !important;
+    border-radius: 0px !important;
+}
+
+[data-theme="light"] .y2k-theme-toggle-direct:hover,
+[data-theme="light"] .y2k-github-icon-btn:hover,
+[data-theme="light"] .y2k-menu-btn:hover,
+[data-theme="light"] .chat-header-pill-btn:hover,
+[data-theme="light"] .chat-header-icon-btn:hover,
+[data-theme="light"] .copy-btn:hover,
+[data-theme="light"] .code-copy-btn:hover {
+    background: rgba(44, 82, 52, 0.08) !important;
+    border-color: var(--accent-forest) !important;
+    color: var(--accent-forest) !important;
+    box-shadow: 0 2px 6px rgba(44, 82, 52, 0.15) !important;
+}
+
+[data-theme="light"] .y2k-theme-toggle-direct svg,
+[data-theme="light"] .y2k-github-icon-btn svg,
+[data-theme="light"] .y2k-menu-btn svg,
+[data-theme="light"] .chat-header-pill-btn svg,
+[data-theme="light"] .chat-header-icon-btn svg {
+    color: #2c3539 !important;
+}
+
+[data-theme="light"] .chat-header-pill-btn.active,
+[data-theme="light"] .info-toggle-btn.active {
+    background: rgba(44, 82, 52, 0.12) !important;
+    border-color: #2c5234 !important;
+    color: #2c5234 !important;
+}
+
+[data-theme="light"] .chat-header-pill-btn.active svg,
+[data-theme="light"] .info-toggle-btn.active svg {
+    color: #2c5234 !important;
+}
+
+[data-theme="light"] .model-status-btn {
+    background: #ffffff !important;
+    border: 1px solid rgba(44, 82, 52, 0.3) !important;
+    color: #2c5234 !important;
+}
+
+[data-theme="light"] .model-status-btn.active .status-dot-led {
+    background: #2c5234 !important;
+    box-shadow: 0 0 6px rgba(44, 82, 52, 0.5) !important;
+}
+
+[data-theme="light"] .traffic-dot.dot-close {
+    background: #e11d48 !important;
+    border: 1px solid #be123c !important;
+}
+
+[data-theme="light"] .traffic-dot.dot-min {
+    background: #d97706 !important;
+    border: 1px solid #b45309 !important;
+}
+
+[data-theme="light"] .traffic-dot.dot-max {
+    background: #16a34a !important;
+    border: 1px solid #15803d !important;
+}
+
+[data-theme="light"] .starter-card {
+    background: #ffffff !important;
+    border: 1px solid rgba(44, 82, 52, 0.25) !important;
+    box-shadow: 0 2px 8px rgba(44, 53, 57, 0.05) !important;
+}
+
+[data-theme="light"] .starter-card:hover {
+    background: #faf8f5 !important;
+    border-color: #2c5234 !important;
+    box-shadow: 0 4px 14px rgba(44, 82, 52, 0.12) !important;
+}
+
+[data-theme="light"] .starter-icon {
+    color: #2c5234 !important;
+}
+
+[data-theme="light"] .starters-badge {
+    background: rgba(44, 82, 52, 0.08) !important;
+    border: 1px solid rgba(44, 82, 52, 0.25) !important;
+    color: #2c5234 !important;
+}
