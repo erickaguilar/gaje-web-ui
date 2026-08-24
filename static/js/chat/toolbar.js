@@ -205,6 +205,18 @@ window.ChatToolbarController = {
             }
         } catch (err) {
             console.log('Usando modelos por defecto certificados.');
+            window.ChatState.modelsData = [
+                { name: 'gaje_pico_135m.flat', size_bytes: 494280704, date: '2026-08-24' },
+                { name: 'gaje_nano_1.5b.flat', size_bytes: 1324845056, date: '2026-08-24' },
+                { name: 'gaje_prime_3b.flat', size_bytes: 2410702683, date: '2026-08-24' },
+                { name: 'gaje_ultra_7b.flat', size_bytes: 5247000000, date: '2026-08-24' }
+            ];
+            modelSelect.innerHTML = `
+                <option value="gaje_pico_135m.flat" selected>GAJE Pico 135M · [Móvil Ultra-Rápido 470MB]</option>
+                <option value="gaje_nano_1.5b.flat">GAJE Nano 1.5B · [WASM 1.2GB]</option>
+                <option value="gaje_prime_3b.flat">GAJE Prime 3B · [Desktop 2.2GB]</option>
+                <option value="gaje_ultra_7b.flat">GAJE Ultra 7B · [Cloud 4.9GB]</option>
+            `;
             this.updateModelMeta();
         }
     },

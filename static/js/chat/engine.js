@@ -162,12 +162,39 @@ window.ChatEngineController = {
                 // 2. Si no hay backend local (ej. Vercel/Cloudflare Pages), descargar desde el CDN oficial de Hugging Face
                 if (!buffer) {
                     const cdnUrl = `https://huggingface.co/eaguilar/gaje-models/resolve/main/${encodeURIComponent(modelName)}`;
-                    contentEl.textContent = `Descargando ${modelName} desde CDN Hugging Face (Zero-Server)...`;
+                    contentEl.textContent = `Conectando con CDN Hugging Face (${modelName})...`;
                     const cdnRes = await fetch(cdnUrl);
                     if (!cdnRes.ok) {
                         throw new Error(`No se pudo descargar el modelo binario (${cdnRes.status} ${cdnRes.statusText})`);
                     }
-                    buffer = await cdnRes.arrayBuffer();
+
+                    const contentLength = cdnRes.headers.get('content-length');
+                    const totalBytes = contentLength ? parseInt(contentLength, 10) : 0;
+
+                    if (cdnRes.body && totalBytes > 0) {
+                        const reader = cdnRes.body.getReader();
+                        let receivedBytes = 0;
+                        const chunks = [];
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+                            chunks.push(value);
+                            receivedBytes += value.length;
+                            const pct = Math.round((receivedBytes / totalBytes) * 100);
+                            const recMb = (receivedBytes / (1024 * 1024)).toFixed(1);
+                            const totMb = (totalBytes / (1024 * 1024)).toFixed(1);
+                            contentEl.textContent = `Descargando ${modelName}: ${pct}% (${recMb} / ${totMb} MB)...`;
+                        }
+                        const allChunks = new Uint8Array(receivedBytes);
+                        let position = 0;
+                        for (let chunk of chunks) {
+                            allChunks.set(chunk, position);
+                            position += chunk.length;
+                        }
+                        buffer = allChunks.buffer;
+                    } else {
+                        buffer = await cdnRes.arrayBuffer();
+                    }
                 }
 
                 if (!buffer || buffer.byteLength < 4096) {
