@@ -1,7 +1,10 @@
 /*
   Cross-Origin-Opener-Policy: same-origin
-  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Embedder-Policy: credentialless
   Access-Control-Allow-Origin: *
 
 /static/wasm/*.wasm
   Content-Type: application/wasm
+
+/static/wasm/*.js
+  Content-Type: application/javascript

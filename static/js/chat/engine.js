@@ -143,30 +143,42 @@ window.ChatEngineController = {
 
         try {
             if (!window.ChatState.isWasmModelLoaded || window.ChatState.wasmActiveModelName !== modelName) {
-                contentEl.textContent = `Descargando modelo ${modelName} para ejecución en navegador...`;
-                
                 let buffer = null;
-                // 1. Intentar descargar desde el backend local si existe
-                try {
-                    const localRes = await fetch(`/models/${encodeURIComponent(modelName)}`);
-                    if (localRes.ok) {
-                        const localBuf = await localRes.arrayBuffer();
-                        if (localBuf && localBuf.byteLength >= 4096) {
-                            buffer = localBuf;
-                        }
+
+                // 0. Verificar si el modelo ya está en la caché local persistente IndexedDB
+                if (window.GajeDB && typeof window.GajeDB.getCachedModel === 'function') {
+                    contentEl.textContent = `Verificando caché local para ${modelName}...`;
+                    const cachedBuf = await window.GajeDB.getCachedModel(modelName);
+                    if (cachedBuf && cachedBuf.byteLength >= 4096) {
+                        console.log(`⚡ [GAJE-WASM] Modelo ${modelName} recuperado desde caché IndexedDB (${(cachedBuf.byteLength / 1048576).toFixed(1)} MB).`);
+                        contentEl.textContent = `Cargando ${modelName} desde almacenamiento local...`;
+                        buffer = cachedBuf;
                     }
-                } catch (err) {
-                    console.warn('[GAJE-WASM] Fallback a CDN Hugging Face...');
                 }
 
-                // 2. Si no hay backend local (ej. Vercel/Cloudflare Pages), descargar desde el CDN oficial de Hugging Face
+                // 1. Si no está en caché, intentar descargar desde el backend local si existe
+                if (!buffer && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+                    try {
+                        const localRes = await fetch(`/models/${encodeURIComponent(modelName)}`);
+                        if (localRes.ok) {
+                            const localBuf = await localRes.arrayBuffer();
+                            if (localBuf && localBuf.byteLength >= 4096) {
+                                buffer = localBuf;
+                            }
+                        }
+                    } catch (err) {
+                        console.warn('[GAJE-WASM] Backend local no respondió, usando CDN...');
+                    }
+                }
+
+                // 2. Si no hay backend local (ej. Vercel/PWA), descargar desde el CDN oficial de Hugging Face
                 if (!buffer) {
                     const cdnBase = window.GAJE_CONFIG?.cdnBaseUrl || 'https://huggingface.co/eaguilar/gaje-models/resolve/main/';
                     const cdnUrl = `${cdnBase}${encodeURIComponent(modelName)}`;
-                    contentEl.textContent = `Conectando con CDN Hugging Face (${modelName})...`;
-                    const cdnRes = await fetch(cdnUrl);
+                    contentEl.textContent = `Conectando con CDN (${modelName})...`;
+                    const cdnRes = await fetch(cdnUrl, { mode: 'cors' });
                     if (!cdnRes.ok) {
-                        throw new Error(`No se pudo descargar el modelo binario (${cdnRes.status} ${cdnRes.statusText})`);
+                        throw new Error(`No se pudo descargar el modelo (${cdnRes.status} ${cdnRes.statusText})`);
                     }
 
                     const contentLength = cdnRes.headers.get('content-length');
@@ -195,6 +207,11 @@ window.ChatEngineController = {
                         buffer = allChunks.buffer;
                     } else {
                         buffer = await cdnRes.arrayBuffer();
+                    }
+
+                    // Guardar en caché IndexedDB para que en futuros inicios la carga sea instantánea (0s descarga)
+                    if (buffer && buffer.byteLength >= 4096 && window.GajeDB && typeof window.GajeDB.saveCachedModel === 'function') {
+                        window.GajeDB.saveCachedModel(modelName, buffer.slice(0));
                     }
                 }
 

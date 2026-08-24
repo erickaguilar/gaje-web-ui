@@ -7,7 +7,7 @@
     'use strict';
 
     const DB_NAME = 'GajeHelixDB';
-    const DB_VERSION = 2;
+    const DB_VERSION = 3;
 
     class GajeIndexedStorage {
         constructor() {
@@ -58,11 +58,16 @@
                         memStore.createIndex('niche', 'niche', { unique: false });
                         memStore.createIndex('updatedAt', 'updatedAt', { unique: false });
                     }
+
+                    // 5. Caché Local de Modelos Binarios .flat (Zero-Download Offline)
+                    if (!db.objectStoreNames.contains('model_cache')) {
+                        db.createObjectStore('model_cache', { keyPath: 'name' });
+                    }
                 };
 
                 req.onsuccess = (e) => {
                     this.db = e.target.result;
-                    console.log('⚡ [GajeStorage] GajeHelixDB v2 (con Islas .gmem) inicializada exitosamente en IndexedDB.');
+                    console.log('⚡ [GajeStorage] GajeHelixDB v3 (con Islas .gmem y Model Cache) inicializada en IndexedDB.');
                     this.migrateFromLocalStorage();
                     this.notifyChange('init');
                     resolve(this.db);
@@ -467,6 +472,47 @@
                 console.error('[GajeStorage] Error al importar base de datos:', err);
                 return { success: false, error: err.message };
             }
+        }
+
+        /**
+         * Obtiene un modelo binario .flat almacenado en caché local IndexedDB
+         */
+        async getCachedModel(name) {
+            await this.readyPromise;
+            if (!this.db || !this.db.objectStoreNames.contains('model_cache')) return null;
+            return new Promise((resolve) => {
+                try {
+                    const tx = this.db.transaction('model_cache', 'readonly');
+                    const store = tx.objectStore('model_cache');
+                    const req = store.get(name);
+                    req.onsuccess = () => resolve(req.result ? req.result.buffer : null);
+                    req.onerror = () => resolve(null);
+                } catch (e) {
+                    resolve(null);
+                }
+            });
+        }
+
+        /**
+         * Guarda un modelo binario .flat en la caché local IndexedDB para acceso offline instantáneo
+         */
+        async saveCachedModel(name, buffer) {
+            await this.readyPromise;
+            if (!this.db || !this.db.objectStoreNames.contains('model_cache')) return false;
+            return new Promise((resolve) => {
+                try {
+                    const tx = this.db.transaction('model_cache', 'readwrite');
+                    const store = tx.objectStore('model_cache');
+                    const req = store.put({ name, buffer, updatedAt: Date.now() });
+                    req.onsuccess = () => {
+                        console.log(`📦 [GajeStorage] Modelo ${name} guardado en caché IndexedDB.`);
+                        resolve(true);
+                    };
+                    req.onerror = () => resolve(false);
+                } catch (e) {
+                    resolve(false);
+                }
+            });
         }
 
         /**
