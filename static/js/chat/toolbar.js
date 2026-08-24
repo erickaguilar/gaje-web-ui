@@ -68,6 +68,37 @@ window.ChatToolbarController = {
             btnLoadLocalFlat.addEventListener('click', () => inputLocalFlat.click());
             inputLocalFlat.addEventListener('change', (e) => this.onLocalFlatSelected(e));
         }
+
+        // Menú Overflow (•••)
+        const menuBtn = document.getElementById('chat-overflow-menu-btn');
+        const menuDropdown = document.getElementById('chat-actions-dropdown');
+        if (menuBtn && menuDropdown) {
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isHidden = menuDropdown.hasAttribute('hidden');
+                if (isHidden) {
+                    menuDropdown.removeAttribute('hidden');
+                    menuBtn.setAttribute('aria-expanded', 'true');
+                } else {
+                    menuDropdown.setAttribute('hidden', '');
+                    menuBtn.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!menuDropdown.contains(e.target) && e.target !== menuBtn && !menuBtn.contains(e.target)) {
+                    menuDropdown.setAttribute('hidden', '');
+                    menuBtn.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            menuDropdown.querySelectorAll('.chat-menu-item:not(.engine-select-item)').forEach(item => {
+                item.addEventListener('click', () => {
+                    menuDropdown.setAttribute('hidden', '');
+                    menuBtn.setAttribute('aria-expanded', 'false');
+                });
+            });
+        }
     },
 
     async loadModels(autoLoadEnabled = true) {
