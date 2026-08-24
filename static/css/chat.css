@@ -1,9 +1,12 @@
 /* ============================================================
-   GAJE — chat.css  (rediseño: moderno tech suave)
-   Estética limpia con acento azul/violeta, panel glassmorphism
-   refinado, jerarquía tipográfica. Mono solo para datos técnicos.
-   Conserva el contrato de clases/IDs usadas por chat.js.
+   GAJE — chat.css  (Arquitectura Modular de Estilos)
+   Estructura base del chat + importación de temas duales:
+   - y2k-dark.css  ('HIG-APPLE')
+   - y2k-light.css ('SCANDINAVIAN-DESIGN')
    ============================================================ */
+
+@import url('y2k-dark.css');
+@import url('y2k-light.css');
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 

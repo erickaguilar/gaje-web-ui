@@ -1,0 +1,294 @@
+/* =============================================================================
+   🧬 GAJE — y2k-light.css (SCANDINAVIAN-DESIGN & LEARNING NOTEBOOK THEME)
+   Filosofía: Minimalismo nórdico/escandinavo cálido (hygge) + Cuaderno de Campo
+   de Investigación Genómica. Fondo marfil suave (#f6f5f3) con cuadrícula técnica
+   dot-grid, margen de libreta ámbar, acentos orgánicos verde bosque (#2c5234) y
+   fichas de notas de aprendizaje encuadernadas con cero fatiga visual.
+   ============================================================================= */
+
+[data-theme="light"] {
+    /* ── PALETA DE COLORES LIGHT (SCANDINAVIAN NOTEBOOK) ── */
+    --theme-name: 'SCANDINAVIAN-DESIGN';
+    --bg-primary: #f6f5f3;
+    --bg-surface: rgba(255, 255, 255, 0.95);
+    --bg-surface-elevated: #ffffff;
+    --bg-surface-card: #ffffff;
+    --border-subtle: rgba(44, 82, 52, 0.14);
+    --border-medium: rgba(44, 82, 52, 0.22);
+    --border-highlight: rgba(44, 82, 52, 0.45);
+
+    /* Acentos Orgánicos & Botánicos */
+    --accent-forest: #2c5234;
+    --accent-forest-hover: #376541;
+    --accent-amber-note: #b45309;
+    --accent-slate: #2c3539;
+    --accent-crimson: #b91c1c;
+    --accent-glow: rgba(44, 82, 52, 0.2);
+
+    --user-msg-gradient: linear-gradient(135deg, #2c5234 0%, #1c3521 100%);
+    --bot-msg-bg: #ffffff;
+    --bot-msg-border-accent: #2c5234;
+    --sys-msg-gradient: linear-gradient(135deg, rgba(44, 82, 52, 0.06), rgba(44, 53, 57, 0.04));
+    --sys-msg-border: rgba(44, 82, 52, 0.22);
+}
+
+/* ── ESTILOS ESPECÍFICOS DE COMPONENTES EN MODO CLARO (CUADERNO ESCANDINAVO) ── */
+
+/* Fondo Cuaderno Técnico (Dot-grid & Margen Guía) */
+[data-theme="light"] .chat-window {
+    background-image: 
+        radial-gradient(rgba(44, 82, 52, 0.08) 1px, transparent 1px),
+        linear-gradient(to right, transparent 32px, rgba(180, 83, 9, 0.16) 32px, rgba(180, 83, 9, 0.16) 33px, transparent 33px);
+    background-size: 24px 24px, 100% 100%;
+    background-repeat: repeat, no-repeat;
+    background-position: 0 0, 0 0;
+}
+
+/* Toolbar */
+[data-theme="light"] .chat-toolbar {
+    background: rgba(246, 245, 243, 0.96);
+    border-bottom: 1px solid rgba(44, 82, 52, 0.14);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] .header-model-dropdown {
+    background: #ffffff;
+    border-color: rgba(44, 82, 52, 0.18);
+    color: var(--text);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .header-model-dropdown:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+/* Píldoras de Recursos y Metadatos */
+[data-theme="light"] .chat-pill-ram {
+    background: rgba(44, 82, 52, 0.08);
+    border-color: rgba(44, 82, 52, 0.25);
+    color: var(--accent);
+}
+
+[data-theme="light"] .ram-led.active {
+    background: var(--accent);
+    box-shadow: 0 0 6px rgba(44, 82, 52, 0.6);
+}
+
+[data-theme="light"] .chat-pill-meta {
+    background: #ffffff;
+    border-color: rgba(44, 82, 52, 0.14);
+    color: var(--muted);
+}
+
+[data-theme="light"] .status-indicator-pill {
+    background: #ffffff;
+    border-color: rgba(44, 82, 52, 0.14);
+    color: var(--muted);
+}
+
+/* Botones y Badges */
+[data-theme="light"] .chat-header-pill-btn {
+    background: #ffffff;
+    border-color: rgba(44, 82, 52, 0.22);
+    color: var(--accent);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .chat-header-pill-btn:hover {
+    background: rgba(44, 82, 52, 0.08);
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 2px 8px rgba(44, 82, 52, 0.15);
+}
+
+[data-theme="light"] .chat-header-icon-btn {
+    background: #ffffff;
+    border-color: rgba(44, 82, 52, 0.18);
+    color: var(--text);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .chat-header-icon-btn:hover {
+    background: rgba(44, 82, 52, 0.08);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* Menú Dropdown Flotante */
+[data-theme="light"] .chat-menu-dropdown {
+    background: rgba(255, 255, 255, 0.98);
+    border-color: rgba(44, 82, 52, 0.18);
+    box-shadow: 0 14px 36px rgba(44, 82, 52, 0.15), 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .menu-section-label {
+    color: var(--muted);
+}
+
+[data-theme="light"] .menu-divider {
+    background: rgba(44, 82, 52, 0.1);
+}
+
+[data-theme="light"] .chat-menu-item {
+    color: var(--text);
+}
+
+[data-theme="light"] .chat-menu-item svg {
+    color: var(--muted);
+}
+
+[data-theme="light"] .chat-menu-item:hover {
+    background: rgba(44, 82, 52, 0.08);
+    color: var(--accent);
+}
+
+[data-theme="light"] .chat-menu-item:hover svg {
+    color: var(--accent);
+}
+
+[data-theme="light"] .menu-inline-select {
+    background: #f6f5f3;
+    border-color: rgba(44, 82, 52, 0.2);
+    color: var(--text);
+}
+
+/* Mensajes (Fichas de Aprendizaje) */
+[data-theme="light"] .message.user {
+    background: linear-gradient(135deg, #2c5234 0%, #1c3521 100%);
+    border: 1px solid rgba(44, 82, 52, 0.35);
+    color: #ffffff;
+    box-shadow: 0 4px 16px rgba(44, 82, 52, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="light"] .message.user p {
+    color: #ffffff;
+}
+
+[data-theme="light"] .message.bot {
+    background: #ffffff;
+    border: 1px solid rgba(44, 82, 52, 0.16);
+    border-left: 4px solid var(--accent);
+    color: var(--text);
+    box-shadow: 0 4px 16px rgba(44, 53, 57, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    border-radius: 4px 16px 16px 16px;
+    position: relative;
+}
+
+[data-theme="light"] .message.bot::after {
+    content: "📓 Ficha de Aprendizaje Genómico";
+    position: absolute;
+    top: -8px;
+    right: 14px;
+    font-size: 0.58rem;
+    font-weight: 700;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: #fbfaf8;
+    color: #b45309;
+    padding: 1px 7px;
+    border-radius: 4px;
+    border: 1px solid rgba(180, 83, 9, 0.25);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .message.system {
+    background: linear-gradient(135deg, rgba(44, 82, 52, 0.06), rgba(44, 53, 57, 0.04));
+    border: 1px solid rgba(44, 82, 52, 0.22);
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(44, 82, 52, 0.04);
+}
+
+[data-theme="light"] .message.system::before {
+    color: var(--accent);
+}
+
+/* Memorando de Razonamiento CoT */
+[data-theme="light"] .apple-thought-box {
+    background: #fbfaf8;
+    border: 1px solid rgba(44, 82, 52, 0.18);
+    border-left: 3.5px solid #b45309;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .apple-thought-box[open] {
+    background: #ffffff;
+    border-color: rgba(44, 82, 52, 0.22);
+    border-left-color: #b45309;
+    box-shadow: 0 4px 16px rgba(44, 82, 52, 0.06);
+}
+
+[data-theme="light"] .apple-thought-summary:hover {
+    background: rgba(44, 82, 52, 0.04);
+}
+
+[data-theme="light"] .apple-thought-header {
+    color: var(--text);
+}
+
+[data-theme="light"] .apple-thought-icon {
+    color: #b45309;
+}
+
+[data-theme="light"] .apple-thought-chevron {
+    color: var(--muted);
+}
+
+[data-theme="light"] .apple-thought-content {
+    border-top-color: rgba(44, 82, 52, 0.1);
+    color: #334155;
+    background: #fbfaf8;
+}
+
+[data-theme="light"] .code-block {
+    background: #fbfaf8;
+    border: 1px solid rgba(44, 82, 52, 0.18);
+    color: #1e293b;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .inline-code {
+    background: rgba(180, 83, 9, 0.08);
+    border: 1px solid rgba(180, 83, 9, 0.22);
+    color: #b45309;
+}
+
+/* Tooltips */
+[data-theme="light"] [data-tooltip]::after {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(0, 0, 0, 0.12);
+    color: #1e293b;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] [data-tooltip]::before {
+    border-color: transparent transparent rgba(0, 0, 0, 0.12) transparent;
+}
+
+/* Input Area Composer */
+[data-theme="light"] .input-area {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(44, 82, 52, 0.2);
+    box-shadow: 0 6px 24px rgba(44, 53, 57, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] .input-area:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 8px 28px rgba(44, 53, 57, 0.08), 0 0 0 2.5px var(--accent-glow);
+}
+
+[data-theme="light"] input#user-input {
+    color: var(--text);
+}
+
+[data-theme="light"] button#send-btn {
+    background: linear-gradient(135deg, #2c5234 0%, #1a301f 100%);
+    border: 1px solid rgba(44, 82, 52, 0.4);
+    box-shadow: 0 4px 12px rgba(44, 82, 52, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+[data-theme="light"] button#send-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #376541 0%, #223f29 100%);
+    box-shadow: 0 6px 16px rgba(44, 82, 52, 0.35);
+}

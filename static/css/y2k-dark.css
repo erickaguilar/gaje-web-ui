@@ -1,0 +1,188 @@
+/* =============================================================================
+   🧬 GAJE — y2k-dark.css (HIG-APPLE DARK THEME)
+   Filosofía: Intersección Apple Human Interface Guidelines (HIG) Dark Materials
+   y futurismo ciberpunk Y2K. Fondos oscuros profundos (#000000 / #121420),
+   Glassmorphism con blur de 28px, acentos neón y scanlines retro.
+   ============================================================================= */
+
+:root,
+[data-theme="dark"] {
+    /* ── PALETA DE COLORES DARK (HIG-APPLE) ── */
+    --theme-name: 'HIG-APPLE';
+    --bg-primary: #000000;
+    --bg-surface: rgba(18, 20, 32, 0.72);
+    --bg-surface-elevated: rgba(22, 25, 38, 0.88);
+    --bg-surface-card: rgba(28, 30, 46, 0.62);
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-medium: rgba(255, 255, 255, 0.14);
+    --border-highlight: rgba(255, 255, 255, 0.25);
+
+    /* Acentos Neón Y2K */
+    --neon-blue: #0a84ff;
+    --neon-indigo: #5e5ce6;
+    --neon-purple: #a78bfa;
+    --neon-cyan: #22d3ee;
+    --neon-green: #30d158;
+    --neon-amber: #ffd60a;
+    --neon-red: #ff453a;
+
+    --user-msg-gradient: linear-gradient(135deg, #0a84ff 0%, #5e5ce6 100%);
+    --bot-msg-bg: rgba(28, 30, 46, 0.62);
+    --bot-msg-border-accent: #5e5ce6;
+    --sys-msg-gradient: linear-gradient(135deg, rgba(94, 92, 230, 0.12), rgba(0, 242, 254, 0.08));
+    --sys-msg-border: rgba(0, 242, 254, 0.35);
+}
+
+/* ── ESTILOS ESPECÍFICOS DE COMPONENTES EN MODO OSCURO ── */
+
+/* Toolbar */
+:root .chat-toolbar,
+[data-theme="dark"] .chat-toolbar {
+    background: rgba(18, 20, 32, 0.65);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+:root .header-model-dropdown,
+[data-theme="dark"] .header-model-dropdown {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--text-color);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+:root .header-model-dropdown:hover,
+[data-theme="dark"] .header-model-dropdown:hover {
+    border-color: var(--accent-2);
+    background: rgba(94, 92, 230, 0.08);
+    box-shadow: 0 0 10px rgba(94, 92, 230, 0.25);
+}
+
+/* Píldora de RAM */
+:root .chat-pill-ram,
+[data-theme="dark"] .chat-pill-ram {
+    background: rgba(48, 209, 88, 0.1);
+    border: 1px solid rgba(48, 209, 88, 0.3);
+    color: #30d158;
+}
+
+:root .ram-led.active,
+[data-theme="dark"] .ram-led.active {
+    background: #30d158;
+    box-shadow: 0 0 8px #30d158;
+}
+
+/* Botones y Badges */
+:root .chat-header-icon-btn,
+[data-theme="dark"] .chat-header-icon-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--text-color);
+}
+
+:root .chat-header-icon-btn:hover,
+[data-theme="dark"] .chat-header-icon-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+:root .chat-header-pill-btn,
+[data-theme="dark"] .chat-header-pill-btn {
+    background: rgba(56, 189, 248, 0.08);
+    border-color: rgba(56, 189, 248, 0.25);
+    color: #38bdf8;
+}
+
+:root .chat-header-pill-btn:hover,
+[data-theme="dark"] .chat-header-pill-btn:hover {
+    background: rgba(56, 189, 248, 0.18);
+    border-color: #38bdf8;
+    box-shadow: 0 2px 10px rgba(56, 189, 248, 0.25);
+}
+
+/* Menú Dropdown Flotante */
+:root .chat-menu-dropdown,
+[data-theme="dark"] .chat-menu-dropdown {
+    background: rgba(20, 22, 32, 0.96);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+:root .chat-menu-item:hover,
+[data-theme="dark"] .chat-menu-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+:root .menu-divider,
+[data-theme="dark"] .menu-divider {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+:root .menu-inline-select,
+[data-theme="dark"] .menu-inline-select {
+    background: rgba(0, 0, 0, 0.35);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: var(--text-color);
+}
+
+/* Mensajes */
+:root .message.user,
+[data-theme="dark"] .message.user {
+    background: linear-gradient(135deg, #0a84ff 0%, #5e5ce6 100%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+    box-shadow: 0 6px 24px rgba(10, 132, 255, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+:root .message.bot,
+[data-theme="dark"] .message.bot {
+    background: rgba(28, 30, 46, 0.62);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-left: 3.5px solid var(--accent-2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+:root .message.system,
+[data-theme="dark"] .message.system {
+    background: linear-gradient(135deg, rgba(94, 92, 230, 0.12), rgba(0, 242, 254, 0.08));
+    border: 1px solid rgba(0, 242, 254, 0.35);
+    color: var(--text-color);
+    box-shadow: 0 0 16px rgba(0, 242, 254, 0.12);
+}
+
+/* Thought Box (Cupertino CoT) */
+:root .apple-thought-box,
+[data-theme="dark"] .apple-thought-box {
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+:root .apple-thought-box[open],
+[data-theme="dark"] .apple-thought-box[open] {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(94, 92, 230, 0.25);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+}
+
+/* Input Area Composer */
+:root .input-area,
+[data-theme="dark"] .input-area {
+    background: rgba(22, 25, 38, 0.78);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+:root .input-area:focus-within,
+[data-theme="dark"] .input-area:focus-within {
+    border-color: var(--accent-color);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 2.5px var(--accent-glow), 0 0 24px rgba(10, 132, 255, 0.3);
+}
+
+:root button#send-btn,
+[data-theme="dark"] button#send-btn {
+    background: linear-gradient(135deg, #0a84ff 0%, #5e5ce6 100%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 4px 16px rgba(10, 132, 255, 0.35);
+}
