@@ -127,14 +127,6 @@ window.ChatToolbarController = {
                     modelSelect.appendChild(opt);
                 });
                 this.updateModelMeta();
-
-                const urlParams = new URLSearchParams(window.location.search);
-                const preloadUrl = urlParams.get('preload');
-                const shouldPreload = (preloadUrl !== 'false' && preloadUrl !== '0') && autoLoadEnabled;
-
-                if (modelSelect.value && shouldPreload) {
-                    this.preloadModel(modelSelect.value);
-                }
             } else {
                 this.updateModelMeta();
             }
