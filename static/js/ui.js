@@ -72,13 +72,13 @@
   function initTheme() {
     var toggles = document.querySelectorAll('#theme-toggle, #direct-theme-toggle');
     if (!toggles.length) return;
-    applyTheme(localStorage.getItem('theme') || 'dark');
+    applyTheme(localStorage.getItem('theme') || 'light');
     toggles.forEach(function (toggle) {
       // Evitar duplicación de listeners
       if (toggle._hasThemeListener) return;
       toggle._hasThemeListener = true;
       toggle.addEventListener('click', function () {
-        var current = document.documentElement.getAttribute('data-theme') || 'dark';
+        var current = document.documentElement.getAttribute('data-theme') || 'light';
         var next = current === 'light' ? 'dark' : 'light';
         localStorage.setItem('theme', next);
         applyTheme(next);

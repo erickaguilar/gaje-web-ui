@@ -22,6 +22,19 @@ window.ChatToolbarController = {
         await this.loadModels(autoLoadEnabled);
     },
 
+    clearChatInterface() {
+        window.ChatStorage?.clearHistory();
+        const chatWindow = document.getElementById('chat-window');
+        if (chatWindow) {
+            const messages = chatWindow.querySelectorAll('.message');
+            messages.forEach(m => m.remove());
+        }
+        const starters = document.getElementById('chat-starters');
+        if (starters) {
+            starters.style.display = 'flex';
+        }
+    },
+
     bindElements() {
         const appContainer = document.querySelector('.app-container');
 
@@ -29,16 +42,7 @@ window.ChatToolbarController = {
         const btnClose = document.getElementById('win-btn-close');
         if (btnClose) {
             btnClose.addEventListener('click', () => {
-                window.ChatStorage?.clearHistory();
-                const chatWindow = document.getElementById('chat-window');
-                if (chatWindow) {
-                    const messages = chatWindow.querySelectorAll('.message');
-                    messages.forEach(m => { if (!m.classList.contains('system')) m.remove(); });
-                }
-                const starters = document.getElementById('chat-starters');
-                if (starters) {
-                    starters.style.display = 'flex';
-                }
+                this.clearChatInterface();
             });
         }
 
@@ -46,7 +50,8 @@ window.ChatToolbarController = {
         if (btnMin && appContainer) {
             btnMin.addEventListener('click', () => {
                 appContainer.classList.remove('maximized');
-                appContainer.classList.toggle('minimized');
+                const isMin = appContainer.classList.toggle('minimized');
+                btnMin.setAttribute('title', isMin ? 'Restaurar Ventana' : 'Minimizar Ventana');
             });
         }
 
@@ -54,7 +59,36 @@ window.ChatToolbarController = {
         if (btnMax && appContainer) {
             btnMax.addEventListener('click', () => {
                 appContainer.classList.remove('minimized');
-                appContainer.classList.toggle('maximized');
+                const isMax = appContainer.classList.toggle('maximized');
+                btnMax.setAttribute('title', isMax ? 'Restaurar Tamaño' : 'Pantalla Completa');
+            });
+        }
+
+        // Toggle de Barra Secundaria de Información / Telemetría
+        const toggleInfoBtn = document.getElementById('toggle-info-bar-btn');
+        const infoBar = document.getElementById('chat-toolbar-infobar');
+        if (toggleInfoBtn && infoBar) {
+            const savedVisible = localStorage.getItem('gaje_toolbar_info_visible') !== 'false';
+            if (!savedVisible) {
+                infoBar.classList.add('collapsed');
+                toggleInfoBtn.classList.remove('active');
+            } else {
+                infoBar.classList.remove('collapsed');
+                toggleInfoBtn.classList.add('active');
+            }
+
+            toggleInfoBtn.addEventListener('click', () => {
+                const isCollapsed = infoBar.classList.toggle('collapsed');
+                toggleInfoBtn.classList.toggle('active', !isCollapsed);
+                localStorage.setItem('gaje_toolbar_info_visible', !isCollapsed);
+            });
+        }
+
+        // Botón Rápido de Borrar Chat
+        const btnQuickClear = document.getElementById('btn-quick-clear-chat');
+        if (btnQuickClear) {
+            btnQuickClear.addEventListener('click', () => {
+                this.clearChatInterface();
             });
         }
 
@@ -78,16 +112,7 @@ window.ChatToolbarController = {
         const clearHistoryBtn = document.getElementById('clear-history-btn');
         if (clearHistoryBtn) {
             clearHistoryBtn.addEventListener('click', () => {
-                window.ChatStorage?.clearHistory();
-                const chatWindow = document.getElementById('chat-window');
-                if (chatWindow) {
-                    const messages = chatWindow.querySelectorAll('.message');
-                    messages.forEach(m => { if (!m.classList.contains('system')) m.remove(); });
-                }
-                const starters = document.getElementById('chat-starters');
-                if (starters) {
-                    starters.style.display = 'flex';
-                }
+                this.clearChatInterface();
             });
         }
 

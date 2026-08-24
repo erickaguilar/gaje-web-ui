@@ -1,29 +1,112 @@
-<!-- Left: macOS Lights + Modern Model Selector + Live Resources -->
-<div class="chat-toolbar-left">
-    <div class="chat-window-mac-dots" aria-label="Controles de ventana">
-        <button type="button" class="traffic-dot dot-close" id="win-btn-close" data-tooltip="Cerrar / Reiniciar Chat" aria-label="Cerrar / Reiniciar Chat"></button>
-        <button type="button" class="traffic-dot dot-min" id="win-btn-min" data-tooltip="Minimizar / Restaurar" aria-label="Minimizar / Restaurar Ventana"></button>
-        <button type="button" class="traffic-dot dot-max" id="win-btn-max" data-tooltip="Maximizar (Pantalla Completa)" aria-label="Maximizar Ventana"></button>
+<!-- Fila 1: Barra Principal Superior (Controles de Ventana, Selector de Modelo, Motor y Acciones Principales) -->
+<div class="chat-toolbar-primary-row">
+    <div class="chat-toolbar-left">
+        <div class="chat-window-mac-dots" aria-label="Controles de ventana">
+            <button type="button" class="traffic-dot dot-close" id="win-btn-close" data-tooltip="Borrar conversación y reiniciar" aria-label="Borrar conversación y reiniciar"></button>
+            <button type="button" class="traffic-dot dot-min" id="win-btn-min" data-tooltip="Minimizar / Restaurar Ventana" aria-label="Minimizar / Restaurar Ventana"></button>
+            <button type="button" class="traffic-dot dot-max" id="win-btn-max" data-tooltip="Pantalla Completa (Maximizar)" aria-label="Maximizar Ventana"></button>
+        </div>
+
+        <!-- Selector de Modelo Estandarizado GAJE -->
+        <div class="model-select-wrapper" data-tooltip="Seleccionar modelo activo (.flat / .gaje)">
+            <label for="model-select" class="visually-hidden">Seleccionar Modelo</label>
+            <select id="model-select" class="header-model-dropdown" aria-label="Seleccionar Modelo">
+                <option value="gaje_nano_1.5b.flat">GAJE Nano 1.5B · [WASM / Rápido]</option>
+                <option value="gaje_prime_3b.flat" selected>GAJE Prime 3B · [Estándar Cloud/WASM]</option>
+                <option value="gaje_ultra_7b.flat">GAJE Ultra 7B · [Razonamiento Cloud]</option>
+            </select>
+            <button type="button" id="model-toggle-btn" class="model-status-btn active" data-tooltip="Alternar estado del modelo (Activo / Desactivado)" aria-label="Alternar Estado del Modelo">
+                <span class="status-dot-led"></span>
+                <span id="model-toggle-text">Activo</span>
+            </button>
+        </div>
     </div>
 
-    <!-- Selector de Modelo Principal + Toggle Activo/Inactivo -->
-    <div class="model-select-wrapper" data-tooltip="Seleccionar modelo activo (.flat / .gaje)">
-        <label for="model-select" class="visually-hidden">Seleccionar Modelo</label>
-        <select id="model-select" class="header-model-dropdown" aria-label="Seleccionar Modelo">
-            <option value="qwen2_5_3b.flat" selected>Qwen 2.5 3B · [Principal Flat]</option>
-            <option value="deepseek_r1_1_5b.flat">DeepSeek-R1 1.5B · [CoT Flat]</option>
-            <option value="feto_genomico_v1.gaje">Feto Genómico v1 · [Nacido GAJE]</option>
-            <option value="qwen2_0_5b.flat">Qwen 2 0.5B · [Micro Flat]</option>
-            <option value="smollm2_135m.flat">SmolLM2 135M · [Nano Flat]</option>
-        </select>
-        <button type="button" id="model-toggle-btn" class="model-status-btn active" data-tooltip="Alternar estado del modelo (Activo / Desactivado)" aria-label="Alternar Estado del Modelo">
-            <span class="status-dot-led"></span>
-            <span id="model-toggle-text">Activo</span>
+    <!-- Acciones Derecha (Fila Superior) -->
+    <div class="chat-toolbar-actions">
+        <!-- Toggle para Ocultar / Mostrar Barra de Información -->
+        <button id="toggle-info-bar-btn" class="chat-header-pill-btn info-toggle-btn active" data-tooltip="Ocultar / Mostrar panel de telemetría y recursos" aria-label="Alternar información">
+            <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-info"/></svg>
+            <span class="info-toggle-text">Telemetría</span>
+            <svg class="y2k-icon chevron-icon"><use href="static/icons/y2k/sprite.svg#i-chevron-down"/></svg>
         </button>
-    </div>
 
-    <!-- Píldora compacta de Recursos (RAM + Tamaño) -->
-    <div class="chat-resources-group">
+        <!-- Botón directo: HUD de Métricas -->
+        <button id="y2k-open-monitor-btn" class="chat-header-pill-btn monitor-pill-btn" data-tooltip="Abrir Dashboard de Telemetría (HUD)" data-tooltip-pos="left" aria-label="Abrir Dashboard de Telemetría">
+            <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-monitor"/></svg>
+            <span>Métricas</span>
+            <span class="live-dot-pulse-mini" aria-hidden="true"></span>
+        </button>
+
+        <!-- Botón Rápido de Borrar Chat -->
+        <button id="btn-quick-clear-chat" class="chat-header-icon-btn danger-hover" data-tooltip="Borrar historial de chat" data-tooltip-pos="left" aria-label="Borrar historial">
+            <svg class="y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-trash"/></svg>
+        </button>
+
+        <!-- Menú Desplegable Compacto de Acciones (•••) -->
+        <div class="chat-overflow-menu-container">
+            <button id="chat-overflow-menu-btn" class="chat-header-icon-btn" aria-haspopup="true" aria-expanded="false" data-tooltip="Herramientas y Acciones" data-tooltip-pos="left" aria-label="Más opciones del chat">
+                <svg class="y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-dots"/></svg>
+            </button>
+
+            <!-- Dropdown flotante Apple HIG / Scandinavian -->
+            <div id="chat-actions-dropdown" class="chat-menu-dropdown" role="menu" hidden>
+                <div class="menu-section-label">Conversación</div>
+                <button id="copy-all-btn" class="chat-menu-item" role="menuitem">
+                    <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-copy"/></svg>
+                    <span>Copiar Conversación</span>
+                </button>
+
+                <button id="export-log-btn" class="chat-menu-item" role="menuitem">
+                    <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-export"/></svg>
+                    <span>Exportar Bitácora (.md)</span>
+                </button>
+
+                <div class="menu-divider"></div>
+
+                <div class="menu-section-label">Motor y Memoria</div>
+                <div class="chat-menu-item engine-select-item">
+                    <label for="engine-mode-select" class="menu-item-label">
+                        <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg>
+                        <span>Motor</span>
+                    </label>
+                    <select id="engine-mode-select" class="menu-inline-select" aria-label="Modo de Ejecución">
+                        <option value="native" selected>Servidor (Nativo Rust)</option>
+                        <option value="wasm">Navegador (WASM In-Memory)</option>
+                    </select>
+                </div>
+
+                <button id="load-local-flat-btn" class="chat-menu-item" role="menuitem">
+                    <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-import"/></svg>
+                    <span>Cargar Modelo .flat Local...</span>
+                </button>
+                <input type="file" id="local-flat-file-input" accept=".flat" style="display: none;">
+
+                <button id="unload-model-btn" class="chat-menu-item warning" role="menuitem">
+                    <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-unload"/></svg>
+                    <span>Liberar Memoria RAM</span>
+                </button>
+
+                <button id="stop-all-models-btn" class="chat-menu-item danger" role="menuitem" data-tooltip="Detener inferencia activa y purgar todos los modelos de la sesión">
+                    <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
+                    <span>Detener Todos los Modelos</span>
+                </button>
+
+                <div class="menu-divider"></div>
+
+                <button id="clear-history-btn" class="chat-menu-item danger" role="menuitem">
+                    <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-trash"/></svg>
+                    <span>Borrar Historial</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fila 2: Barra Inferior Secundaria (Telemetría, Recursos y Estado - OCULTABLE) -->
+<div id="chat-toolbar-infobar" class="chat-toolbar-secondary-row">
+    <div class="chat-infobar-left">
+        <!-- Recursos (RAM + Tamaño) -->
         <span class="chat-pill-ram" id="model-ram" data-tooltip="Memoria RAM residente consumida">
             <span class="ram-led"></span><span>RAM —</span>
         </span>
@@ -32,93 +115,27 @@
             <span id="model-size" class="chat-pill-meta">2.2 GB</span>
             <span id="model-date" class="chat-pill-meta" hidden>—</span>
         </div>
-    </div>
 
-    <div id="model-load-bar" class="model-load chat-model-load" role="progressbar" aria-label="Cargando modelo" aria-valuemin="0" aria-valuemax="100" aria-valuetext="inactivo" hidden>
-        <span class="model-load-track"><span class="model-load-fill"></span></span>
-    </div>
-</div>
-
-<!-- Right: Status Badges + HUD Monitor + Clean Overflow Menu (•••) -->
-<div class="chat-toolbar-actions">
-    <!-- Badges de Estado del Motor -->
-    <span id="wasm-header-badge" class="status-indicator-pill wasm-indicator-pill" data-tooltip="Motor WebAssembly In-Browser Activo (Zero-Server)" style="display: none;">
-        <span class="pulse-engine-dot wasm-pulse"></span>
-        <span id="wasm-header-text">WASM</span>
-    </span>
-
-    <span id="gpu-header-badge" class="status-indicator-pill gpu-indicator-pill" data-tooltip="Aceleración GPU Vulkan Activa (AMD Radeon)" style="display: none;">
-        <span class="pulse-engine-dot gpu-pulse"></span>
-        <span id="gpu-header-text">GPU</span>
-    </span>
-
-    <span class="status-indicator-pill core-indicator-pill" data-tooltip="Núcleo GAJE SIMD activo">
-        <span class="pulse-engine-dot"></span>
-        <span>Core</span>
-    </span>
-
-    <!-- Botón directo: HUD de Telemetría y Métricas -->
-    <button id="y2k-open-monitor-btn" class="chat-header-pill-btn monitor-pill-btn" data-tooltip="Abrir Dashboard de Telemetría (HUD)" data-tooltip-pos="left" aria-label="Abrir Dashboard de Telemetría">
-        <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-monitor"/></svg>
-        <span>Métricas</span>
-        <span class="live-dot-pulse-mini" aria-hidden="true"></span>
-    </button>
-
-    <!-- Menú Desplegable Compacto de Acciones (•••) -->
-    <div class="chat-overflow-menu-container">
-        <button id="chat-overflow-menu-btn" class="chat-header-icon-btn" aria-haspopup="true" aria-expanded="false" data-tooltip="Herramientas y Acciones" data-tooltip-pos="left" aria-label="Más opciones del chat">
-            <svg class="y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-dots"/></svg>
-        </button>
-
-        <!-- Dropdown flotante Apple HIG / Scandinavian -->
-        <div id="chat-actions-dropdown" class="chat-menu-dropdown" role="menu" hidden>
-            <div class="menu-section-label">Conversación</div>
-            <button id="copy-all-btn" class="chat-menu-item" role="menuitem">
-                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-copy"/></svg>
-                <span>Copiar Conversación</span>
-            </button>
-
-            <button id="export-log-btn" class="chat-menu-item" role="menuitem">
-                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-export"/></svg>
-                <span>Exportar Bitácora (.md)</span>
-            </button>
-
-            <div class="menu-divider"></div>
-
-            <div class="menu-section-label">Motor y Memoria</div>
-            <div class="chat-menu-item engine-select-item">
-                <label for="engine-mode-select" class="menu-item-label">
-                    <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg>
-                    <span>Motor</span>
-                </label>
-                <select id="engine-mode-select" class="menu-inline-select" aria-label="Modo de Ejecución">
-                    <option value="native" selected>Servidor (Nativo Rust)</option>
-                    <option value="wasm">Navegador (WASM In-Memory)</option>
-                </select>
-            </div>
-
-            <button id="load-local-flat-btn" class="chat-menu-item" role="menuitem">
-                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-import"/></svg>
-                <span>Cargar Modelo .flat Local...</span>
-            </button>
-            <input type="file" id="local-flat-file-input" accept=".flat" style="display: none;">
-
-            <button id="unload-model-btn" class="chat-menu-item warning" role="menuitem">
-                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-unload"/></svg>
-                <span>Liberar Memoria RAM</span>
-            </button>
-
-            <button id="stop-all-models-btn" class="chat-menu-item danger" role="menuitem" data-tooltip="Detener inferencia activa y purgar todos los modelos de la sesión">
-                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
-                <span>Detener Todos los Modelos</span>
-            </button>
-
-            <div class="menu-divider"></div>
-
-            <button id="clear-history-btn" class="chat-menu-item danger" role="menuitem">
-                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-trash"/></svg>
-                <span>Borrar Historial</span>
-            </button>
+        <div id="model-load-bar" class="model-load chat-model-load" role="progressbar" aria-label="Cargando modelo" aria-valuemin="0" aria-valuemax="100" aria-valuetext="inactivo" hidden>
+            <span class="model-load-track"><span class="model-load-fill"></span></span>
         </div>
+    </div>
+
+    <div class="chat-infobar-right">
+        <!-- Badges de Estado del Motor -->
+        <span id="wasm-header-badge" class="status-indicator-pill wasm-indicator-pill" data-tooltip="Motor WebAssembly In-Browser Activo (Zero-Server)" style="display: none;">
+            <span class="pulse-engine-dot wasm-pulse"></span>
+            <span id="wasm-header-text">WASM</span>
+        </span>
+
+        <span id="gpu-header-badge" class="status-indicator-pill gpu-indicator-pill" data-tooltip="Aceleración GPU Vulkan Activa (AMD Radeon)" style="display: none;">
+            <span class="pulse-engine-dot gpu-pulse"></span>
+            <span id="gpu-header-text">GPU</span>
+        </span>
+
+        <span class="status-indicator-pill core-indicator-pill" data-tooltip="Núcleo GAJE SIMD activo">
+            <span class="pulse-engine-dot"></span>
+            <span>Core SIMD</span>
+        </span>
     </div>
 </div>

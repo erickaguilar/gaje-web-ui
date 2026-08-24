@@ -56,13 +56,22 @@ body {
 
 /* ── MODIFICADORES DE VENTANA (MINIMIZAR / MAXIMIZAR) ── */
 .app-container.minimized {
-    height: 52px !important;
+    height: auto !important;
+    min-height: 52px !important;
+    max-height: 60px !important;
     overflow: hidden !important;
     box-shadow: 0 8px 24px var(--shadow-color);
 }
 
-.app-container.minimized main {
+.app-container.minimized .chat-window,
+.app-container.minimized .input-area,
+.app-container.minimized .chat-toolbar-secondary-row,
+.app-container.minimized .sidebar {
     display: none !important;
+}
+
+.app-container.minimized .chat-toolbar {
+    border-bottom: none !important;
 }
 
 .app-container.maximized {
@@ -517,20 +526,19 @@ main {
 
 .chat-toolbar {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.65rem 1.4rem;
+    flex-direction: column;
+    padding: 0.6rem 1.25rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(18, 20, 32, 0.78);
+    background: rgba(18, 20, 32, 0.85);
     backdrop-filter: blur(36px) saturate(190%);
     -webkit-backdrop-filter: blur(36px) saturate(190%);
-    gap: 1rem;
-    flex-wrap: wrap;
+    gap: 0.35rem;
     position: relative;
     z-index: 25;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     border-top-left-radius: 18px;
     border-top-right-radius: 18px;
+    transition: all 0.25s ease;
 }
 
 .chat-toolbar::before {
@@ -558,7 +566,7 @@ main {
 }
 
 [data-theme="light"] .chat-toolbar {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.96);
     border-bottom: 1px solid rgba(44, 82, 52, 0.16);
     box-shadow: 0 2px 12px rgba(44, 53, 57, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
     border-radius: 0px !important;
@@ -566,6 +574,76 @@ main {
 
 [data-theme="light"] .chat-toolbar::before {
     display: none;
+}
+
+/* Fila 1: Barra Principal Superior */
+.chat-toolbar-primary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+/* Fila 2: Barra Secundaria de Telemetría e Información (Collapsible) */
+.chat-toolbar-secondary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 0.8rem;
+    padding-top: 0.4rem;
+    border-top: 1px dashed rgba(255, 255, 255, 0.08);
+    transition: max-height 0.26s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease, padding 0.22s ease, margin 0.22s ease;
+    max-height: 48px;
+    opacity: 1;
+    overflow: hidden;
+}
+
+[data-theme="light"] .chat-toolbar-secondary-row {
+    border-top: 1px dashed rgba(44, 82, 52, 0.14);
+}
+
+.chat-toolbar-secondary-row.collapsed {
+    max-height: 0 !important;
+    opacity: 0 !important;
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+    border-top-color: transparent !important;
+    pointer-events: none !important;
+}
+
+.chat-infobar-left,
+.chat-infobar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.info-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.info-toggle-btn .chevron-icon {
+    width: 12px;
+    height: 12px;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.info-toggle-btn.active .chevron-icon {
+    transform: rotate(180deg);
+}
+
+.danger-hover:hover {
+    color: #ff453a !important;
+    border-color: rgba(255, 69, 58, 0.45) !important;
+    background: rgba(255, 69, 58, 0.12) !important;
 }
 
 /* Barra de control de modelo integrado (Ultra-Limpia) */
