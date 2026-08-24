@@ -6,9 +6,9 @@
    (docs, architecture, chat). Sin build step.
    ============================================================ */
 
-/* ── Design Tokens (tema oscuro por defecto) ── */
+/* ── Design Tokens: y2k-dark = 'HIG-APPLE' (Tema Oscuro por Defecto) ── */
 :root {
-  /* Core (docs / architecture) - HIG Dark Mode */
+  /* Core (docs / architecture) - HIG Dark Mode & Glassmorphism */
   --bg: #000000;
   --bg-soft: #1c1c1e;
   --panel: #2c2c2e;
@@ -56,7 +56,7 @@
   --backdrop-blur: blur(20px);
 }
 
-/* ── Design Tokens — tema claro ── */
+/* ── Design Tokens: y2k-light = 'SCANDINAVIAN-DESIGN' (Tema Claro) ── */
 [data-theme="light"] {
   --bg: #f6f5f3;
   --bg-soft: #edebe9;
@@ -269,12 +269,36 @@ h1, h2, h3, h4, h5, h6 {
 }
 [data-theme="light"] .y2k-header {
   background:
-    radial-gradient(110% 160% at 0% 50%, rgba(2, 132, 199, 0.12) 0%, transparent 45%),
-    radial-gradient(100% 150% at 100% 40%, rgba(109, 40, 217, 0.10) 0%, transparent 50%),
-    radial-gradient(60% 120% at 55% 0%, rgba(162, 28, 175, 0.08) 0%, transparent 55%),
-    linear-gradient(180deg, #ffffff 0%, #f4f3f0 100%);
+    radial-gradient(110% 160% at 0% 50%, rgba(44, 82, 52, 0.08) 0%, transparent 45%),
+    radial-gradient(100% 150% at 100% 40%, rgba(44, 53, 57, 0.06) 0%, transparent 50%),
+    radial-gradient(60% 120% at 55% 0%, rgba(180, 83, 9, 0.05) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(246, 245, 243, 0.94) 100%);
   border: 1px solid var(--border-color);
-  box-shadow: 0 8px 24px var(--shadow-color);
+  box-shadow: 0 4px 20px var(--shadow-color);
+}
+[data-theme="light"] .y2k-header::before {
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 3px,
+      rgba(44, 82, 52, 0.015) 3px,
+      rgba(44, 82, 52, 0.015) 4px
+    ),
+    linear-gradient(
+      115deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.6) 45%,
+      rgba(255, 255, 255, 0.2) 50%,
+      transparent 65%
+    );
+}
+[data-theme="light"] .y2k-header::after {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
 }
 .y2k-header .wrap {
   position: relative;
@@ -1155,13 +1179,48 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
   height: 14px;
 }
 
-/* Light mode overrides for footer */
+/* Light mode overrides for footer — y2k-light = 'SCANDINAVIAN-DESIGN' */
 [data-theme="light"] .y2k-footer {
   background:
-    radial-gradient(90% 160% at 0% 50%, rgba(2, 132, 199, 0.08) 0%, transparent 45%),
-    radial-gradient(80% 150% at 100% 40%, rgba(109, 40, 217, 0.07) 0%, transparent 50%),
-    linear-gradient(180deg, #ffffff 0%, #f4f3f0 100%);
+    radial-gradient(90% 160% at 0% 50%, rgba(44, 82, 52, 0.06) 0%, transparent 45%),
+    radial-gradient(80% 150% at 100% 40%, rgba(44, 53, 57, 0.05) 0%, transparent 50%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(246, 245, 243, 0.96) 100%);
   border-top-color: var(--border-color);
+  color: var(--muted);
+  box-shadow: 0 -4px 16px var(--shadow-color);
+}
+
+[data-theme="light"] .y2k-footer::before {
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 3px,
+      rgba(44, 82, 52, 0.015) 3px,
+      rgba(44, 82, 52, 0.015) 4px
+    ),
+    linear-gradient(
+      115deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.4) 55%,
+      transparent 70%
+    );
+}
+
+[data-theme="light"] .footer-brand {
+  color: var(--text);
+}
+
+[data-theme="light"] .footer-brand .y2k-brand-text {
+  color: var(--text);
+}
+
+[data-theme="light"] .footer-tagline {
+  color: var(--muted);
+}
+
+[data-theme="light"] .footer-nav-link {
+  color: var(--text);
 }
 
 [data-theme="light"] .footer-nav-link:hover {
@@ -1169,17 +1228,18 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
 }
 
 [data-theme="light"] .agpl-badge {
-  background: rgba(185, 28, 28, 0.05);
-  border-color: rgba(185, 28, 28, 0.2);
+  background: rgba(185, 28, 28, 0.06);
+  border: 1px solid rgba(185, 28, 28, 0.2);
   color: var(--red);
 }
 
 [data-theme="light"] .y2k-footer-link {
   color: var(--accent);
+  font-weight: 600;
 }
 
 [data-theme="light"] .y2k-footer-link:hover {
-  color: var(--accent);
+  color: #1a301f;
 }
 
 @media (max-width: 900px) {

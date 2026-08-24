@@ -1,0 +1,98 @@
+<!-- Left: macOS Lights + Clean Model Selector + RAM -->
+<div class="chat-toolbar-left">
+    <div class="chat-window-mac-dots" aria-hidden="true">
+        <span class="traffic-dot dot-close" data-tooltip="Cerrar"></span>
+        <span class="traffic-dot dot-min" data-tooltip="Minimizar"></span>
+        <span class="traffic-dot dot-max" data-tooltip="Maximizar"></span>
+    </div>
+
+    <div class="model-select-wrapper" data-tooltip="Seleccionar modelo de lenguaje activo (.flat / .gaje)">
+        <label for="model-select" class="visually-hidden">Seleccionar Modelo</label>
+        <select id="model-select" class="header-model-dropdown" aria-label="Seleccionar Modelo">
+            <option value="qwen2_5_3b.flat" selected>⚡ Qwen 2.5 3B · Principal</option>
+            <option value="deepseek_r1_1_5b.flat">⚡ DeepSeek-R1 1.5B · CoT</option>
+            <option value="feto_genomico_v1.gaje">🧬 Feto Genómico v1 · Nacido GAJE</option>
+            <option value="qwen2_0_5b.flat">⚡ Qwen 2 0.5B · Micro</option>
+            <option value="smollm2_135m.flat">⚡ SmolLM2 135M · Nano</option>
+        </select>
+    </div>
+
+    <!-- Selector de Backend: Nativo vs In-Browser WASM -->
+    <div class="engine-mode-wrapper" data-tooltip="Modo de Ejecución: Servidor Nativo (AVX2/GPU) o In-Browser WASM (Zero-Server)">
+        <select id="engine-mode-select" class="header-model-dropdown engine-mode-dropdown" aria-label="Modo de Ejecución">
+            <option value="native" selected>🌐 Servidor (Nativo)</option>
+            <option value="wasm">⚡ Browser (WASM)</option>
+        </select>
+    </div>
+
+    <span class="chat-pill-ram" id="model-ram" data-tooltip="Memoria RAM residente consumida">
+        <span class="ram-led"></span><span>RAM —</span>
+    </span>
+
+    <div id="model-meta-block" class="chat-model-meta" data-tooltip="Tamaño del archivo de pesos en disco">
+        <span id="model-size" class="chat-pill-meta">2.2 GB</span>
+        <span id="model-date" class="chat-pill-meta" hidden>—</span>
+    </div>
+
+    <button id="unload-model-btn" class="chat-unload-icon-btn" data-tooltip="Liberar todos los modelos de la RAM" aria-label="Liberar modelo de la memoria RAM">
+        <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
+    </button>
+
+    <button id="load-local-flat-btn" class="chat-unload-icon-btn" data-tooltip="Cargar modelo .flat local (100% Offline / Privado)" aria-label="Cargar modelo flat local">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+    </button>
+    <input type="file" id="local-flat-file-input" accept=".flat" style="display: none;">
+
+    <div id="model-load-bar" class="model-load chat-model-load" role="progressbar" aria-label="Cargando modelo" aria-valuemin="0" aria-valuemax="100" aria-valuetext="inactivo" hidden>
+        <span class="model-load-track"><span class="model-load-fill"></span></span>
+    </div>
+</div>
+
+<!-- Right: Apple Segmented Tool Group (Exportar, Copiar, Borrar) -->
+<div class="chat-toolbar-actions">
+    <span id="wasm-header-badge" class="status-indicator-pill wasm-indicator-pill" data-tooltip="Motor WebAssembly In-Browser Activo (Zero-Server)" style="display: none; background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.4); color: #c084fc;">
+        <span class="pulse-engine-dot" style="background: #c084fc; box-shadow: 0 0 8px #c084fc;"></span>
+        <span id="wasm-header-text">⚡ WASM</span>
+    </span>
+
+    <span id="gpu-header-badge" class="status-indicator-pill gpu-indicator-pill" data-tooltip="Aceleración GPU Vulkan Activa (AMD Radeon)" style="display: none; background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;">
+        <span class="pulse-engine-dot" style="background: #38bdf8; box-shadow: 0 0 8px #38bdf8;"></span>
+        <span id="gpu-header-text">🎮 GPU</span>
+    </span>
+
+    <span class="status-indicator-pill" data-tooltip="Motor GAJE de compresión semántica activo">
+        <span class="pulse-engine-dot"></span>
+        <span>Core</span>
+    </span>
+
+    <div class="apple-tools-segmented" role="toolbar" aria-label="Herramientas de conversación">
+        <button id="y2k-open-monitor-btn" class="apple-tool-btn monitor-tool-btn" data-tooltip="Dashboard de Telemetría y Métricas (HUD)" data-tooltip-pos="left" aria-label="Abrir Dashboard de Telemetría">
+            <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-monitor"/></svg>
+            <span class="live-dot-pulse-mini" aria-hidden="true"></span>
+            <span class="visually-hidden">Telemetría HUD</span>
+        </button>
+        <button id="export-log-btn" class="apple-tool-btn" data-tooltip="Exportar bitácora del proyecto (.md)" data-tooltip-pos="left" aria-label="Exportar bitácora y log del proyecto">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            <span class="visually-hidden">Exportar Bitácora</span>
+        </button>
+        <button id="copy-all-btn" class="apple-tool-btn" data-tooltip="Copiar toda la conversación" data-tooltip-pos="left" aria-label="Copiar toda la conversación al portapapeles">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span class="visually-hidden">Copiar Conversación</span>
+        </button>
+        <button id="clear-history-btn" class="apple-tool-btn danger" data-tooltip="Borrar historial local" data-tooltip-pos="left" aria-label="Borrar historial local de la conversación">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            <span class="visually-hidden">Borrar Historial</span>
+        </button>
+    </div>
+</div>

@@ -154,6 +154,21 @@
       .catch(function (e) { console.warn('No se pudo cargar footer parcial:', e); });
   }
 
+  /* ── Chat Toolbar compartida (parcial) ── */
+  function initChatToolbar() {
+    var host = document.getElementById('chat-toolbar');
+    if (!host || host.children.length) return Promise.resolve();
+    return fetch('static/partials/chat_toolbar.html?v=1.7.0')
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        host.innerHTML = html;
+        if (global.GajeChat && typeof global.GajeChat.reloadToolbar === 'function') {
+          global.GajeChat.reloadToolbar();
+        }
+      })
+      .catch(function (e) { console.warn('No se pudo cargar toolbar parcial:', e); });
+  }
+
   /* ── Boot ── */
   function boot() {
     initReveal();
@@ -169,5 +184,12 @@
     boot();
   }
 
-  global.GajeUI = { initReveal: initReveal, initTheme: initTheme, initCopyButtons: initCopyButtons, initHeader: initHeader, initFooter: initFooter };
+  global.GajeUI = {
+    initReveal: initReveal,
+    initTheme: initTheme,
+    initCopyButtons: initCopyButtons,
+    initHeader: initHeader,
+    initFooter: initFooter,
+    initChatToolbar: initChatToolbar
+  };
 })(window);

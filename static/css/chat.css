@@ -465,8 +465,9 @@ main {
 }
 
 [data-theme="light"] .chat-toolbar {
-    background: rgba(245, 247, 252, 0.85);
-    border-bottom-color: rgba(0, 0, 0, 0.08);
+    background: rgba(246, 245, 243, 0.94);
+    border-bottom: 1px solid rgba(44, 82, 52, 0.12);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 /* Barra de control de modelo integrado (Ultra-Limpia) */
@@ -506,8 +507,15 @@ main {
 }
 
 [data-theme="light"] .header-model-dropdown {
-    background: rgba(0, 0, 0, 0.04);
-    border-color: rgba(0, 0, 0, 0.12);
+    background: #ffffff;
+    border-color: rgba(44, 82, 52, 0.18);
+    color: var(--text);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .header-model-dropdown:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
 }
 
 .header-model-dropdown:hover {
@@ -649,8 +657,32 @@ main {
 }
 
 [data-theme="light"] .apple-tools-segmented {
-    background: rgba(0, 0, 0, 0.04);
-    border-color: rgba(0, 0, 0, 0.08);
+    background: #ffffff;
+    border-color: rgba(44, 82, 52, 0.18);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .apple-tool-btn {
+    color: var(--muted);
+}
+
+[data-theme="light"] .apple-tool-btn:hover {
+    color: var(--accent);
+    background: rgba(44, 82, 52, 0.08);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .apple-tool-btn.danger:hover {
+    color: var(--red);
+    background: rgba(185, 28, 28, 0.08);
+}
+
+[data-theme="light"] .apple-tool-btn.monitor-tool-btn {
+    color: var(--accent);
+}
+
+[data-theme="light"] .apple-tool-btn.monitor-tool-btn:hover {
+    background: rgba(44, 82, 52, 0.12);
 }
 
 .apple-tool-btn {
@@ -854,9 +886,15 @@ main {
     box-shadow: 0 6px 24px rgba(10, 132, 255, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
-.message.user p {
+[data-theme="light"] .message.user {
+    background: linear-gradient(135deg, #2c5234 0%, #1c3521 100%);
+    border: 1px solid rgba(44, 82, 52, 0.35);
     color: #ffffff;
-    font-weight: 450;
+    box-shadow: 0 4px 16px rgba(44, 82, 52, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="light"] .message.user p {
+    color: #ffffff;
 }
 
 /* Burbuja del Asistente (Apple HIG Glassmorphism + Neon Accent) */
@@ -872,9 +910,11 @@ main {
 }
 
 [data-theme="light"] .message.bot {
-    background: rgba(255, 255, 255, 0.75);
-    border-color: rgba(0, 0, 0, 0.08);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    background: #ffffff;
+    border: 1px solid rgba(44, 82, 52, 0.14);
+    border-left: 3.5px solid var(--accent);
+    color: var(--text);
+    box-shadow: 0 4px 16px rgba(44, 53, 57, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 /* Mensaje del Sistema (Holograma Cyberpunk) */
@@ -892,6 +932,13 @@ main {
     box-shadow: 0 0 16px rgba(0, 242, 254, 0.12);
 }
 
+[data-theme="light"] .message.system {
+    background: linear-gradient(135deg, rgba(44, 82, 52, 0.06), rgba(44, 53, 57, 0.04));
+    border: 1px solid rgba(44, 82, 52, 0.22);
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(44, 82, 52, 0.04);
+}
+
 .message.system::before {
     content: "🧬 SYSTEM_CORE ::";
     display: block;
@@ -900,6 +947,10 @@ main {
     margin-bottom: 4px;
     font-size: 0.68rem;
     letter-spacing: 1.2px;
+}
+
+[data-theme="light"] .message.system::before {
+    color: var(--accent);
 }
 
 /* Metadatos del mensaje (Minimalist Micro-Tags) */
@@ -1065,9 +1116,14 @@ main {
 }
 
 [data-theme="light"] .input-area {
-    background: rgba(255, 255, 255, 0.88);
-    border-color: rgba(0, 0, 0, 0.1);
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(44, 82, 52, 0.2);
+    box-shadow: 0 6px 24px rgba(44, 53, 57, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] .input-area:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 8px 28px rgba(44, 53, 57, 0.08), 0 0 0 2.5px var(--accent-glow);
 }
 
 .input-area:focus-within {
@@ -1085,6 +1141,10 @@ input#user-input {
     font-size: 0.94rem;
     outline: none;
     box-shadow: none;
+}
+
+[data-theme="light"] input#user-input {
+    color: var(--text);
 }
 
 input#user-input::placeholder {
@@ -1109,6 +1169,17 @@ button#send-btn {
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     text-transform: uppercase;
     box-shadow: 0 4px 16px rgba(10, 132, 255, 0.35);
+}
+
+[data-theme="light"] button#send-btn {
+    background: linear-gradient(135deg, #2c5234 0%, #1a301f 100%);
+    border: 1px solid rgba(44, 82, 52, 0.4);
+    box-shadow: 0 4px 12px rgba(44, 82, 52, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+[data-theme="light"] button#send-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #376541 0%, #223f29 100%);
+    box-shadow: 0 6px 16px rgba(44, 82, 52, 0.35);
 }
 
 button#send-btn:hover:not(:disabled) {
