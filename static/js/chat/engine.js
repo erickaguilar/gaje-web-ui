@@ -150,9 +150,26 @@ window.ChatEngineController = {
                     contentEl.textContent = `Verificando caché local para ${modelName}...`;
                     const cachedBuf = await window.GajeDB.getCachedModel(modelName);
                     if (cachedBuf && cachedBuf.byteLength >= 4096) {
-                        console.log(`⚡ [GAJE-WASM] Modelo ${modelName} recuperado desde caché IndexedDB (${(cachedBuf.byteLength / 1048576).toFixed(1)} MB).`);
-                        contentEl.textContent = `Cargando ${modelName} desde almacenamiento local...`;
-                        buffer = cachedBuf;
+                        // Validar presencia de tokenizador GTOK incrustado (uint64 en offset 88)
+                        let gtokLen = 0n;
+                        try {
+                            const dv = new DataView(cachedBuf);
+                            gtokLen = dv.getBigUint64(88, true);
+                        } catch (e) {
+                            gtokLen = 0n;
+                        }
+
+                        if (gtokLen > 0n) {
+                            console.log(`⚡ [GAJE-WASM] Modelo ${modelName} recuperado desde caché IndexedDB (${(cachedBuf.byteLength / 1048576).toFixed(1)} MB, con tokenizador GTOK).`);
+                            contentEl.textContent = `Cargando ${modelName} desde almacenamiento local...`;
+                            buffer = cachedBuf;
+                        } else {
+                            console.warn(`⚠️ [GAJE-WASM] El modelo ${modelName} en caché local IndexedDB está desactualizado (sin GTOK). Purgando y descargando versión actualizada...`);
+                            if (typeof window.GajeDB.deleteCachedModel === 'function') {
+                                await window.GajeDB.deleteCachedModel(modelName);
+                            }
+                            buffer = null;
+                        }
                     }
                 }
 

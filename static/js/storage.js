@@ -516,6 +516,50 @@
         }
 
         /**
+         * Elimina un modelo específico de la caché IndexedDB
+         */
+        async deleteCachedModel(name) {
+            await this.readyPromise;
+            if (!this.db || !this.db.objectStoreNames.contains('model_cache')) return false;
+            return new Promise((resolve) => {
+                try {
+                    const tx = this.db.transaction('model_cache', 'readwrite');
+                    const store = tx.objectStore('model_cache');
+                    const req = store.delete(name);
+                    req.onsuccess = () => {
+                        console.log(`🗑️ [GajeStorage] Modelo ${name} purgado de la caché IndexedDB.`);
+                        resolve(true);
+                    };
+                    req.onerror = () => resolve(false);
+                } catch (e) {
+                    resolve(false);
+                }
+            });
+        }
+
+        /**
+         * Limpia todos los modelos almacenados en caché
+         */
+        async clearModelCache() {
+            await this.readyPromise;
+            if (!this.db || !this.db.objectStoreNames.contains('model_cache')) return false;
+            return new Promise((resolve) => {
+                try {
+                    const tx = this.db.transaction('model_cache', 'readwrite');
+                    const store = tx.objectStore('model_cache');
+                    const req = store.clear();
+                    req.onsuccess = () => {
+                        console.log(`🗑️ [GajeStorage] Caché de modelos vaciada completamente.`);
+                        resolve(true);
+                    };
+                    req.onerror = () => resolve(false);
+                } catch (e) {
+                    resolve(false);
+                }
+            });
+        }
+
+        /**
          * Emite un evento en window para reactividad de la interfaz.
          */
         notifyChange(action) {
