@@ -42,11 +42,16 @@ window.ChatStorage = {
         const arr = await window.GajeDB.getAllMessages();
         if (!arr || arr.length === 0) return;
         arr.forEach(entry => {
-            const timeVal = (entry.meta && entry.meta.server_time) || entry.time;
+            const posixVal = entry.timestampPosix || (entry.savedAt ? entry.savedAt / 1000 : null);
+            const timeVal = (entry.meta && entry.meta.server_time) || entry.time || window.ChatUtils.formatExactTime(posixVal);
             const metaVal = entry.meta || entry.metrics || null;
-            if (entry.role === 'user') window.ChatComposerController?.addMessage(entry.content, 'user', null, timeVal);
-            else if (entry.role === 'assistant') window.ChatComposerController?.addMessage(entry.content, 'bot', metaVal, timeVal, entry.model);
-            else if (entry.role === 'system') window.ChatComposerController?.addMessage(entry.content, 'system', null, timeVal);
+            if (entry.role === 'user') {
+                window.ChatComposerController?.addMessage(entry.content, 'user', null, timeVal, null, posixVal);
+            } else if (entry.role === 'assistant') {
+                window.ChatComposerController?.addMessage(entry.content, 'bot', metaVal, timeVal, entry.model, posixVal);
+            } else if (entry.role === 'system') {
+                window.ChatComposerController?.addMessage(entry.content, 'system', null, timeVal, null, posixVal);
+            }
         });
         chatWindow.scrollTop = chatWindow.scrollHeight;
     }

@@ -10,14 +10,40 @@ window.ChatUtils = {
         }[c]));
     },
 
-    formatExactTime(date = new Date()) {
-        const d = date instanceof Date ? date : new Date(date);
+    getUnixTimestamp() {
+        return Date.now() / 1000;
+    },
+
+    formatExactTime(posixOrDate = Date.now() / 1000) {
+        let d;
+        if (typeof posixOrDate === 'number') {
+            d = posixOrDate < 10000000000 ? new Date(posixOrDate * 1000) : new Date(posixOrDate);
+        } else if (typeof posixOrDate === 'string') {
+            const num = parseFloat(posixOrDate);
+            if (!isNaN(num) && num > 100000000) {
+                d = num < 10000000000 ? new Date(num * 1000) : new Date(num);
+            } else {
+                d = new Date(posixOrDate);
+            }
+        } else if (posixOrDate instanceof Date) {
+            d = posixOrDate;
+        } else {
+            d = new Date();
+        }
+
         const target = isNaN(d.getTime()) ? new Date() : d;
         const hh = String(target.getHours()).padStart(2, '0');
         const mm = String(target.getMinutes()).padStart(2, '0');
         const ss = String(target.getSeconds()).padStart(2, '0');
         const mmm = String(target.getMilliseconds()).padStart(3, '0');
         return `${hh}:${mm}:${ss}::${mmm}`;
+    },
+
+    formatUnixIso(posixTimestamp) {
+        const ms = (typeof posixTimestamp === 'number' && posixTimestamp < 10000000000)
+            ? posixTimestamp * 1000
+            : Number(posixTimestamp);
+        return new Date(isNaN(ms) ? Date.now() : ms).toISOString();
     },
 
     formatLatency(ms) {

@@ -85,8 +85,9 @@ window.ChatComposerController = {
         // Ocultar starters al primer turno
         this.hideStarters();
 
-        this.addMessage(text, 'user');
-        window.ChatStorage?.pushHistory({ role: 'user', content: text });
+        const posixNow = window.ChatUtils.getUnixTimestamp();
+        this.addMessage(text, 'user', null, null, null, posixNow);
+        window.ChatStorage?.pushHistory({ role: 'user', content: text, timestampPosix: posixNow });
         userInput.value = '';
         userInput.style.height = 'auto';
         if (charCount) charCount.textContent = '0 car.';
@@ -124,11 +125,14 @@ window.ChatComposerController = {
         const modelSelect = document.getElementById('model-select');
         const mName = modelName || (modelSelect ? modelSelect.value : window.ChatState?.activeModel) || 'gaje-model';
         const shortName = mName.replace('.gaje.flat', '').replace('.flat', '').replace('.gaje', '');
-        const msgTime = window.ChatUtils.formatExactTime();
+        const posixNow = window.ChatUtils.getUnixTimestamp();
+        const msgTime = window.ChatUtils.formatExactTime(posixNow);
+        const isoTime = window.ChatUtils.formatUnixIso(posixNow);
 
         const msgDiv = document.createElement('article');
         msgDiv.className = 'message bot';
         msgDiv.setAttribute('data-time', msgTime);
+        msgDiv.setAttribute('data-unix-time', posixNow.toFixed(3));
         msgDiv.setAttribute('data-model', mName);
 
         msgDiv.innerHTML = `
@@ -138,24 +142,27 @@ window.ChatComposerController = {
                     <span class="msg-author-name">GAJE AI</span>
                     <span class="msg-model-tag">${shortName}</span>
                 </div>
-                <time class="msg-timestamp" title="Hora del Servidor (Linux Clock)">${msgTime}</time>
+                <time class="msg-timestamp" datetime="${isoTime}" data-unix="${posixNow.toFixed(3)}" data-tooltip="Tiempo Unix POSIX: ${posixNow.toFixed(3)}s">${msgTime}</time>
             </header>
             <section class="msg-content"></section>
         `;
         return msgDiv;
     },
 
-    addMessage(text, type, meta = null, explicitTime = null, modelName = null) {
+    addMessage(text, type, meta = null, explicitTime = null, modelName = null, explicitPosix = null) {
         const chatWindow = document.getElementById('chat-window');
         const modelSelect = document.getElementById('model-select');
         if (!chatWindow) return;
 
-        const timeStr = (meta && meta.server_time) || explicitTime || window.ChatUtils.formatExactTime();
+        const posixVal = (meta && meta.timestamp_posix) || explicitPosix || window.ChatUtils.getUnixTimestamp();
+        const timeStr = (meta && meta.server_time) || explicitTime || window.ChatUtils.formatExactTime(posixVal);
+        const isoTime = window.ChatUtils.formatUnixIso(posixVal);
         const mName = modelName || (modelSelect ? modelSelect.value : window.ChatState?.activeModel) || 'gaje-model';
 
         const msgDiv = document.createElement(type === 'bot' ? 'article' : 'div');
         msgDiv.className = `message ${type}`;
         msgDiv.setAttribute('data-time', timeStr);
+        msgDiv.setAttribute('data-unix-time', Number(posixVal).toFixed(3));
         msgDiv.setAttribute('data-model', mName);
 
         if (type === 'bot') {
@@ -170,7 +177,7 @@ window.ChatComposerController = {
                         <span class="msg-author-name">GAJE AI</span>
                         <span class="msg-model-tag">${shortName}</span>
                     </div>
-                    <time class="msg-timestamp" title="Hora de Linux (POSIX Clock)">${timeStr}</time>
+                    <time class="msg-timestamp" datetime="${isoTime}" data-unix="${Number(posixVal).toFixed(3)}" data-tooltip="Tiempo Unix POSIX: ${Number(posixVal).toFixed(3)}s">${timeStr}</time>
                 </header>
                 <section class="msg-content">
                     ${parsedBody}
