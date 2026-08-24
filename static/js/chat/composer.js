@@ -7,12 +7,54 @@ window.ChatComposerController = {
     init() {
         const sendBtn = document.getElementById('send-btn');
         const userInput = document.getElementById('user-input');
+        const charCount = document.getElementById('char-count');
 
         if (sendBtn) sendBtn.addEventListener('click', () => this.sendMessage());
+
         if (userInput) {
-            userInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') this.sendMessage();
+            userInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.sendMessage();
+                }
             });
+
+            userInput.addEventListener('input', () => {
+                // Auto-resize textarea dynamically
+                userInput.style.height = 'auto';
+                userInput.style.height = Math.min(userInput.scrollHeight, 160) + 'px';
+
+                // Update character counter
+                if (charCount) {
+                    const len = userInput.value.length;
+                    charCount.textContent = `${len} car.`;
+                }
+            });
+        }
+
+        // Configurar botones de starters rápidos
+        this.initStarters();
+    },
+
+    initStarters() {
+        const starterCards = document.querySelectorAll('.starter-card');
+        starterCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const prompt = card.getAttribute('data-prompt');
+                const userInput = document.getElementById('user-input');
+                if (userInput && prompt) {
+                    userInput.value = prompt;
+                    userInput.dispatchEvent(new Event('input'));
+                    this.sendMessage();
+                }
+            });
+        });
+    },
+
+    hideStarters() {
+        const starters = document.getElementById('chat-starters');
+        if (starters) {
+            starters.style.display = 'none';
         }
     },
 
@@ -21,6 +63,7 @@ window.ChatComposerController = {
         const sendBtn = document.getElementById('send-btn');
         const modelSelect = document.getElementById('model-select');
         const engineModeSelect = document.getElementById('engine-mode-select');
+        const charCount = document.getElementById('char-count');
 
         if (!userInput) return;
         const text = userInput.value.trim();
@@ -33,9 +76,14 @@ window.ChatComposerController = {
             return;
         }
 
+        // Ocultar starters al primer turno
+        this.hideStarters();
+
         this.addMessage(text, 'user');
         window.ChatStorage?.pushHistory({ role: 'user', content: text });
         userInput.value = '';
+        userInput.style.height = 'auto';
+        if (charCount) charCount.textContent = '0 car.';
         userInput.disabled = true;
         if (sendBtn) sendBtn.disabled = true;
 

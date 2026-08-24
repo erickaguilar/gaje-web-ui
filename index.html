@@ -30,21 +30,75 @@
                 <div id="chat-window" class="chat-window" role="log" aria-live="polite" aria-relevant="additions" aria-labelledby="chat-label">
                     <div class="message system">
                         <div class="msg-content">
-                            <p><strong>[SYSTEM]:</strong> Núcleo GAJE inicializado. Esperando entrada semántica...</p>
+                            <p><strong>[SYSTEM]:</strong> Núcleo GAJE v1.6.0 inicializado. Inferencia nativa mmap zero-copy activa.</p>
+                        </div>
+                    </div>
+
+                    <!-- Sugerencias Rápidas de Prompt / Starter Cards -->
+                    <div id="chat-starters" class="chat-starters">
+                        <div class="starters-header">
+                            <span class="starters-badge"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-sparkle"/></svg> PROMPTS DE INVESTIGACIÓN RÁPIDA</span>
+                            <span class="starters-sub">Selecciona un experimento genómico para comenzar:</span>
+                        </div>
+                        <div class="starters-grid">
+                            <button class="starter-card" data-prompt="¿Cómo comprime GAJE representaciones densas usando cuantización Q4_0 + FP32 y mmap zero-copy?">
+                                <svg class="y2k-icon starter-icon"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg>
+                                <div class="starter-info">
+                                    <strong>Compresión Zero-Copy</strong>
+                                    <span>Arquitectura mmap y cuantización Q4_0</span>
+                                </div>
+                            </button>
+                            <button class="starter-card" data-prompt="Explícame cómo funciona el Island Model (.gmem) y la memoria episódica neuronal en GAJE.">
+                                <svg class="y2k-icon starter-icon"><use href="static/icons/y2k/sprite.svg#i-island"/></svg>
+                                <div class="starter-info">
+                                    <strong>Island Model & Memoria RAG</strong>
+                                    <span>Memoria persistente y retrieval ultrarrápido</span>
+                                </div>
+                            </button>
+                            <button class="starter-card" data-prompt="¿Qué ventajas ofrece la inhibición lateral K-WTA en la preservación de información genética?">
+                                <svg class="y2k-icon starter-icon"><use href="static/icons/y2k/sprite.svg#i-brain"/></svg>
+                                <div class="starter-info">
+                                    <strong>Inhibición Lateral K-WTA</strong>
+                                    <span>Preservación de esparsidad y estabilidad</span>
+                                </div>
+                            </button>
+                            <button class="starter-card" data-prompt="Compara el rendimiento y latencia de inferencia entre CPU x86_64 AVX2 y ARM64 NEON.">
+                                <svg class="y2k-icon starter-icon"><use href="static/icons/y2k/sprite.svg#i-clock"/></svg>
+                                <div class="starter-info">
+                                    <strong>Kernels SIMD & Latencia</strong>
+                                    <span>Throughput y aceleración de hardware</span>
+                                </div>
+                            </button>
                         </div>
                     </div>
                 </div>
 
+                <!-- Input Composer Inteligente (Multi-línea + Barra de Estado) -->
                 <div class="input-area">
-                    <label for="user-input" class="visually-hidden">Mensaje para el modelo</label>
-                    <input type="text" id="user-input" placeholder="Escribe un mensaje genómico..." autocomplete="off" aria-label="Mensaje para el modelo">
-                    <button id="stop-btn" class="stop-btn" title="Detener generación" aria-label="Detener generación" hidden>
-                        <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
-                    </button>
-                    <button id="send-btn" aria-label="Enviar mensaje">
-                        <span>ENVIAR</span>
-                        <svg class="send-icon y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-send"/></svg>
-                    </button>
+                    <div class="composer-main-row">
+                        <label for="user-input" class="visually-hidden">Mensaje para el modelo</label>
+                        <textarea id="user-input" placeholder="Escribe un mensaje o consulta genómica..." rows="1" autocomplete="off" aria-label="Mensaje para el modelo"></textarea>
+                        
+                        <button id="stop-btn" class="stop-btn" title="Detener generación" aria-label="Detener generación" hidden>
+                            <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
+                        </button>
+                        
+                        <button id="send-btn" aria-label="Enviar mensaje">
+                            <span>ENVIAR</span>
+                            <svg class="send-icon y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-send"/></svg>
+                        </button>
+                    </div>
+
+                    <div class="composer-meta-bar">
+                        <div class="composer-hint">
+                            <span class="keycap">Enter</span> para enviar · <span class="keycap">Shift+Enter</span> nueva línea
+                        </div>
+                        <div class="composer-stats">
+                            <span id="char-count" class="composer-char-count">0 car.</span>
+                            <span class="composer-sep">·</span>
+                            <span class="composer-status-badge"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg> Rust Engine Listo</span>
+                        </div>
+                    </div>
                 </div>
             </section>
         </main>
