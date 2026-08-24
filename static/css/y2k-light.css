@@ -153,63 +153,142 @@
     color: var(--text);
 }
 
-/* Mensajes (Fichas de Aprendizaje) */
+/* ── MENSAJES EDITORIALES (SCANDINAVIAN RESEARCH NOTES) ── */
+
+/* Burbuja de Usuario: Verde Jade / Bosque Nórdico */
 [data-theme="light"] .message.user {
-    background: linear-gradient(135deg, #2c5234 0%, #1c3521 100%);
-    border: 1px solid rgba(44, 82, 52, 0.35);
+    background: linear-gradient(135deg, #24462b 0%, #183320 100%);
+    border: 1px solid rgba(36, 70, 43, 0.35);
+    border-radius: 18px 18px 4px 18px;
     color: #ffffff;
-    box-shadow: 0 4px 16px rgba(44, 82, 52, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 16px rgba(36, 70, 43, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    padding: 1rem 1.4rem;
 }
 
 [data-theme="light"] .message.user p {
     color: #ffffff;
+    font-size: 0.93rem;
+    line-height: 1.65;
 }
 
+/* Tarjeta de Respuesta del Asistente: Ficha de Libreta de Laboratorio */
 [data-theme="light"] .message.bot {
     background: #ffffff;
     border: 1px solid rgba(44, 82, 52, 0.16);
-    border-left: 4px solid var(--accent);
-    color: var(--text);
-    box-shadow: 0 4px 16px rgba(44, 53, 57, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    border-radius: 4px 16px 16px 16px;
+    border-left: 4.5px solid var(--accent);
+    color: #1e293b;
+    box-shadow: 0 6px 24px rgba(44, 53, 57, 0.06), 0 1px 3px rgba(0, 0, 0, 0.02), inset 0 1px 0 #ffffff;
+    border-radius: 4px 18px 18px 18px;
     position: relative;
+    padding: 1.15rem 1.45rem;
+    margin-top: 0.5rem;
 }
 
 [data-theme="light"] .message.bot::after {
     content: "📓 Ficha de Aprendizaje Genómico";
     position: absolute;
-    top: -8px;
-    right: 14px;
-    font-size: 0.58rem;
+    top: -9px;
+    right: 16px;
+    font-size: 0.6rem;
     font-weight: 700;
     font-family: var(--mono);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    background: #fbfaf8;
+    letter-spacing: 0.6px;
+    background: #faf8f5;
     color: #b45309;
-    padding: 1px 7px;
-    border-radius: 4px;
-    border: 1px solid rgba(180, 83, 9, 0.25);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    padding: 2px 8px;
+    border-radius: 5px;
+    border: 1px solid rgba(180, 83, 9, 0.28);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
+[data-theme="light"] .message.bot p {
+    color: #1e293b;
+    font-size: 0.935rem;
+    line-height: 1.7;
+}
+
+[data-theme="light"] .message.bot strong {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+/* Mensaje del Sistema (Boletín de Campo) */
 [data-theme="light"] .message.system {
-    background: linear-gradient(135deg, rgba(44, 82, 52, 0.06), rgba(44, 53, 57, 0.04));
+    background: linear-gradient(135deg, rgba(44, 82, 52, 0.06), rgba(44, 53, 57, 0.03));
     border: 1px solid rgba(44, 82, 52, 0.22);
-    color: var(--text);
+    border-radius: 12px;
+    color: #2c3539;
     box-shadow: 0 2px 8px rgba(44, 82, 52, 0.04);
+    padding: 0.8rem 1.2rem;
 }
 
 [data-theme="light"] .message.system::before {
     color: var(--accent);
+    content: "🌱 NÚCLEO_GAJE ::";
+    font-weight: 700;
+    letter-spacing: 1px;
 }
 
-/* Memorando de Razonamiento CoT */
+/* Metadatos al pie del mensaje (Micro-etiquetas Táctiles) */
+[data-theme="light"] .message-meta {
+    border-top: 1px solid rgba(44, 82, 52, 0.1);
+    margin-top: 0.65rem;
+    padding-top: 0.5rem;
+}
+
+[data-theme="light"] .meta-badge,
+[data-theme="light"] .meta-tag {
+    background: #f8f7f5;
+    border-color: rgba(44, 82, 52, 0.16);
+    color: #475569;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+}
+
+[data-theme="light"] .meta-badge:hover,
+[data-theme="light"] .meta-tag:hover {
+    background: rgba(44, 82, 52, 0.08);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+[data-theme="light"] .meta-tag.meta-model {
+    background: rgba(44, 82, 52, 0.08);
+    border-color: rgba(44, 82, 52, 0.25);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+[data-theme="light"] .meta-tag.meta-latency {
+    color: #b45309;
+    background: rgba(180, 83, 9, 0.06);
+    border-color: rgba(180, 83, 9, 0.2);
+}
+
+[data-theme="light"] .meta-btn-copy,
+[data-theme="light"] .meta-copy-btn {
+    background: #ffffff;
+    border-color: rgba(44, 82, 52, 0.2);
+    color: #475569;
+}
+
+[data-theme="light"] .meta-btn-copy:hover,
+[data-theme="light"] .meta-copy-btn:hover {
+    background: rgba(44, 82, 52, 0.1);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* Memorando de Razonamiento CoT (Cuaderno de Observación) */
 [data-theme="light"] .apple-thought-box {
     background: #fbfaf8;
     border: 1px solid rgba(44, 82, 52, 0.18);
     border-left: 3.5px solid #b45309;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+    margin: 0.5rem 0 0.9rem;
 }
 
 [data-theme="light"] .apple-thought-box[open] {
@@ -219,12 +298,17 @@
     box-shadow: 0 4px 16px rgba(44, 82, 52, 0.06);
 }
 
+[data-theme="light"] .apple-thought-summary {
+    padding: 0.6rem 0.95rem;
+}
+
 [data-theme="light"] .apple-thought-summary:hover {
     background: rgba(44, 82, 52, 0.04);
 }
 
 [data-theme="light"] .apple-thought-header {
-    color: var(--text);
+    color: #1e293b;
+    font-weight: 600;
 }
 
 [data-theme="light"] .apple-thought-icon {
@@ -232,13 +316,50 @@
 }
 
 [data-theme="light"] .apple-thought-chevron {
-    color: var(--muted);
+    color: #64748b;
+}
+
+[data-theme="light"] .thought-badge {
+    background: rgba(180, 83, 9, 0.12);
+    color: #b45309;
+    border: 1px solid rgba(180, 83, 9, 0.25);
+    border-radius: 4px;
+    font-size: 0.62rem;
 }
 
 [data-theme="light"] .apple-thought-content {
-    border-top-color: rgba(44, 82, 52, 0.1);
+    border-top: 1px solid rgba(44, 82, 52, 0.1);
     color: #334155;
+    background: #faf8f5;
+    padding: 0.85rem 1rem 1rem;
+    font-size: 0.86rem;
+    line-height: 1.65;
+}
+
+/* Bloques de Código en Ficha Nórdica */
+[data-theme="light"] .code-block-wrapper {
     background: #fbfaf8;
+    border: 1px solid rgba(44, 82, 52, 0.18);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    margin: 0.7rem 0;
+}
+
+[data-theme="light"] .code-block-header {
+    background: #f3f0ec;
+    border-bottom: 1px solid rgba(44, 82, 52, 0.14);
+    color: #475569;
+}
+
+[data-theme="light"] .code-copy-btn {
+    background: #ffffff;
+    border: 1px solid rgba(44, 82, 52, 0.2);
+    color: var(--accent);
+}
+
+[data-theme="light"] .code-copy-btn:hover {
+    background: rgba(44, 82, 52, 0.08);
+    border-color: var(--accent);
 }
 
 [data-theme="light"] .code-block {
