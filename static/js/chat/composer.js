@@ -24,6 +24,11 @@ window.ChatComposerController = {
                 userInput.style.height = 'auto';
                 userInput.style.height = Math.min(userInput.scrollHeight, 160) + 'px';
 
+                // Toggle send button disabled state based on input
+                if (sendBtn) {
+                    sendBtn.disabled = !userInput.value.trim().length;
+                }
+
                 // Update character counter
                 if (charCount) {
                     const len = userInput.value.length;
@@ -61,6 +66,7 @@ window.ChatComposerController = {
     async sendMessage() {
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
+        const stopBtn = document.getElementById('stop-btn');
         const modelSelect = document.getElementById('model-select');
         const engineModeSelect = document.getElementById('engine-mode-select');
         const charCount = document.getElementById('char-count');
@@ -85,28 +91,33 @@ window.ChatComposerController = {
         userInput.style.height = 'auto';
         if (charCount) charCount.textContent = '0 car.';
         userInput.disabled = true;
-        if (sendBtn) sendBtn.disabled = true;
+        
+        // Transición fluida a botón de Stop
+        if (sendBtn) sendBtn.hidden = true;
+        if (stopBtn) stopBtn.hidden = false;
 
         if (window.ArchView && typeof window.ArchView.isLoaded === 'function' && window.ArchView.isLoaded()) {
             window.ArchView.setFlow('inference');
         }
 
-        if (engineMode === 'wasm') {
-            await window.ChatEngineController?.wasmChat(text, modelValue);
+        try {
+            if (engineMode === 'wasm') {
+                await window.ChatEngineController?.wasmChat(text, modelValue);
+            } else {
+                const ok = await window.ChatEngineController?.streamChat(text, modelValue);
+                if (!ok) {
+                    await window.ChatEngineController?.fallbackChat(text, modelValue);
+                }
+            }
+        } finally {
             userInput.disabled = false;
-            if (sendBtn) sendBtn.disabled = false;
+            if (sendBtn) {
+                sendBtn.hidden = false;
+                sendBtn.disabled = true;
+            }
+            if (stopBtn) stopBtn.hidden = true;
             userInput.focus();
-            return;
         }
-
-        const ok = await window.ChatEngineController?.streamChat(text, modelValue);
-        if (!ok) {
-            await window.ChatEngineController?.fallbackChat(text, modelValue);
-        }
-
-        userInput.disabled = false;
-        if (sendBtn) sendBtn.disabled = false;
-        userInput.focus();
     },
 
     createBotMessage(modelName = null) {

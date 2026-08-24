@@ -1516,66 +1516,103 @@ textarea#user-input::placeholder {
     opacity: 0.75;
 }
 
-button#send-btn {
-    background: linear-gradient(135deg, #0a84ff 0%, #5e5ce6 100%);
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    padding: 0.65rem 1.4rem;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: 700;
-    font-family: var(--sans);
-    font-size: 0.78rem;
-    letter-spacing: 0.6px;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    text-transform: uppercase;
-    box-shadow: 0 4px 16px rgba(10, 132, 255, 0.35);
-}
-
-[data-theme="light"] button#send-btn {
-    background: linear-gradient(135deg, #2c5234 0%, #1a301f 100%);
-    border: 1px solid rgba(44, 82, 52, 0.4);
-    box-shadow: 0 4px 12px rgba(44, 82, 52, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
-}
-
-[data-theme="light"] button#send-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, #376541 0%, #223f29 100%);
-    box-shadow: 0 6px 16px rgba(44, 82, 52, 0.35);
-}
-
-button#send-btn:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(10, 132, 255, 0.5);
-    filter: brightness(1.08);
-}
-
-button#send-btn:active:not(:disabled) { transform: scale(0.96); }
-.send-icon { width: 14px; height: 14px; fill: currentColor; transition: transform 0.2s; }
-button#send-btn:hover .send-icon { transform: translate(2px, -2px); }
-button#send-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-
-.stop-btn {
-    background: rgba(255, 69, 58, 0.1);
-    border: 1px solid rgba(255, 69, 58, 0.4);
-    color: var(--red);
+.composer-action-btn {
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    cursor: pointer;
     flex-shrink: 0;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid transparent;
+}
+
+button#send-btn {
+    background: linear-gradient(135deg, #0a84ff 0%, #5e5ce6 100%);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 4px 14px rgba(10, 132, 255, 0.35);
+}
+
+button#send-btn:disabled {
+    opacity: 0.32;
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+    color: var(--text-muted);
+}
+
+[data-theme="light"] button#send-btn {
+    background: #2c5234;
+    color: #ffffff;
+    border: 1px solid rgba(44, 82, 52, 0.4);
+    box-shadow: 0 2px 8px rgba(44, 82, 52, 0.2);
+    border-radius: 0px !important;
+}
+
+[data-theme="light"] button#send-btn:disabled {
+    opacity: 0.32;
+    background: #e2e0dc;
+    border-color: #cfcdc9;
+    color: #8c8984;
+    box-shadow: none;
+}
+
+[data-theme="light"] button#send-btn:hover:not(:disabled) {
+    background: #376541;
+    box-shadow: 0 4px 12px rgba(44, 82, 52, 0.35);
+    transform: scale(1.05);
+}
+
+button#send-btn:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(10, 132, 255, 0.5);
+    filter: brightness(1.1);
+}
+
+button#send-btn:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.send-icon {
+    width: 15px;
+    height: 15px;
+    fill: currentColor;
+    transition: transform 0.2s ease;
+}
+
+button#send-btn:hover:not(:disabled) .send-icon {
+    transform: translate(1px, -1px);
+}
+
+.stop-btn {
+    background: rgba(255, 69, 58, 0.15);
+    border: 1px solid rgba(255, 69, 58, 0.5);
+    color: var(--red);
+    box-shadow: 0 0 12px rgba(255, 69, 58, 0.25);
+    animation: pulseStop 1.5s infinite;
+}
+
+[data-theme="light"] .stop-btn {
+    background: rgba(185, 28, 28, 0.12);
+    border-color: #b91c1c;
+    color: #b91c1c;
+    border-radius: 0px !important;
 }
 
 .stop-btn:hover {
-    background: rgba(255, 69, 58, 0.22);
+    background: rgba(255, 69, 58, 0.3);
     border-color: var(--red);
-    box-shadow: 0 0 12px rgba(255, 69, 58, 0.4);
+    transform: scale(1.05);
+    box-shadow: 0 0 16px rgba(255, 69, 58, 0.5);
+}
+
+@keyframes pulseStop {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(0.98); }
 }
 
 .stop-btn[hidden] { display: none; }

@@ -79,12 +79,11 @@
                         <label for="user-input" class="visually-hidden">Mensaje para el modelo</label>
                         <textarea id="user-input" placeholder="Escribe un mensaje o consulta genómica..." rows="1" autocomplete="off" aria-label="Mensaje para el modelo"></textarea>
                         
-                        <button id="stop-btn" class="stop-btn" title="Detener generación" aria-label="Detener generación" hidden>
+                        <button id="stop-btn" class="composer-action-btn stop-btn" title="Detener generación" aria-label="Detener generación" hidden>
                             <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
                         </button>
                         
-                        <button id="send-btn" aria-label="Enviar mensaje">
-                            <span>ENVIAR</span>
+                        <button id="send-btn" class="composer-action-btn send-btn" title="Enviar mensaje (Enter)" aria-label="Enviar mensaje" disabled>
                             <svg class="send-icon y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-send"/></svg>
                         </button>
                     </div>
