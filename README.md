@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/WebAssembly-SIMD128-0a84ff?style=flat-square&logo=webassembly" alt="WASM SIMD">
   <img src="https://img.shields.io/badge/IndexedDB-GajeHelixDB_v3-5e5ce6?style=flat-square" alt="IndexedDB">
   <img src="https://img.shields.io/badge/Theme-HIG_Apple_%26_Scandinavian-f472b6?style=flat-square" alt="Themes">
-  <img src="https://img.shields.io/badge/License-Apache_2.0-ffd60a?style=flat-square" alt="License">
+  <img src="https://img.shields.io/badge/License-GNU_AGPL--3.0-ffd60a?style=flat-square" alt="License">
 </p>
 
 ---
@@ -138,4 +138,4 @@ El proyecto está 100% optimizado para despliegues instantáneos en Vercel con e
 
 ## 📄 Licencia
 
-Este proyecto está licenciado bajo la **Apache License 2.0**. Consulta el archivo `LICENSE` en la raíz del repositorio para más información.
+Este proyecto está licenciado bajo la **GNU Affero General Public License v3.0 (AGPL-3.0)** para garantizar la soberanía, libertad y código abierto del software tanto en uso local como en servicios de red. Consulta el archivo `LICENSE` en la raíz del repositorio para el texto legal completo.
