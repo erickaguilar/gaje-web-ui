@@ -515,9 +515,10 @@ h1, h2, h3, h4, h5, h6 {
 .y2k-theme-btn:hover .y2k-theme-icon { transform: scale(1.1); }
 
 @media (max-width: 720px) {
+  .y2k-header .wrap { padding: 0 10px; height: 50px; }
   .y2k-status { display: none; }
-  .y2k-nav a { padding: 6px 9px; font-size: 0.8rem; }
-  .y2k-brand { font-size: 1rem; }
+  .y2k-nav a { padding: 4px 8px; font-size: 0.76rem; }
+  .y2k-brand { font-size: 0.95rem; }
 }
 
 /* Enlace GitHub del header */
