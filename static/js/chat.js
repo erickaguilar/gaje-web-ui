@@ -1344,7 +1344,36 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
                 }
                 msgDiv.appendChild(metaEl);
             } else if (type === 'user') {
-                msgDiv.innerHTML = `<p>${ChatUtils.escapeHtml(text)}</p>`;
+                const posixVal = (meta && meta.timestamp_posix) || ChatUtils.getUnixTimestamp();
+                const isoTime = ChatUtils.formatUnixIso(posixVal);
+                msgDiv.innerHTML = `
+                    <header class="msg-header msg-user-header">
+                        <div class="msg-author">
+                            <span class="msg-avatar-icon user-avatar"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-terminal"/></svg></span>
+                            <span class="msg-author-name">USUARIO</span>
+                            <span class="msg-user-tag">INPUT</span>
+                        </div>
+                        <time class="msg-timestamp" datetime="${isoTime}" data-unix="${Number(posixVal).toFixed(3)}" data-tooltip="Tiempo Unix POSIX: ${Number(posixVal).toFixed(3)}s">${timeStr}</time>
+                    </header>
+                    <section class="msg-content msg-user-content">
+                        <p>${ChatUtils.escapeHtml(text)}</p>
+                    </section>
+                    <footer class="msg-footer msg-user-footer">
+                        <div class="msg-actions">
+                            <button type="button" class="msg-action-btn copy-btn" data-tooltip="Copiar prompt al portapapeles" aria-label="Copiar prompt">
+                                <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-copy"/></svg>
+                                <span>Copiar</span>
+                            </button>
+                        </div>
+                    </footer>
+                `;
+
+                const copyBtn = msgDiv.querySelector('.copy-btn');
+                if (copyBtn) {
+                    copyBtn.addEventListener('click', () => {
+                        ChatUtils.copyTextToClipboard(text, copyBtn);
+                    });
+                }
             } else {
                 msgDiv.innerHTML = `<div class="msg-content"><p>${ChatUtils.escapeHtml(text)}</p></div>`;
             }

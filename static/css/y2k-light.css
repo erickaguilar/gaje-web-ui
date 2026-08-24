@@ -178,18 +178,19 @@
 
 /* ── MENSAJES Y FICHAS DE APRENDIZAJE COMPLETAMENTE CUADRADAS ── */
 
-/* Burbuja de Usuario: Tarjeta Rectangular en Verde Jade */
+/* Burbuja de Usuario: Tarjeta Rectangular en Ficha Nórdica */
 [data-theme="light"] .message.user {
-    background: linear-gradient(135deg, #24462b 0%, #183320 100%);
-    border: 1px solid rgba(36, 70, 43, 0.4);
+    background: #ffffff;
+    border: 1px solid rgba(44, 82, 52, 0.2);
+    border-right: 4px solid #2c5234;
     border-radius: 0px !important;
-    color: #ffffff;
-    box-shadow: 0 4px 16px rgba(36, 70, 43, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    color: #1e293b;
+    box-shadow: 0 4px 16px rgba(44, 53, 57, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
     padding: 1rem 1.4rem;
 }
 
 [data-theme="light"] .message.user p {
-    color: #ffffff;
+    color: #1e293b;
     font-size: 0.93rem;
     line-height: 1.65;
 }
