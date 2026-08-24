@@ -113,13 +113,18 @@
                 try {
                     const tx = this.db.transaction('messages', 'readwrite');
                     const store = tx.objectStore('messages');
+                    const metaData = entry.meta || entry.metrics || null;
+                    const serverTime = (metaData && metaData.server_time) || entry.time || (window.ChatUtils ? window.ChatUtils.formatExactTime() : new Date().toLocaleTimeString('es-ES'));
+                    const posixTime = (metaData && metaData.timestamp_posix) || (Date.now() / 1000);
+
                     const item = {
                         role: entry.role,
                         content: entry.content,
                         thought: entry.thought || null,
                         model: entry.model || 'GAJE',
-                        meta: entry.meta || null,
-                        time: entry.time || new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                        meta: metaData,
+                        time: serverTime,
+                        timestampPosix: posixTime,
                         sessionId: entry.sessionId || 'default',
                         savedAt: Date.now()
                     };

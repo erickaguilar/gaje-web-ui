@@ -5,7 +5,12 @@
 
 window.ChatStorage = {
     pushHistory(entry) {
-        if (!entry.time) entry.time = window.ChatUtils.formatExactTime();
+        if (!entry.time) {
+            entry.time = (entry.metrics && entry.metrics.server_time) || (entry.meta && entry.meta.server_time) || window.ChatUtils.formatExactTime();
+        }
+        if (entry.metrics && !entry.meta) {
+            entry.meta = entry.metrics;
+        }
         if (entry.role === 'assistant' && !entry.model) {
             const modelSelect = document.getElementById('model-select');
             entry.model = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'GAJE');
@@ -37,9 +42,11 @@ window.ChatStorage = {
         const arr = await window.GajeDB.getAllMessages();
         if (!arr || arr.length === 0) return;
         arr.forEach(entry => {
-            if (entry.role === 'user') window.ChatComposerController?.addMessage(entry.content, 'user', null, entry.time);
-            else if (entry.role === 'assistant') window.ChatComposerController?.addMessage(entry.content, 'bot', entry.meta || null, entry.time, entry.model);
-            else if (entry.role === 'system') window.ChatComposerController?.addMessage(entry.content, 'system', null, entry.time);
+            const timeVal = (entry.meta && entry.meta.server_time) || entry.time;
+            const metaVal = entry.meta || entry.metrics || null;
+            if (entry.role === 'user') window.ChatComposerController?.addMessage(entry.content, 'user', null, timeVal);
+            else if (entry.role === 'assistant') window.ChatComposerController?.addMessage(entry.content, 'bot', metaVal, timeVal, entry.model);
+            else if (entry.role === 'system') window.ChatComposerController?.addMessage(entry.content, 'system', null, timeVal);
         });
         chatWindow.scrollTop = chatWindow.scrollHeight;
     }
