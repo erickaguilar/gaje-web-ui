@@ -184,7 +184,9 @@
 
   function initPwa() {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(function (err) {
+      navigator.serviceWorker.register('sw.js?v=1.7.1').then(function (reg) {
+        reg.update();
+      }).catch(function (err) {
         console.log('[GAJE-PWA] Service Worker no registrado:', err);
       });
     }

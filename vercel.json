@@ -36,6 +36,15 @@
           "value": "application/javascript"
         }
       ]
+    },
+    {
+      "source": "/(sw.js|manifest.json|.*\\.html)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
     }
   ]
 }
