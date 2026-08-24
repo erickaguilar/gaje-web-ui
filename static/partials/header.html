@@ -36,6 +36,12 @@
   </nav>
 
   <div class="y2k-header-actions">
+    <!-- Botón Instalar App PWA (Desktop / Tablet) -->
+    <button id="pwa-install-btn" class="y2k-pwa-btn pwa-install-btn" data-tooltip="Instalar como Aplicación Nativa" data-tooltip-pos="left" aria-label="Instalar como Aplicación">
+      <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-install"/></svg>
+      <span class="pwa-btn-text">Instalar App</span>
+    </button>
+
     <!-- Theme Switcher Directo (Sol / Luna) -->
     <button id="direct-theme-toggle" class="y2k-theme-toggle-direct" data-tooltip="Alternar Modo Claro/Oscuro" data-tooltip-pos="left" aria-label="Cambiar Tema">
       <svg class="y2k-icon icon-sun"><use href="static/icons/y2k/sprite.svg#i-sun"/></svg>
@@ -67,6 +73,10 @@
           <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-docs"/></svg>
           <span>Documentación</span>
         </a>
+        <button id="pwa-install-mobile-btn" class="y2k-dropdown-item pwa-install-btn" style="text-align: left; background: none; border: none; width: 100%; cursor: pointer;">
+          <svg class="y2k-icon" style="color: var(--accent);"><use href="static/icons/y2k/sprite.svg#i-install"/></svg>
+          <span style="font-weight: 600; color: var(--accent);">Instalar Aplicación (PWA)</span>
+        </button>
       </nav>
       <div class="y2k-dropdown-divider"></div>
       <div class="y2k-dropdown-footer">

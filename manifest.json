@@ -1,0 +1,20 @@
+{
+  "name": "GAJE Helix — Genomic Semantic Compression",
+  "short_name": "GAJE Helix",
+  "description": "Motor de inferencia LLM nativo en Rust y WebAssembly Zero-Server con compresión genómica.",
+  "start_url": "/",
+  "scope": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#000000",
+  "theme_color": "#0a84ff",
+  "icons": [
+    {
+      "src": "static/icons/gaje-icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

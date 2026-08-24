@@ -179,6 +179,58 @@
       .catch(function (e) { console.warn('No se pudo cargar toolbar parcial:', e); });
   }
 
+  /* ── PWA & Instalación como Aplicación Nativa ── */
+  var deferredPwaPrompt = null;
+
+  function initPwa() {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(function (err) {
+        console.log('[GAJE-PWA] Service Worker no registrado:', err);
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      deferredPwaPrompt = e;
+      var installBtns = document.querySelectorAll('.pwa-install-btn');
+      installBtns.forEach(function (btn) {
+        btn.style.display = 'inline-flex';
+      });
+    });
+
+    window.addEventListener('appinstalled', function () {
+      console.log('[GAJE-PWA] Aplicación instalada exitosamente.');
+      deferredPwaPrompt = null;
+      var installBtns = document.querySelectorAll('.pwa-install-btn');
+      installBtns.forEach(function (btn) {
+        btn.style.display = 'none';
+      });
+    });
+
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.pwa-install-btn');
+      if (!btn) return;
+      e.preventDefault();
+
+      if (deferredPwaPrompt) {
+        deferredPwaPrompt.prompt();
+        deferredPwaPrompt.userChoice.then(function (choiceResult) {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('[GAJE-PWA] El usuario aceptó la instalación.');
+          }
+          deferredPwaPrompt = null;
+        });
+      } else {
+        var isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (isIos) {
+          alert('📱 Para instalar GAJE Helix en tu iPhone/iPad:\n\n1. Toca el botón "Compartir" en Safari (icono con flecha hacia arriba ⎋).\n2. Desliza hacia abajo y selecciona "Agregar a la pantalla de inicio" (+).\n3. Toca "Agregar".');
+        } else {
+          alert('📱 Para instalar GAJE Helix:\n\nToca el menú de opciones de tu navegador (los tres puntos ⋮ arriba a la derecha) y selecciona "Instalar aplicación" o "Agregar a la pantalla principal".');
+        }
+      }
+    });
+  }
+
   /* ── Boot ── */
   function boot() {
     initReveal();
@@ -186,6 +238,7 @@
     initTheme();
     initHeader();
     initFooter();
+    initPwa();
   }
 
   if (document.readyState === 'loading') {
@@ -200,6 +253,7 @@
     initCopyButtons: initCopyButtons,
     initHeader: initHeader,
     initFooter: initFooter,
-    initChatToolbar: initChatToolbar
+    initChatToolbar: initChatToolbar,
+    initPwa: initPwa
   };
 })(window);
