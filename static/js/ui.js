@@ -61,20 +61,28 @@
   /* ── Toggle de tema claro/oscuro ── */
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
-    var toggle = document.getElementById('theme-toggle');
-    if (toggle) {
-      toggle.setAttribute('aria-label', theme === 'light' ? 'Activar Tema Oscuro' : 'Activar Tema Claro');
-    }
+    var toggles = document.querySelectorAll('#theme-toggle, #direct-theme-toggle');
+    toggles.forEach(function (toggle) {
+      if (toggle) {
+        toggle.setAttribute('aria-label', theme === 'light' ? 'Activar Tema Oscuro' : 'Activar Tema Claro');
+      }
+    });
   }
 
   function initTheme() {
-    var toggle = document.getElementById('theme-toggle');
-    if (!toggle) return;
+    var toggles = document.querySelectorAll('#theme-toggle, #direct-theme-toggle');
+    if (!toggles.length) return;
     applyTheme(localStorage.getItem('theme') || 'dark');
-    toggle.addEventListener('click', function () {
-      var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-      localStorage.setItem('theme', next);
-      applyTheme(next);
+    toggles.forEach(function (toggle) {
+      // Evitar duplicación de listeners
+      if (toggle._hasThemeListener) return;
+      toggle._hasThemeListener = true;
+      toggle.addEventListener('click', function () {
+        var current = document.documentElement.getAttribute('data-theme') || 'dark';
+        var next = current === 'light' ? 'dark' : 'light';
+        localStorage.setItem('theme', next);
+        applyTheme(next);
+      });
     });
   }
 
@@ -107,16 +115,18 @@
   function initHeader() {
     var host = document.getElementById('gaje-header');
     if (!host) return;
-    fetch('static/partials/header.html?v=1.6.2')
+    fetch('static/partials/header.html?v=1.6.3')
       .then(function (r) { return r.text(); })
       .then(function (html) {
         host.innerHTML = html;
         var page = host.getAttribute('data-page') || 'index';
         var map = { index: 'index.html', chat: 'index.html', architecture: 'architecture.html', docs: 'docs.html' };
         var target = map[page] || page;
-        var links = host.querySelectorAll('.y2k-dropdown-item');
+        
+        // Activar enlaces en navegación segmentada y dropdown
+        var links = host.querySelectorAll('.segmented-tab, .y2k-dropdown-item');
         links.forEach(function (a) {
-          if (a.getAttribute('href') === target) {
+          if (a.getAttribute('href') === target || a.getAttribute('data-page') === page) {
             a.classList.add('active');
             a.setAttribute('aria-current', 'page');
           }
