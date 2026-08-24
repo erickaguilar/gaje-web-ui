@@ -161,7 +161,8 @@ window.ChatEngineController = {
 
                 // 2. Si no hay backend local (ej. Vercel/Cloudflare Pages), descargar desde el CDN oficial de Hugging Face
                 if (!buffer) {
-                    const cdnUrl = `https://huggingface.co/eaguilar/gaje-models/resolve/main/${encodeURIComponent(modelName)}`;
+                    const cdnBase = window.GAJE_CONFIG?.cdnBaseUrl || 'https://huggingface.co/eaguilar/gaje-models/resolve/main/';
+                    const cdnUrl = `${cdnBase}${encodeURIComponent(modelName)}`;
                     contentEl.textContent = `Conectando con CDN Hugging Face (${modelName})...`;
                     const cdnRes = await fetch(cdnUrl);
                     if (!cdnRes.ok) {

@@ -1,26 +1,36 @@
 /**
  * 🧬 GAJE Helix — Service Worker (PWA Offline Runtime)
+ * Configurado dinámicamente mediante config.js
  */
 
-const CACHE_NAME = 'gaje-helix-pwa-v1.7.1';
+try {
+  importScripts('/static/js/config.js');
+} catch (e) {
+  console.warn('[GAJE-SW] No se pudo cargar config.js de forma síncrona, usando fallback:', e);
+}
+
+const VERSION = (self.GAJE_CONFIG && self.GAJE_CONFIG.version) ? self.GAJE_CONFIG.version : '1.7.1';
+const CACHE_NAME = `gaje-helix-pwa-v${VERSION}`;
+
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/docs.html',
   '/architecture.html',
   '/manifest.json',
-  '/static/css/base.css?v=1.7.1',
-  '/static/css/chat.css?v=1.7.1',
-  '/static/css/docs.css?v=1.7.1',
-  '/static/css/architecture.css?v=1.7.1',
+  `/static/css/base.css?v=${VERSION}`,
+  `/static/css/chat.css?v=${VERSION}`,
+  `/static/css/docs.css?v=${VERSION}`,
+  `/static/css/architecture.css?v=${VERSION}`,
   '/static/icons/gaje-icon.svg',
   '/static/icons/y2k/sprite.svg',
-  '/static/js/ui.js?v=1.7.1',
-  '/static/js/storage.js?v=1.7.1',
-  '/static/js/chat.js?v=1.7.1',
+  '/static/js/config.js',
+  `/static/js/ui.js?v=${VERSION}`,
+  `/static/js/storage.js?v=${VERSION}`,
+  `/static/js/chat.js?v=${VERSION}`,
   '/static/js/wasm_worker.js',
-  '/static/partials/chat_toolbar.html?v=1.7.1',
-  '/static/partials/header.html?v=1.7.1'
+  `/static/partials/chat_toolbar.html?v=${VERSION}`,
+  `/static/partials/header.html?v=${VERSION}`
 ];
 
 self.addEventListener('install', (event) => {
@@ -47,12 +57,12 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // No interceptar peticiones de modelos pesados (.flat) ni APIs
+  // No interceptar peticiones de modelos binarios (.flat) ni endpoints /api/
   if (url.pathname.endsWith('.flat') || url.pathname.startsWith('/api/') || url.hostname.includes('huggingface.co')) {
     return;
   }
 
-  // Network-First Strategy para asegurar actualizaciones inmediatas en móvil
+  // Network-First Strategy para asegurar actualizaciones instantáneas
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {

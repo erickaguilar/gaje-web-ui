@@ -204,19 +204,21 @@ window.ChatToolbarController = {
                 this.updateModelMeta();
             }
         } catch (err) {
-            console.log('Usando modelos por defecto certificados.');
-            window.ChatState.modelsData = [
-                { name: 'gaje_pico_135m.flat', size_bytes: 494280704, date: '2026-08-24' },
-                { name: 'gaje_nano_1.5b.flat', size_bytes: 1324845056, date: '2026-08-24' },
-                { name: 'gaje_prime_3b.flat', size_bytes: 2410702683, date: '2026-08-24' },
-                { name: 'gaje_ultra_7b.flat', size_bytes: 5247000000, date: '2026-08-24' }
+            console.log('Usando catálogo global GAJE_CONFIG.');
+            const catalog = (window.GAJE_CONFIG && window.GAJE_CONFIG.modelsCatalog) ? window.GAJE_CONFIG.modelsCatalog : [
+                { id: 'gaje_pico_135m.flat', name: 'gaje_pico_135m.flat', title: 'GAJE Pico 135M', badge: 'Móvil Ultra-Rápido 470MB', size_bytes: 494280704 }
             ];
-            modelSelect.innerHTML = `
-                <option value="gaje_pico_135m.flat" selected>GAJE Pico 135M · [Móvil Ultra-Rápido 470MB]</option>
-                <option value="gaje_nano_1.5b.flat">GAJE Nano 1.5B · [WASM 1.2GB]</option>
-                <option value="gaje_prime_3b.flat">GAJE Prime 3B · [Desktop 2.2GB]</option>
-                <option value="gaje_ultra_7b.flat">GAJE Ultra 7B · [Cloud 4.9GB]</option>
-            `;
+            window.ChatState.modelsData = catalog;
+            modelSelect.innerHTML = '';
+            catalog.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.id || m.name;
+                opt.innerText = `${m.title} · [${m.badge}]`;
+                if ((m.id || m.name) === (window.GAJE_CONFIG?.defaultModel || 'gaje_pico_135m.flat')) {
+                    opt.selected = true;
+                }
+                modelSelect.appendChild(opt);
+            });
             this.updateModelMeta();
         }
     },

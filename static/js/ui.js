@@ -115,7 +115,8 @@
   function initHeader() {
     var host = document.getElementById('gaje-header');
     if (!host) return;
-    fetch('static/partials/header.html?v=1.6.3')
+    var url = window.GAJE_CONFIG ? window.GAJE_CONFIG.assetUrl('static/partials/header.html') : 'static/partials/header.html';
+    fetch(url)
       .then(function (r) { return r.text(); })
       .then(function (html) {
         host.innerHTML = html;
@@ -155,7 +156,8 @@
   function initFooter() {
     var host = document.getElementById('gaje-footer');
     if (!host) return;
-    fetch('static/partials/footer.html?v=1.6.2')
+    var url = window.GAJE_CONFIG ? window.GAJE_CONFIG.assetUrl('static/partials/footer.html') : 'static/partials/footer.html';
+    fetch(url)
       .then(function (r) { return r.text(); })
       .then(function (html) {
         host.innerHTML = html;
@@ -168,7 +170,8 @@
   function initChatToolbar() {
     var host = document.getElementById('chat-toolbar');
     if (!host || host.children.length) return Promise.resolve();
-    return fetch('static/partials/chat_toolbar.html?v=1.7.0')
+    var url = window.GAJE_CONFIG ? window.GAJE_CONFIG.assetUrl('static/partials/chat_toolbar.html') : 'static/partials/chat_toolbar.html';
+    return fetch(url)
       .then(function (r) { return r.text(); })
       .then(function (html) {
         host.innerHTML = html;
@@ -184,7 +187,8 @@
 
   function initPwa() {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=1.7.1').then(function (reg) {
+      var swUrl = window.GAJE_CONFIG ? window.GAJE_CONFIG.assetUrl('sw.js') : 'sw.js';
+      navigator.serviceWorker.register(swUrl).then(function (reg) {
         reg.update();
       }).catch(function (err) {
         console.log('[GAJE-PWA] Service Worker no registrado:', err);
