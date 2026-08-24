@@ -144,11 +144,32 @@ window.ChatEngineController = {
         try {
             if (!window.ChatState.isWasmModelLoaded || window.ChatState.wasmActiveModelName !== modelName) {
                 contentEl.textContent = `Descargando modelo ${modelName} para ejecución en navegador...`;
-                const res = await fetch(`/models/${encodeURIComponent(modelName)}`);
-                if (!res.ok) {
-                    throw new Error(`No se pudo descargar el modelo binario (${res.status} ${res.statusText})`);
+                
+                let buffer = null;
+                // 1. Intentar descargar desde el backend local si existe
+                try {
+                    const localRes = await fetch(`/models/${encodeURIComponent(modelName)}`);
+                    if (localRes.ok) {
+                        const localBuf = await localRes.arrayBuffer();
+                        if (localBuf && localBuf.byteLength >= 4096) {
+                            buffer = localBuf;
+                        }
+                    }
+                } catch (err) {
+                    console.warn('[GAJE-WASM] Fallback a CDN Hugging Face...');
                 }
-                const buffer = await res.arrayBuffer();
+
+                // 2. Si no hay backend local (ej. Vercel/Cloudflare Pages), descargar desde el CDN oficial de Hugging Face
+                if (!buffer) {
+                    const cdnUrl = `https://huggingface.co/eaguilar/gaje-models/resolve/main/${encodeURIComponent(modelName)}`;
+                    contentEl.textContent = `Descargando ${modelName} desde CDN Hugging Face (Zero-Server)...`;
+                    const cdnRes = await fetch(cdnUrl);
+                    if (!cdnRes.ok) {
+                        throw new Error(`No se pudo descargar el modelo binario (${cdnRes.status} ${cdnRes.statusText})`);
+                    }
+                    buffer = await cdnRes.arrayBuffer();
+                }
+
                 if (!buffer || buffer.byteLength < 4096) {
                     throw new Error(`El archivo de modelo es inválido o menor a 4096 bytes (${buffer ? buffer.byteLength : 0} B)`);
                 }
