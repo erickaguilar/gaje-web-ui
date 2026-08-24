@@ -156,6 +156,18 @@ window.ChatComposerController = {
 
         const posixVal = (meta && meta.timestamp_posix) || explicitPosix || window.ChatUtils.getUnixTimestamp();
         const timeStr = (meta && meta.server_time) || explicitTime || window.ChatUtils.formatExactTime(posixVal);
+
+        // Los mensajes de sistema se registran en la bitácora/auditoría sin ensuciar la ventana visual del chat
+        if (type === 'system') {
+            if (!window.ChatState) window.ChatState = {};
+            if (!window.ChatState.systemAlertsHistory) window.ChatState.systemAlertsHistory = [];
+            window.ChatState.systemAlertsHistory.push(`[${timeStr}] ${text}`);
+            if (window.GajeDB && typeof window.GajeDB.saveAuditLog === 'function') {
+                window.GajeDB.saveAuditLog(text, 'system');
+            }
+            return;
+        }
+
         const isoTime = window.ChatUtils.formatUnixIso(posixVal);
         const mName = modelName || (modelSelect ? modelSelect.value : window.ChatState?.activeModel) || 'gaje-model';
 

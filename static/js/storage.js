@@ -210,6 +210,55 @@
             });
         }
 
+        /**
+         * Guarda un registro de auditoría / evento del sistema en audit_logs.
+         */
+        async saveAuditLog(eventText, level = 'info') {
+            await this.readyPromise;
+            if (!this.db) return null;
+
+            return new Promise((resolve) => {
+                try {
+                    const tx = this.db.transaction('audit_logs', 'readwrite');
+                    const store = tx.objectStore('audit_logs');
+                    const item = {
+                        text: eventText,
+                        level: level,
+                        timestamp: Date.now(),
+                        time: window.ChatUtils ? window.ChatUtils.formatExactTime() : new Date().toLocaleTimeString('es-ES')
+                    };
+                    const req = store.add(item);
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => resolve(null);
+                } catch (e) {
+                    resolve(null);
+                }
+            });
+        }
+
+        /**
+         * Obtiene todos los logs de auditoría guardados.
+         */
+        async getAuditLogs(limit = 100) {
+            await this.readyPromise;
+            if (!this.db) return [];
+
+            return new Promise((resolve) => {
+                try {
+                    const tx = this.db.transaction('audit_logs', 'readonly');
+                    const store = tx.objectStore('audit_logs');
+                    const req = store.getAll();
+                    req.onsuccess = () => {
+                        const list = req.result || [];
+                        resolve(list.slice(-limit));
+                    };
+                    req.onerror = () => resolve([]);
+                } catch (e) {
+                    resolve([]);
+                }
+            });
+        }
+
         // =====================================================================
         // PERSISTENCIA SOBERANA DE ISLAS DE MEMORIA (.gmem v2) EN INDEXEDDB
         // =====================================================================
