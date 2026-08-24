@@ -581,14 +581,13 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
                         const opt = document.createElement('option');
                         opt.value = model.name;
                         let label = model.name;
-                        if (label === 'qwen2_5_3b.flat') label = '⚡ Qwen 2.5 3B · Principal';
-                        else if (label === 'deepseek_r1_1_5b.flat') label = '⚡ DeepSeek-R1 1.5B · CoT';
-                        else if (label === 'feto_genomico_v1.gaje') label = '🧬 Feto Genómico v1 · Nacido GAJE';
-                        else if (label === 'qwen2_0_5b.flat') label = '⚡ Qwen 2 0.5B · Micro';
-                        else if (label === 'smollm2_135m.flat') label = '⚡ SmolLM2 135M · Nano';
-                        else if (label.endsWith('.gaje')) label = '🧬 ' + label.replace('.gaje', '');
-                        else if (label.endsWith('.flat')) label = '⚡ ' + label.replace('.flat', '');
-                        else label = '⚡ ' + label;
+                        if (label === 'qwen2_5_3b.flat') label = 'Qwen 2.5 3B · [Principal Flat]';
+                        else if (label === 'deepseek_r1_1_5b.flat') label = 'DeepSeek-R1 1.5B · [CoT Flat]';
+                        else if (label === 'feto_genomico_v1.gaje') label = 'Feto Genómico v1 · [Nacido GAJE]';
+                        else if (label === 'qwen2_0_5b.flat') label = 'Qwen 2 0.5B · [Micro Flat]';
+                        else if (label === 'smollm2_135m.flat') label = 'SmolLM2 135M · [Nano Flat]';
+                        else if (label.endsWith('.gaje')) label = label.replace('.gaje', '') + ' · [GAJE Model]';
+                        else if (label.endsWith('.flat')) label = label.replace('.flat', '') + ' · [Flat Model]';
                         opt.innerText = label;
                         modelSelect.appendChild(opt);
                     });
@@ -1336,27 +1335,27 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
             let badgesHtml = '';
             if (meta) {
                 if (meta.compression_ratio) {
-                    badgesHtml += `<span class="meta-tag meta-stats" data-tooltip="Ratio de Compresión Semántica">🧬 ${meta.compression_ratio}</span>`;
+                    badgesHtml += `<span class="meta-tag meta-stats" data-tooltip="Ratio de Compresión Semántica"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg> ${meta.compression_ratio}</span>`;
                 }
                 if (meta.island_retrieval_ms) {
-                    badgesHtml += `<span class="meta-tag meta-island" data-tooltip="Latencia de Memoria .gmem">🏝️ ${meta.island_retrieval_ms}ms</span>`;
+                    badgesHtml += `<span class="meta-tag meta-island" data-tooltip="Latencia de Memoria .gmem"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-island"/></svg> ${meta.island_retrieval_ms}ms</span>`;
                 }
                 if (meta.tokens_per_second) {
-                    badgesHtml += `<span class="meta-tag meta-stats" data-tooltip="Velocidad de Generación">⚡ ${meta.tokens_per_second} tok/s</span>`;
+                    badgesHtml += `<span class="meta-tag meta-stats" data-tooltip="Velocidad de Generación"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg> ${meta.tokens_per_second} tok/s</span>`;
                 }
                 if (meta.ppl) {
-                    badgesHtml += `<span class="meta-tag meta-stats" data-tooltip="Perplejidad Semántica">📉 PPL ${meta.ppl.toFixed(2)}</span>`;
+                    badgesHtml += `<span class="meta-tag meta-stats" data-tooltip="Perplejidad Semántica"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg> PPL ${meta.ppl.toFixed(2)}</span>`;
                 }
             }
 
             return `
                 <div class="message-meta">
-                    <span class="meta-tag meta-model" data-tooltip="Modelo Activo">${shortName}</span>
-                    <span class="meta-tag meta-latency" data-tooltip="Latencia de Inferencia (HH:MM:SS::MS)">⏱️ ${latencyStr}</span>
+                    <span class="meta-tag meta-model" data-tooltip="Modelo Activo"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-sparkle"/></svg> ${shortName}</span>
+                    <span class="meta-tag meta-latency" data-tooltip="Latencia de Inferencia (HH:MM:SS::MS)"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-clock"/></svg> ${latencyStr}</span>
                     <span class="meta-tag meta-time" data-tooltip="Hora de Generación">${displayTime}</span>
                     ${badgesHtml}
                     <button class="meta-btn-copy" data-tooltip="Copiar respuesta al portapapeles" aria-label="Copiar respuesta">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        <svg class="y2k-icon" width="12" height="12"><use href="static/icons/y2k/sprite.svg#i-copy"/></svg>
                         <span>Copiar</span>
                     </button>
                 </div>

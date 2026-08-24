@@ -74,7 +74,7 @@ ISLAND_CONFIG = {
     "memory_type": ".gmem (Zero-Copy)",
     "retrieval_latency_ms": 0.75,
     "context_budget": 512,
-    "pills": ["⚡ Episódica", "📚 Documental", "💬 Conversación"],
+    "pills": ["Episódica", "Documental", "Conversación"],
 }
 
 

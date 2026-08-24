@@ -10,11 +10,11 @@
     <div class="model-select-wrapper" data-tooltip="Seleccionar modelo activo (.flat / .gaje)">
         <label for="model-select" class="visually-hidden">Seleccionar Modelo</label>
         <select id="model-select" class="header-model-dropdown" aria-label="Seleccionar Modelo">
-            <option value="qwen2_5_3b.flat" selected>⚡ Qwen 2.5 3B · Principal</option>
-            <option value="deepseek_r1_1_5b.flat">⚡ DeepSeek-R1 1.5B · CoT</option>
-            <option value="feto_genomico_v1.gaje">🧬 Feto Genómico v1 · Nacido GAJE</option>
-            <option value="qwen2_0_5b.flat">⚡ Qwen 2 0.5B · Micro</option>
-            <option value="smollm2_135m.flat">⚡ SmolLM2 135M · Nano</option>
+            <option value="qwen2_5_3b.flat" selected>Qwen 2.5 3B · [Principal Flat]</option>
+            <option value="deepseek_r1_1_5b.flat">DeepSeek-R1 1.5B · [CoT Flat]</option>
+            <option value="feto_genomico_v1.gaje">Feto Genómico v1 · [Nacido GAJE]</option>
+            <option value="qwen2_0_5b.flat">Qwen 2 0.5B · [Micro Flat]</option>
+            <option value="smollm2_135m.flat">SmolLM2 135M · [Nano Flat]</option>
         </select>
     </div>
 
@@ -88,8 +88,8 @@
                     <span>Motor</span>
                 </label>
                 <select id="engine-mode-select" class="menu-inline-select" aria-label="Modo de Ejecución">
-                    <option value="native" selected>🌐 Servidor (Nativo)</option>
-                    <option value="wasm">⚡ Browser (WASM)</option>
+                    <option value="native" selected>Servidor (Nativo Rust)</option>
+                    <option value="wasm">Navegador (WASM In-Memory)</option>
                 </select>
             </div>
 

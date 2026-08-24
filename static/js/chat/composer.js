@@ -119,23 +119,23 @@ window.ChatComposerController = {
         let badgesHtml = '';
         if (meta) {
             if (meta.compression_ratio) {
-                badgesHtml += `<span class="meta-tag meta-stats" data-tooltip="Ratio de Compresión Semántica">🧬 ${meta.compression_ratio}</span>`;
+                badgesHtml += `<span class="meta-tag meta-stats" data-tooltip="Ratio de Compresión Semántica"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg> ${meta.compression_ratio}</span>`;
             }
             if (meta.island_retrieval_ms) {
-                badgesHtml += `<span class="meta-tag meta-island" data-tooltip="Latencia de Memoria .gmem">🏝️ ${meta.island_retrieval_ms}ms</span>`;
+                badgesHtml += `<span class="meta-tag meta-island" data-tooltip="Latencia de Memoria .gmem"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-island"/></svg> ${meta.island_retrieval_ms}ms</span>`;
             }
             if (meta.tokens_per_second) {
-                badgesHtml += `<span class="meta-tag meta-stats" data-tooltip="Velocidad de Generación">⚡ ${meta.tokens_per_second} tok/s</span>`;
+                badgesHtml += `<span class="meta-tag meta-stats" data-tooltip="Velocidad de Generación"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg> ${meta.tokens_per_second} tok/s</span>`;
             }
             if (meta.ppl) {
-                badgesHtml += `<span class="meta-tag meta-stats" data-tooltip="Perplejidad Semántica">📉 PPL ${meta.ppl.toFixed(2)}</span>`;
+                badgesHtml += `<span class="meta-tag meta-stats" data-tooltip="Perplejidad Semántica"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg> PPL ${meta.ppl.toFixed(2)}</span>`;
             }
         }
 
         return `
             <div class="message-meta">
-                <span class="meta-tag meta-model" data-tooltip="Modelo Activo">${shortName}</span>
-                <span class="meta-tag meta-latency" data-tooltip="Latencia de Inferencia (HH:MM:SS::MS)">⏱️ ${latencyStr}</span>
+                <span class="meta-tag meta-model" data-tooltip="Modelo Activo"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-sparkle"/></svg> ${shortName}</span>
+                <span class="meta-tag meta-latency" data-tooltip="Latencia de Inferencia (HH:MM:SS::MS)"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-clock"/></svg> ${latencyStr}</span>
                 <span class="meta-tag meta-time" data-tooltip="Hora de Generación">${displayTime}</span>
                 ${badgesHtml}
                 <button class="meta-btn-copy" data-tooltip="Copiar respuesta al portapapeles" aria-label="Copiar respuesta">

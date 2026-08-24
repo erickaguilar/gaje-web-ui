@@ -409,6 +409,15 @@ h1, h2, h3, h4, h5, h6 {
 .y2k-icon:has(use[href$="#i-clock"]) { color: #38bdf8; }
 .y2k-icon:has(use[href$="#i-github"]){ color: #e8ecf4; }
 .y2k-icon:has(use[href$="#i-github"]) { fill: currentColor; stroke: none; }
+.y2k-icon-inline {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  vertical-align: -1.5px;
+  display: inline-block;
+  margin-right: 3px;
+}
 .y2k-nav a::before {
   content: "";
   position: absolute;
