@@ -20,24 +20,6 @@
       ]
     },
     {
-      "source": "/static/wasm/(.*\\.wasm)",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/wasm"
-        }
-      ]
-    },
-    {
-      "source": "/static/wasm/(.*\\.js)",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/javascript"
-        }
-      ]
-    },
-    {
       "source": "/(sw.js|manifest.json|.*\\.html)",
       "headers": [
         {
