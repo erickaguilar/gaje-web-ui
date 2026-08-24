@@ -2688,33 +2688,35 @@ dialog.y2k-apple-modal[open]::backdrop {
         overflow: hidden !important;
     }
 
-    /* ── Barra de Herramientas Móvil ── */
+    /* ── Barra de Herramientas Móvil Compacta y Accesible ── */
     .chat-toolbar {
-        padding: 0.45rem 0.65rem;
-        gap: 0.3rem;
+        padding: 0.35rem 0.5rem;
+        gap: 0;
         border-radius: 0 !important;
+        background: var(--card-bg);
+        border-bottom: 1px solid var(--border-color);
     }
 
     .chat-toolbar-primary-row {
-        gap: 0.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
         flex-wrap: nowrap;
+        height: 38px;
     }
 
     .chat-toolbar-left {
         min-width: 0;
         flex: 1;
-        gap: 6px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
         flex-wrap: nowrap;
     }
 
+    /* Ocultar traffic lights y botones superfluos en pantalla pequeña para ganar espacio */
     .chat-window-mac-dots {
-        gap: 4px;
-        flex-shrink: 0;
-    }
-
-    .traffic-dot {
-        width: 10px;
-        height: 10px;
+        display: none !important;
     }
 
     .model-select-wrapper {
@@ -2722,57 +2724,66 @@ dialog.y2k-apple-modal[open]::backdrop {
         width: 100%;
         min-width: 0;
         flex: 1;
+        display: flex;
+        align-items: center;
         gap: 4px;
     }
 
     .header-model-dropdown {
-        font-size: 0.72rem;
-        padding: 0.35rem 0.5rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        height: 34px;
+        padding: 0.3rem 0.55rem;
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
+        border-radius: 8px;
     }
 
     .model-status-btn {
-        padding: 3px 6px;
-        font-size: 0.6rem;
+        display: none !important; /* Oculto en móvil para que el dropdown tenga ancho completo */
     }
 
     .chat-toolbar-actions {
+        display: flex;
+        align-items: center;
         gap: 4px;
         flex-shrink: 0;
     }
 
-    .chat-header-pill-btn {
-        padding: 0.32rem 0.55rem;
-        font-size: 0.68rem;
+    .info-toggle-btn {
+        display: none !important; /* Oculto en móvil para evitar segunda fila */
+    }
+
+    .chat-header-pill-btn.monitor-pill-btn {
+        height: 34px;
+        padding: 0 8px;
+        font-size: 0.72rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        border-radius: 8px;
     }
 
     .chat-header-icon-btn {
-        width: 32px;
-        height: 32px;
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        min-height: 34px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    .info-toggle-btn .info-toggle-text {
-        display: none;
+    .chat-header-icon-btn svg {
+        width: 16px;
+        height: 16px;
     }
 
+    /* Segunda fila oculta en móvil para máxima área de lectura */
     .chat-toolbar-secondary-row {
-        padding-top: 0.3rem;
-        gap: 0.4rem;
-        font-size: 0.68rem;
-    }
-
-    .chat-infobar-left,
-    .chat-infobar-right {
-        gap: 4px;
-    }
-
-    .chat-pill-ram,
-    .chat-pill-meta,
-    .status-indicator-pill {
-        font-size: 0.62rem;
-        padding: 2px 5px;
+        display: none !important;
     }
 
     /* ── Ventana de Chat en Móvil ── */

@@ -1072,13 +1072,13 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
   }
 }
 
-/* Menu Toggle Button */
+/* Menu Toggle Button (Hamburguesa Móvil) */
 .y2k-menu-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 9px;
   border: 1px solid var(--border-color);
   background: var(--panel);
@@ -1094,17 +1094,32 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
   color: var(--accent);
 }
 
-.y2k-menu-icon {
-  width: 18px;
-  height: 18px;
+.y2k-menu-icon,
+.y2k-menu-btn .y2k-icon {
+  width: 20px;
+  height: 20px;
+  color: currentColor;
   stroke: currentColor;
-  stroke-width: 2;
+  stroke-width: 2.2;
   stroke-linecap: round;
   transition: transform 0.2s;
 }
 
 .y2k-menu-btn[aria-expanded="true"] .y2k-menu-icon {
   transform: rotate(90deg);
+}
+
+[data-theme="light"] .y2k-menu-btn {
+  background: #ffffff !important;
+  border: 1px solid rgba(44, 82, 52, 0.35) !important;
+  color: #2c3539 !important;
+  box-shadow: 0 1px 3px rgba(44, 53, 57, 0.08) !important;
+  border-radius: 0px !important;
+}
+
+[data-theme="light"] .y2k-menu-btn .y2k-menu-icon,
+[data-theme="light"] .y2k-menu-btn .y2k-icon {
+  color: #2c3539 !important;
 }
 
 /* Dropdown Menu Panel */
