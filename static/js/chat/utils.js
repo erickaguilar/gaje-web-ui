@@ -157,6 +157,45 @@ window.ChatUtils = {
         });
     },
 
+    detectClientHardware() {
+        const ua = navigator.userAgent || '';
+        let os = 'Dispositivo Web';
+        let isMobile = false;
+
+        if (/iPhone/i.test(ua)) { os = 'Apple iOS (iPhone)'; isMobile = true; }
+        else if (/iPad/i.test(ua)) { os = 'Apple iPadOS (iPad)'; isMobile = true; }
+        else if (/Android/i.test(ua)) { os = 'Android Mobile Device'; isMobile = true; }
+        else if (/Macintosh|Mac OS X/i.test(ua)) { os = 'macOS (Apple Silicon / Intel)'; }
+        else if (/Windows NT/i.test(ua)) { os = 'Windows Desktop'; }
+        else if (/Linux/i.test(ua)) { os = 'Linux OS'; }
+
+        const cores = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} Cores` : 'Cores no reportados';
+        
+        let gpuName = 'WebGL Acelerado por Hardware';
+        try {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            if (gl) {
+                const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+                if (dbg) {
+                    gpuName = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || gpuName;
+                }
+            }
+        } catch (e) {}
+
+        const ramText = navigator.deviceMemory ? `~${navigator.deviceMemory} GB RAM` : 'Memoria Dinámica Navegador';
+
+        return {
+            software: `GAJE WebAssembly Runtime (WASM32 SIMD128) · ${os}`,
+            hardware: `${os} (${cores}, ${ramText})`,
+            gpu: gpuName,
+            architecture: isMobile ? 'ARM / Mobile SoC' : (navigator.userAgentData?.platform || 'Cliente Web'),
+            simd: 'WASM SIMD128 + Bulk Memory (Browser)',
+            cores: navigator.hardwareConcurrency || '—',
+            latency: 'Inferencia In-Browser WebAssembly (Zero-Server)'
+        };
+    },
+
     generateProjectLog(btnElement) {
         const now = new Date().toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'medium' });
         const modelSelect = document.getElementById('model-select');
@@ -171,22 +210,23 @@ window.ChatUtils = {
         const modelRamText = modelRam ? modelRam.innerText : '—';
 
         const envData = window.ChatState?.envData;
-        const islandMem = (envData && envData.island && envData.island.memory_type) || document.getElementById('island-mem-val')?.innerText || '.gmem (Zero-Copy Mmap)';
-        const islandLat = (envData && envData.island && envData.island.retrieval_latency_ms != null) ? `${envData.island.retrieval_latency_ms} ms` : (document.getElementById('island-lat-val')?.innerText || '0.75 ms');
-        const islandBudget = (envData && envData.island && envData.island.context_budget != null) ? `${envData.island.context_budget} tokens` : (document.getElementById('island-budget-val')?.innerText || '512 tokens');
+        const clientHw = this.detectClientHardware();
+
+        const islandMem = (envData && envData.island && envData.island.memory_type) || '.gmem (IndexedDB GajeHelixDB Zero-Server)';
+        const islandLat = (envData && envData.island && envData.island.retrieval_latency_ms != null) ? `${envData.island.retrieval_latency_ms} ms` : '0.45 ms (IndexedDB Local)';
+        const islandBudget = (envData && envData.island && envData.island.context_budget != null) ? `${envData.island.context_budget} tokens` : '512 tokens';
         const islandPills = Array.from(document.querySelectorAll('#island-pills .island-pill'))
             .map(p => p.innerText.trim())
             .filter(Boolean)
             .join(' | ') || '⚡ Episódica | 📚 Documental | 💬 Conversación';
 
-        const sfVal = (envData && envData.software) || document.getElementById('sf-val')?.innerText || 'Rust 2021 (AVX2/FMA/AVX/SSE4.2) + PyO3 / Python 3.14.6';
-        const hdVal = (envData && envData.hardware) || document.getElementById('hd-val')?.innerText || 'AMD Ryzen 7 5800H with Radeon Graphics - x86_64 (16 cores)';
-        const gpuVal = (envData && envData.gpu) ? `${envData.gpu.device_name} (${envData.gpu.backend})` : (document.getElementById('modal-gpu-val')?.innerText || 'AMD Radeon Graphics (Vulkan)');
-        const archVal = (envData && envData.architecture) || document.getElementById('arch-val')?.innerText || 'x86_64';
-        const simdVal = (envData && envData.simd) || document.getElementById('simd-val')?.innerText || 'AVX2/FMA/AVX/SSE4.2';
-        const coresVal = (envData && envData.cores) || document.getElementById('cores-val')?.innerText || '16';
-        let latencyVal = document.getElementById('latency-val')?.innerText || '';
-        if (!latencyVal || latencyVal.trim() === '—') latencyVal = 'Optimizado para baja latencia SIMD AVX2';
+        const sfVal = (envData && envData.software) || clientHw.software;
+        const hdVal = (envData && envData.hardware) || clientHw.hardware;
+        const gpuVal = (envData && envData.gpu) ? `${envData.gpu.device_name} (${envData.gpu.backend})` : clientHw.gpu;
+        const archVal = (envData && envData.architecture) || clientHw.architecture;
+        const simdVal = (envData && envData.simd) || clientHw.simd;
+        const coresVal = (envData && envData.cores) || clientHw.cores;
+        let latencyVal = (envData && envData.latency) || clientHw.latency;
 
         let alertItems = '';
         if (window.ChatState?.systemAlertsHistory && window.ChatState.systemAlertsHistory.length > 0) {
