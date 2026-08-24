@@ -1018,6 +1018,15 @@ main {
     margin: 0 auto;
 }
 
+[data-theme="light"] .chat-window {
+    background-image: 
+        radial-gradient(rgba(44, 82, 52, 0.08) 1px, transparent 1px),
+        linear-gradient(to right, transparent 32px, rgba(180, 83, 9, 0.16) 32px, rgba(180, 83, 9, 0.16) 33px, transparent 33px);
+    background-size: 24px 24px, 100% 100%;
+    background-repeat: repeat, no-repeat;
+    background-position: 0 0, 0 0;
+}
+
 .chat-window::-webkit-scrollbar { width: 6px; }
 .chat-window::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 10px; }
 .chat-window::-webkit-scrollbar-track { background: transparent; }
@@ -1072,10 +1081,30 @@ main {
 
 [data-theme="light"] .message.bot {
     background: #ffffff;
-    border: 1px solid rgba(44, 82, 52, 0.14);
-    border-left: 3.5px solid var(--accent);
+    border: 1px solid rgba(44, 82, 52, 0.16);
+    border-left: 4px solid var(--accent);
     color: var(--text);
-    box-shadow: 0 4px 16px rgba(44, 53, 57, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 16px rgba(44, 53, 57, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    border-radius: 4px 16px 16px 16px;
+    position: relative;
+}
+
+[data-theme="light"] .message.bot::after {
+    content: "📓 Ficha de Aprendizaje Genómico";
+    position: absolute;
+    top: -8px;
+    right: 14px;
+    font-size: 0.58rem;
+    font-weight: 700;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: #fbfaf8;
+    color: #b45309;
+    padding: 1px 7px;
+    border-radius: 4px;
+    border: 1px solid rgba(180, 83, 9, 0.25);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 /* Mensaje del Sistema (Holograma Cyberpunk) */
@@ -1404,6 +1433,14 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
 }
+
+[data-theme="light"] .code-block {
+    background: #fbfaf8;
+    border: 1px solid rgba(44, 82, 52, 0.18);
+    color: #1e293b;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
 .inline-code {
     background: rgba(94, 92, 230, 0.12);
     border: 1px solid rgba(94, 92, 230, 0.3);
@@ -1412,6 +1449,12 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
     font-family: var(--mono);
     font-size: 0.82rem;
     color: #c4b5fd;
+}
+
+[data-theme="light"] .inline-code {
+    background: rgba(180, 83, 9, 0.08);
+    border: 1px solid rgba(180, 83, 9, 0.22);
+    color: #b45309;
 }
 
 /* ============================================================
@@ -1435,6 +1478,20 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
     box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
 }
 
+[data-theme="light"] .apple-thought-box {
+    background: #fbfaf8;
+    border: 1px solid rgba(44, 82, 52, 0.18);
+    border-left: 3.5px solid #b45309;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .apple-thought-box[open] {
+    background: #ffffff;
+    border-color: rgba(44, 82, 52, 0.22);
+    border-left-color: #b45309;
+    box-shadow: 0 4px 16px rgba(44, 82, 52, 0.06);
+}
+
 .apple-thought-summary {
     list-style: none;
     cursor: pointer;
@@ -1452,6 +1509,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
     background: rgba(255, 255, 255, 0.04);
 }
 
+[data-theme="light"] .apple-thought-summary:hover {
+    background: rgba(44, 82, 52, 0.04);
+}
+
 .apple-thought-header {
     display: flex;
     align-items: center;
@@ -1462,12 +1523,20 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
     letter-spacing: -0.01em;
 }
 
+[data-theme="light"] .apple-thought-header {
+    color: var(--text);
+}
+
 .apple-thought-icon {
     display: flex;
     align-items: center;
     justify-content: center;
     color: #a78bfa;
     opacity: 0.9;
+}
+
+[data-theme="light"] .apple-thought-icon {
+    color: #b45309;
 }
 
 .apple-thought-title {
@@ -1485,6 +1554,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
     transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1);
 }
 
+[data-theme="light"] .apple-thought-chevron {
+    color: var(--muted);
+}
+
 .apple-thought-box[open] .apple-thought-chevron {
     transform: rotate(180deg);
 }
@@ -1500,6 +1573,12 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+[data-theme="light"] .apple-thought-content {
+    border-top-color: rgba(44, 82, 52, 0.1);
+    color: #334155;
+    background: #fbfaf8;
 }
 
 .apple-thought-content pre.code-block {

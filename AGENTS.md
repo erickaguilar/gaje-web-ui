@@ -27,7 +27,7 @@ Dentro:
    todas las páginas (docs, architecture, index). No duplicarlo.
 4. **Filosofía de Temas (Dark vs Light)**:
    - `y2k-dark = 'HIG-APPLE'`: Tema oscuro por defecto. Estética Apple Human Interface Guidelines (HIG) Dark Materials, fondos negros profundos (`#000000`), efecto glassmorphism/blur (20px), scanlines CRT y acentos neón Y2K.
-   - `y2k-light = 'SCANDINAVIAN-DESIGN'`: Tema claro activado con `[data-theme="light"]`. Basado en principios nórdicos (funcionalismo, minimalismo cálido *hygge*, conexión botánica y maximización de la luz). Fondo marfil/papel técnico (`#f6f5f3`), paneles blancos (`#ffffff`), acentos orgánicos verde bosque/jade (`#2c5234`), bordes neutros y alto contraste tipográfico sin fatiga visual.
+   - `y2k-light = 'SCANDINAVIAN-DESIGN'`: Tema claro activado con `[data-theme="light"]`. Basado en principios nórdicos (funcionalismo, minimalismo cálido *hygge*, conexión botánica y maximización de la luz) fusionado con la estética de **Cuaderno de Aprendizaje & Notas de Laboratorio** (fondo marfil con cuadrícula *dot-grid*, margen de libreta ámbar, tarjetas de notas encuadernadas y acentos verde bosque/jade `#2c5234`).
 
 ## Capas visuales del header (orden de apilamiento)
 - `.y2k-header::before` (z-index 1): scanlines CRT + sheen diagonal (efecto vidrio Apple).
