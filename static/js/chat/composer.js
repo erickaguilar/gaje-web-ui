@@ -107,7 +107,11 @@ window.ChatComposerController = {
             } else {
                 const ok = await window.ChatEngineController?.streamChat(text, modelValue);
                 if (!ok) {
-                    await window.ChatEngineController?.fallbackChat(text, modelValue);
+                    const fallbackOk = await window.ChatEngineController?.fallbackChat(text, modelValue);
+                    if (!fallbackOk) {
+                        console.warn('[GAJE] Backend server no responde, ejecutando en modo WebAssembly en el navegador...');
+                        await window.ChatEngineController?.wasmChat(text, modelValue);
+                    }
                 }
             }
         } finally {

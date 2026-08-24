@@ -280,8 +280,9 @@ window.ChatToolbarController = {
             }
             return info.auto_load_model !== false;
         } catch (err) {
-            console.log('No se pudo detectar el entorno de ejecución.');
-            return true;
+            console.log('Ambiente estático detectado (Vercel/Zero-Server). Activando modo WebAssembly In-Browser.');
+            this.onEngineModeChange('wasm');
+            return false;
         }
     },
 
@@ -301,8 +302,8 @@ window.ChatToolbarController = {
         if (model.size_bytes != null && modelSize) modelSize.innerText = window.ChatUtils.formatBytes(model.size_bytes);
         if (modelRam) {
             const ramMb = model.ram_mb || 0;
-            const ramText = ramMb > 0 ? (ramMb >= 1024 ? (ramMb / 1024).toFixed(2) + ' GB' : ramMb.toFixed(0) + ' MB') : '0 MB';
-            modelRam.innerHTML = `<span class="ram-led ${ramMb > 0 ? 'active' : ''}"></span><span>${ramText}</span>`;
+            const ramText = ramMb > 0 ? (ramMb >= 1024 ? (ramMb / 1024).toFixed(2) + ' GB' : ramMb.toFixed(0) + ' MB') : (this.engineMode === 'wasm' ? 'WASM Local' : 'RAM —');
+            modelRam.innerHTML = `<span class="ram-led ${ramMb > 0 || this.engineMode === 'wasm' ? 'active' : ''}"></span><span>${ramText}</span>`;
             modelRam.setAttribute('title', `RAM: ${ramText} · HD: ${window.ChatUtils.formatBytes(model.size_bytes)} · Creado: ${model.date || '—'}`);
         }
     },
@@ -336,11 +337,23 @@ window.ChatToolbarController = {
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
 
+        this.updateModelMeta();
+
+        // En modo WASM (ej. Vercel), no hacemos llamada al backend
+        if (this.engineMode === 'wasm') {
+            this.setModelLoading(false);
+            if (modelSelect) modelSelect.disabled = false;
+            if (userInput) userInput.disabled = false;
+            if (sendBtn) sendBtn.disabled = false;
+            this.updateModelToggleState(true);
+            window.ChatComposerController?.addMessage(`⚡ Organismo [${modelName}] listo para inferencia WebAssembly en tu navegador.`, 'system');
+            return;
+        }
+
         if (modelSelect) modelSelect.disabled = true;
         if (userInput) userInput.disabled = true;
         if (sendBtn) sendBtn.disabled = true;
 
-        this.updateModelMeta();
         this.setModelLoading(true);
         window.ChatComposerController?.addMessage(`🧬 Cargando organismo genómico [${modelName}] en el servidor... Por favor espera.`, 'system');
 
@@ -351,19 +364,20 @@ window.ChatToolbarController = {
                 body: JSON.stringify({ model: modelName })
             });
 
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
             if (data.status === 'ok') {
                 window.ChatComposerController?.addMessage(`✅ Organismo [${modelName}] cargado y listo en memoria.`, 'system');
                 this.updateModelToggleState(true);
                 await this.refreshModelMeta(modelName);
             } else {
-                window.ChatComposerController?.addMessage(`❌ Error cargando el modelo: ${data.error}`, 'bot');
+                window.ChatComposerController?.addMessage(`❌ Error cargando el modelo: ${data.error}`, 'system');
                 this.updateModelToggleState(false);
             }
         } catch (err) {
-            window.ChatComposerController?.addMessage(`❌ Error de conexión al cargar [${modelName}].`, 'bot');
-            this.updateModelToggleState(false);
-            console.error(err);
+            console.warn('[GAJE] Servidor backend no disponible. Cambiando a modo WebAssembly In-Browser.');
+            this.onEngineModeChange('wasm');
+            this.updateModelToggleState(true);
         } finally {
             this.setModelLoading(false);
             if (modelSelect) modelSelect.disabled = false;
