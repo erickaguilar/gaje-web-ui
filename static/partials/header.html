@@ -36,7 +36,13 @@
   </nav>
 
   <div class="y2k-header-actions">
-    <!-- Botón Instalar App PWA (Desktop / Tablet) -->
+    <!-- Botón Actualizar App PWA (Visible solo cuando hay actualización disponible) -->
+    <button id="pwa-update-btn" class="y2k-pwa-btn pwa-update-btn update-pulse" data-tooltip="Nueva versión disponible. Clic para actualizar." data-tooltip-pos="left" aria-label="Actualizar Aplicación" style="display: none; background: rgba(48, 209, 88, 0.15); border-color: #30d158; color: #30d158;">
+      <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-refresh"/></svg>
+      <span class="pwa-btn-text">Actualizar</span>
+    </button>
+
+    <!-- Botón Instalar App PWA (Desktop / Tablet - Oculto si ya está instalada) -->
     <button id="pwa-install-btn" class="y2k-pwa-btn pwa-install-btn" data-tooltip="Instalar como Aplicación Nativa" data-tooltip-pos="left" aria-label="Instalar como Aplicación">
       <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-install"/></svg>
       <span class="pwa-btn-text">Instalar App</span>
@@ -61,6 +67,10 @@
     <!-- Panel del Menú Desplegable (Móvil) -->
     <div id="y2k-menu-dropdown" class="y2k-menu-dropdown">
       <nav class="y2k-dropdown-nav" aria-label="Navegación del menú">
+        <button id="pwa-update-mobile-btn" class="y2k-dropdown-item pwa-update-btn" style="display: none; text-align: left; background: rgba(48, 209, 88, 0.1); border: 1px solid #30d158; width: 100%; cursor: pointer; border-radius: 6px; margin-bottom: 6px;">
+          <svg class="y2k-icon" style="color: #30d158;"><use href="static/icons/y2k/sprite.svg#i-refresh"/></svg>
+          <span style="font-weight: 700; color: #30d158;">🔄 Actualizar App (Nueva Versión)</span>
+        </button>
         <a href="index.html" class="y2k-dropdown-item">
           <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-chat"/></svg>
           <span>Chat Sandbox</span>

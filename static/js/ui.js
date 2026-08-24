@@ -182,21 +182,75 @@
       .catch(function (e) { console.warn('No se pudo cargar toolbar parcial:', e); });
   }
 
-  /* ── PWA & Instalación como Aplicación Nativa ── */
+  /* ── PWA & Instalación / Actualización como Aplicación Nativa ── */
   var deferredPwaPrompt = null;
+  var swRegistration = null;
+
+  function isStandaloneApp() {
+    return window.matchMedia('(display-mode: standalone)').matches ||
+           window.navigator.standalone === true ||
+           (typeof document !== 'undefined' && document.referrer && document.referrer.includes('android-app://'));
+  }
+
+  function showUpdateButtons() {
+    var updateBtns = document.querySelectorAll('.pwa-update-btn');
+    updateBtns.forEach(function (btn) {
+      btn.style.display = 'inline-flex';
+    });
+  }
+
+  function hideInstallButtons() {
+    var installBtns = document.querySelectorAll('.pwa-install-btn');
+    installBtns.forEach(function (btn) {
+      btn.style.display = 'none';
+    });
+  }
 
   function initPwa() {
+    if (isStandaloneApp()) {
+      hideInstallButtons();
+    }
+
     if ('serviceWorker' in navigator) {
       var swUrl = window.GAJE_CONFIG ? window.GAJE_CONFIG.assetUrl('sw.js') : 'sw.js';
       navigator.serviceWorker.register(swUrl).then(function (reg) {
+        swRegistration = reg;
+        
+        if (reg.waiting) {
+          showUpdateButtons();
+        }
+
+        reg.addEventListener('updatefound', function () {
+          var newWorker = reg.installing;
+          if (!newWorker) return;
+          newWorker.addEventListener('statechange', function () {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              console.log('⚡ [GAJE-PWA] Nueva versión lista para activar.');
+              showUpdateButtons();
+            }
+          });
+        });
+
         reg.update();
       }).catch(function (err) {
         console.log('[GAJE-PWA] Service Worker no registrado:', err);
+      });
+
+      var refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', function () {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
       });
     }
 
     window.addEventListener('beforeinstallprompt', function (e) {
       e.preventDefault();
+      if (isStandaloneApp()) {
+        hideInstallButtons();
+        return;
+      }
       deferredPwaPrompt = e;
       var installBtns = document.querySelectorAll('.pwa-install-btn');
       installBtns.forEach(function (btn) {
@@ -207,31 +261,46 @@
     window.addEventListener('appinstalled', function () {
       console.log('[GAJE-PWA] Aplicación instalada exitosamente.');
       deferredPwaPrompt = null;
-      var installBtns = document.querySelectorAll('.pwa-install-btn');
-      installBtns.forEach(function (btn) {
-        btn.style.display = 'none';
-      });
+      hideInstallButtons();
     });
 
     document.addEventListener('click', function (e) {
-      var btn = e.target.closest('.pwa-install-btn');
-      if (!btn) return;
-      e.preventDefault();
-
-      if (deferredPwaPrompt) {
-        deferredPwaPrompt.prompt();
-        deferredPwaPrompt.userChoice.then(function (choiceResult) {
-          if (choiceResult.outcome === 'accepted') {
-            console.log('[GAJE-PWA] El usuario aceptó la instalación.');
-          }
-          deferredPwaPrompt = null;
-        });
-      } else {
-        var isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        if (isIos) {
-          alert('📱 Para instalar GAJE Helix en tu iPhone/iPad:\n\n1. Toca el botón "Compartir" en Safari (icono con flecha hacia arriba ⎋).\n2. Desliza hacia abajo y selecciona "Agregar a la pantalla de inicio" (+).\n3. Toca "Agregar".');
+      // 1. Botón Actualizar
+      var updateBtn = e.target.closest('.pwa-update-btn');
+      if (updateBtn) {
+        e.preventDefault();
+        updateBtn.innerHTML = '<span>Actualizando...</span>';
+        if (swRegistration && swRegistration.waiting) {
+          swRegistration.waiting.postMessage({ action: 'skipWaiting' });
+        } else if (navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({ action: 'skipWaiting' });
+          setTimeout(function () { window.location.reload(true); }, 300);
         } else {
-          alert('📱 Para instalar GAJE Helix:\n\nToca el menú de opciones de tu navegador (los tres puntos ⋮ arriba a la derecha) y selecciona "Instalar aplicación" o "Agregar a la pantalla principal".');
+          window.location.reload(true);
+        }
+        return;
+      }
+
+      // 2. Botón Instalar
+      var installBtn = e.target.closest('.pwa-install-btn');
+      if (installBtn) {
+        e.preventDefault();
+        if (deferredPwaPrompt) {
+          deferredPwaPrompt.prompt();
+          deferredPwaPrompt.userChoice.then(function (choiceResult) {
+            if (choiceResult.outcome === 'accepted') {
+              console.log('[GAJE-PWA] El usuario aceptó la instalación.');
+              hideInstallButtons();
+            }
+            deferredPwaPrompt = null;
+          });
+        } else {
+          var isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+          if (isIos) {
+            alert('📱 Para instalar GAJE Helix en tu iPhone/iPad:\n\n1. Toca el botón "Compartir" en Safari (icono con flecha hacia arriba ⎋).\n2. Desliza hacia abajo y selecciona "Agregar a la pantalla de inicio" (+).\n3. Toca "Agregar".');
+          } else {
+            alert('📱 Para instalar GAJE Helix:\n\nToca el menú de opciones de tu navegador (los tres puntos ⋮ arriba a la derecha) y selecciona "Instalar aplicación" o "Agregar a la pantalla principal".');
+          }
         }
       }
     });

@@ -33,6 +33,12 @@ const STATIC_ASSETS = [
   `/static/partials/header.html?v=${VERSION}`
 ];
 
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.action === 'skipWaiting') {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
