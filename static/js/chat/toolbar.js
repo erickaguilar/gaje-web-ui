@@ -23,6 +23,41 @@ window.ChatToolbarController = {
     },
 
     bindElements() {
+        const appContainer = document.querySelector('.app-container');
+
+        // Botones de control de ventana estilo macOS (Traffic lights)
+        const btnClose = document.getElementById('win-btn-close');
+        if (btnClose) {
+            btnClose.addEventListener('click', () => {
+                window.ChatStorage?.clearHistory();
+                const chatWindow = document.getElementById('chat-window');
+                if (chatWindow) {
+                    const messages = chatWindow.querySelectorAll('.message');
+                    messages.forEach(m => { if (!m.classList.contains('system')) m.remove(); });
+                }
+                const starters = document.getElementById('chat-starters');
+                if (starters) {
+                    starters.style.display = 'flex';
+                }
+            });
+        }
+
+        const btnMin = document.getElementById('win-btn-min');
+        if (btnMin && appContainer) {
+            btnMin.addEventListener('click', () => {
+                appContainer.classList.remove('maximized');
+                appContainer.classList.toggle('minimized');
+            });
+        }
+
+        const btnMax = document.getElementById('win-btn-max');
+        if (btnMax && appContainer) {
+            btnMax.addEventListener('click', () => {
+                appContainer.classList.remove('minimized');
+                appContainer.classList.toggle('maximized');
+            });
+        }
+
         const modelSelect = document.getElementById('model-select');
         if (modelSelect) {
             modelSelect.addEventListener('change', () => {
@@ -38,6 +73,10 @@ window.ChatToolbarController = {
                 if (chatWindow) {
                     const messages = chatWindow.querySelectorAll('.message');
                     messages.forEach(m => { if (!m.classList.contains('system')) m.remove(); });
+                }
+                const starters = document.getElementById('chat-starters');
+                if (starters) {
+                    starters.style.display = 'flex';
                 }
             });
         }

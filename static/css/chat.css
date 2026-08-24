@@ -49,9 +49,32 @@ body {
     backdrop-filter: var(--backdrop-blur);
     -webkit-backdrop-filter: var(--backdrop-blur);
     box-shadow: 0 24px 60px var(--shadow-color);
-    transition: all 0.3s ease;
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 10;
     margin: 14px auto 10px;
+}
+
+/* ── MODIFICADORES DE VENTANA (MINIMIZAR / MAXIMIZAR) ── */
+.app-container.minimized {
+    height: 52px !important;
+    overflow: hidden !important;
+    box-shadow: 0 8px 24px var(--shadow-color);
+}
+
+.app-container.minimized main {
+    display: none !important;
+}
+
+.app-container.maximized {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100dvh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    z-index: 9999 !important;
 }
 
 main {
@@ -450,6 +473,46 @@ main {
     align-items: center;
     gap: 7px;
     margin-right: 6px;
+}
+
+.traffic-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), filter 0.18s ease;
+    position: relative;
+    outline: none;
+}
+
+.traffic-dot:hover {
+    transform: scale(1.25);
+    filter: brightness(1.2);
+}
+
+.traffic-dot.dot-close {
+    background: #ff5f56;
+    border: 1px solid #e0443e;
+    box-shadow: 0 0 6px rgba(255, 95, 86, 0.4);
+}
+
+.traffic-dot.dot-min {
+    background: #ffbd2e;
+    border: 1px solid #dea123;
+    box-shadow: 0 0 6px rgba(255, 189, 46, 0.4);
+}
+
+.traffic-dot.dot-max {
+    background: #27c93f;
+    border: 1px solid #1aab29;
+    box-shadow: 0 0 6px rgba(39, 201, 63, 0.4);
+}
+
+[data-theme="light"] .traffic-dot {
+    border-radius: 0px !important;
 }
 
 .chat-toolbar {
