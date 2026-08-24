@@ -134,6 +134,7 @@
         });
         initHeaderMenu(host);
         initTheme();
+        updateVersionLabels();
 
         var monitorBtn = host.querySelector('#y2k-open-monitor-btn');
         if (monitorBtn) {
@@ -162,6 +163,7 @@
       .then(function (html) {
         host.innerHTML = html;
         host.classList.add('y2k-footer');
+        updateVersionLabels();
       })
       .catch(function (e) { console.warn('No se pudo cargar footer parcial:', e); });
   }
@@ -175,6 +177,7 @@
       .then(function (r) { return r.text(); })
       .then(function (html) {
         host.innerHTML = html;
+        updateVersionLabels();
         if (global.GajeChat && typeof global.GajeChat.reloadToolbar === 'function') {
           global.GajeChat.reloadToolbar();
         }
@@ -306,6 +309,24 @@
     });
   }
 
+  /* ── Inyección Dinámica de Versión en HTML ── */
+  function updateVersionLabels() {
+    var version = (window.GAJE_CONFIG && window.GAJE_CONFIG.version) ? 'v' + window.GAJE_CONFIG.version : 'v1.7.2';
+    var fullVer = (window.GAJE_CONFIG && window.GAJE_CONFIG.version) ? 'v' + window.GAJE_CONFIG.version + '-alpha' : 'v1.7.2-alpha';
+
+    document.querySelectorAll('.gaje-version-display').forEach(function (el) {
+      el.textContent = version;
+    });
+
+    document.querySelectorAll('.gaje-version-full').forEach(function (el) {
+      el.textContent = fullVer;
+    });
+
+    document.querySelectorAll('[data-gaje-version-tooltip]').forEach(function (el) {
+      el.setAttribute('data-tooltip', 'GAJE Helix ' + version);
+    });
+  }
+
   /* ── Boot ── */
   function boot() {
     initReveal();
@@ -314,6 +335,7 @@
     initHeader();
     initFooter();
     initPwa();
+    updateVersionLabels();
   }
 
   if (document.readyState === 'loading') {
@@ -329,6 +351,7 @@
     initHeader: initHeader,
     initFooter: initFooter,
     initChatToolbar: initChatToolbar,
-    initPwa: initPwa
+    initPwa: initPwa,
+    updateVersionLabels: updateVersionLabels
   };
 })(window);
