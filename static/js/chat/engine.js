@@ -254,7 +254,7 @@ window.ChatEngineController = {
                 });
             }
 
-            contentEl.textContent = 'Pensando en WebAssembly...';
+            contentEl.textContent = 'Generando respuesta en WebAssembly...';
             const result = await new Promise((resolve, reject) => {
                 const handler = (ev) => {
                     if (ev.data.status === 'chat_response') {
@@ -282,7 +282,9 @@ window.ChatEngineController = {
             botMsg.classList.remove('streaming');
             statusAnchor.remove();
 
-            const responseText = result.response || contentEl.textContent;
+            const responseText = (result && typeof result.response === 'string' && result.response.trim().length > 0)
+                ? result.response
+                : 'Inferencia completada.';
             contentEl.innerHTML = window.ChatMarkdown?.parse(responseText) || responseText;
 
             const elapsed = Date.now() - started;

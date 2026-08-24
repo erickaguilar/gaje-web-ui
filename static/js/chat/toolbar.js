@@ -353,14 +353,32 @@ window.ChatToolbarController = {
 
         this.updateModelMeta();
 
-        // En modo WASM (ej. Vercel), no hacemos llamada al backend
+        // En modo WASM (ej. Vercel), activar de inmediato y precargar desde caché si está disponible
         if (this.engineMode === 'wasm') {
             this.setModelLoading(false);
             if (modelSelect) modelSelect.disabled = false;
             if (userInput) userInput.disabled = false;
             if (sendBtn) sendBtn.disabled = false;
             this.updateModelToggleState(true);
-            window.ChatComposerController?.addMessage(`⚡ Organismo [${modelName}] listo para inferencia WebAssembly en tu navegador.`, 'system');
+
+            if (window.GajeDB && !window.ChatState.isWasmModelLoaded) {
+                window.GajeDB.getCachedModel(modelName).then(cachedBuf => {
+                    if (cachedBuf && cachedBuf.byteLength >= 4096) {
+                        let gtokLen = 0n;
+                        try {
+                            const dv = new DataView(cachedBuf);
+                            gtokLen = dv.getBigUint64(88, true);
+                        } catch (e) { gtokLen = 0n; }
+
+                        if (gtokLen > 0n) {
+                            const worker = window.ChatEngineController?.initWasmWorker();
+                            if (worker) {
+                                worker.postMessage({ action: 'load_model', payload: { buffer: cachedBuf, modelName } }, [cachedBuf]);
+                            }
+                        }
+                    }
+                }).catch(() => {});
+            }
             return;
         }
 
