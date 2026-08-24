@@ -63,31 +63,19 @@
     <!-- Menú Desplegable Compacto de Acciones (•••) -->
     <div class="chat-overflow-menu-container">
         <button id="chat-overflow-menu-btn" class="chat-header-icon-btn" aria-haspopup="true" aria-expanded="false" data-tooltip="Herramientas y Acciones" data-tooltip-pos="left" aria-label="Más opciones del chat">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="1.5"></circle>
-                <circle cx="19" cy="12" r="1.5"></circle>
-                <circle cx="5" cy="12" r="1.5"></circle>
-            </svg>
+            <svg class="y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-dots"/></svg>
         </button>
 
         <!-- Dropdown flotante Apple HIG / Scandinavian -->
         <div id="chat-actions-dropdown" class="chat-menu-dropdown" role="menu" hidden>
             <div class="menu-section-label">Conversación</div>
             <button id="copy-all-btn" class="chat-menu-item" role="menuitem">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                </svg>
+                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-copy"/></svg>
                 <span>Copiar Conversación</span>
             </button>
 
             <button id="export-log-btn" class="chat-menu-item" role="menuitem">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                </svg>
+                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-export"/></svg>
                 <span>Exportar Bitácora (.md)</span>
             </button>
 
@@ -96,9 +84,7 @@
             <div class="menu-section-label">Motor y Memoria</div>
             <div class="chat-menu-item engine-select-item">
                 <label for="engine-mode-select" class="menu-item-label">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                    </svg>
+                    <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg>
                     <span>Motor</span>
                 </label>
                 <select id="engine-mode-select" class="menu-inline-select" aria-label="Modo de Ejecución">
@@ -108,30 +94,20 @@
             </div>
 
             <button id="load-local-flat-btn" class="chat-menu-item" role="menuitem">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="17 8 12 3 7 8"></polyline>
-                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                </svg>
+                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-import"/></svg>
                 <span>Cargar Modelo .flat Local...</span>
             </button>
             <input type="file" id="local-flat-file-input" accept=".flat" style="display: none;">
 
             <button id="unload-model-btn" class="chat-menu-item warning" role="menuitem">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-                </svg>
+                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-unload"/></svg>
                 <span>Liberar Memoria RAM</span>
             </button>
 
             <div class="menu-divider"></div>
 
             <button id="clear-history-btn" class="chat-menu-item danger" role="menuitem">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>
+                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-trash"/></svg>
                 <span>Borrar Historial</span>
             </button>
         </div>
