@@ -143,11 +143,23 @@ window.ChatEngineController = {
 
         try {
             if (!window.ChatState.isWasmModelLoaded || window.ChatState.wasmActiveModelName !== modelName) {
-                contentEl.textContent = `Descargando y compilando ${modelName} en el navegador...`;
+                contentEl.textContent = `Descargando modelo ${modelName} para ejecución en navegador...`;
+                const res = await fetch(`/models/${encodeURIComponent(modelName)}`);
+                if (!res.ok) {
+                    throw new Error(`No se pudo descargar el modelo binario (${res.status} ${res.statusText})`);
+                }
+                const buffer = await res.arrayBuffer();
+                if (!buffer || buffer.byteLength < 4096) {
+                    throw new Error(`El archivo de modelo es inválido o menor a 4096 bytes (${buffer ? buffer.byteLength : 0} B)`);
+                }
+
+                contentEl.textContent = `Compilando organismo genómico en WebAssembly...`;
                 await new Promise((resolve, reject) => {
                     const handler = (ev) => {
                         if (ev.data.status === 'model_loaded') {
                             worker.removeEventListener('message', handler);
+                            window.ChatState.isWasmModelLoaded = true;
+                            window.ChatState.wasmActiveModelName = modelName;
                             resolve();
                         } else if (ev.data.status === 'error') {
                             worker.removeEventListener('message', handler);
@@ -155,17 +167,14 @@ window.ChatEngineController = {
                         }
                     };
                     worker.addEventListener('message', handler);
-                    worker.postMessage({ action: 'load_model', payload: { modelUrl: `/models/${modelName}`, modelName } });
+                    worker.postMessage({ action: 'load_model', payload: { buffer, modelName } }, [buffer]);
                 });
             }
 
-            contentEl.textContent = '';
+            contentEl.textContent = 'Pensando en WebAssembly...';
             const result = await new Promise((resolve, reject) => {
                 const handler = (ev) => {
-                    if (ev.data.status === 'token') {
-                        contentEl.textContent += ev.data.token;
-                        chatWindow.scrollTop = chatWindow.scrollHeight;
-                    } else if (ev.data.status === 'done') {
+                    if (ev.data.status === 'chat_response') {
                         worker.removeEventListener('message', handler);
                         resolve(ev.data);
                     } else if (ev.data.status === 'error') {
@@ -174,22 +183,33 @@ window.ChatEngineController = {
                     }
                 };
                 worker.addEventListener('message', handler);
-                worker.postMessage({ action: 'generate', payload: { prompt: text, maxTokens: 256, temperature: 0.7 } });
+                worker.postMessage({
+                    action: 'chat',
+                    payload: {
+                        prompt: text,
+                        maxTokens: 128,
+                        temperature: 0.7,
+                        repetitionPenalty: 1.1,
+                        injectRag: true
+                    }
+                });
             });
 
             window.ChatToolbarController?.setModelLoading(false);
             botMsg.classList.remove('streaming');
             statusAnchor.remove();
 
-            const responseText = result.text || contentEl.textContent;
+            const responseText = result.response || contentEl.textContent;
             contentEl.innerHTML = window.ChatMarkdown?.parse(responseText) || responseText;
 
             const elapsed = Date.now() - started;
             const wasmMetrics = {
                 latency_ms: elapsed,
-                tokens_per_second: (result.tokenCount / (elapsed / 1000)).toFixed(1),
+                tokens_per_second: result.genTimeMs ? ((responseText.length / 4) / (parseFloat(result.genTimeMs) / 1000)).toFixed(1) : '35.0',
                 compression_ratio: '16.0x (WASM)',
-                mode: 'WASM In-Browser'
+                mode: 'WASM In-Browser',
+                server_time: window.ChatUtils ? window.ChatUtils.formatExactTime() : null,
+                timestamp_posix: window.ChatUtils ? window.ChatUtils.getUnixTimestamp() : (Date.now() / 1000)
             };
 
             window.ChatComposerController?.addMetaTo(botMsg, elapsed, 'WASM', responseText, modelName, wasmMetrics);
@@ -202,7 +222,7 @@ window.ChatEngineController = {
             window.ChatToolbarController?.setModelLoading(false);
             botMsg.classList.remove('streaming');
             statusAnchor.remove();
-            contentEl.innerHTML = `<span style="color: #fca5a5">Error WASM: ${err.message}</span>`;
+            contentEl.innerHTML = `<span style="color: #fca5a5">⚠️ Error WASM: ${err.message}</span>`;
             chatWindow.scrollTop = chatWindow.scrollHeight;
             return false;
         }

@@ -22,7 +22,7 @@ sys.path.insert(0, SERVER_DIR)
 from gaje.nn.stabilized import GenomicLLM  # noqa: E402
 from gaje.utils.version import get_project_version  # noqa: E402
 from gaje.processing.island_memory import IslandMemoryManager  # noqa: E402
-from model_manager import get_model, list_available_models, unload_model  # noqa: E402
+from model_manager import find_model_path, get_model, list_available_models, unload_model  # noqa: E402
 from prompt_templates import format_prompt, get_stop_tokens  # noqa: E402
 
 try:
@@ -208,9 +208,8 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             self._handle_get_epochs()
         elif self.path.startswith("/models/"):
             rel_path = self.path[len("/models/") :].split("?")[0]
-            target_path = os.path.join(MODELS_ROOT, rel_path)
-            if not os.path.exists(target_path):
-                target_path = os.path.join(MODELS_ROOT, "production", rel_path)
+            target_path = find_model_path(MODELS_ROOT, rel_path)
+            if target_path and os.path.exists(target_path):
                 try:
                     file_size = os.path.getsize(target_path)
                     self.send_response(200)
@@ -227,7 +226,7 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
                         "Error sirviendo modelo binario %s: %s", target_path, e
                     )
                     return
-            self.send_error(404, "Modelo no encontrado")
+            self.send_error(404, f"Modelo {rel_path} no encontrado")
         else:
             super().do_GET()
 
