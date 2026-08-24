@@ -16,7 +16,6 @@
       <!-- _ (Cursor parpadeante) -->
       <path class="brand-underscore" d="M 65,17 H 73" />
     </svg>
-    <span class="y2k-version-pill gaje-version-display">v1.7.2</span>
     <span class="visually-hidden">GAJE</span>
   </a>
 
@@ -38,15 +37,13 @@
 
   <div class="y2k-header-actions">
     <!-- Botón Actualizar App PWA (Visible solo cuando hay actualización disponible) -->
-    <button id="pwa-update-btn" class="y2k-pwa-btn pwa-update-btn update-pulse" data-tooltip="Nueva versión disponible. Clic para actualizar." data-tooltip-pos="left" aria-label="Actualizar Aplicación" style="display: none; background: rgba(48, 209, 88, 0.15); border-color: #30d158; color: #30d158;">
+    <button id="pwa-update-btn" class="y2k-pwa-icon-btn pwa-update-btn update-pulse" data-tooltip="Nueva versión disponible. Clic para actualizar." data-tooltip-pos="left" aria-label="Actualizar Aplicación" style="display: none;">
       <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-refresh"/></svg>
-      <span class="pwa-btn-text">Actualizar</span>
     </button>
 
-    <!-- Botón Instalar App PWA (Desktop / Tablet - Oculto si ya está instalada) -->
-    <button id="pwa-install-btn" class="y2k-pwa-btn pwa-install-btn" data-tooltip="Instalar como Aplicación Nativa" data-tooltip-pos="left" aria-label="Instalar como Aplicación">
+    <!-- Botón Instalar App PWA (Icono - Oculto si ya está instalada) -->
+    <button id="pwa-install-btn" class="y2k-pwa-icon-btn pwa-install-btn" data-tooltip="Instalar como Aplicación Nativa" data-tooltip-pos="left" aria-label="Instalar como Aplicación">
       <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-install"/></svg>
-      <span class="pwa-btn-text">Instalar App</span>
     </button>
 
     <!-- Theme Switcher Directo (Sol / Luna) -->
