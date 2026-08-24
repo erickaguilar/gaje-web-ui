@@ -1,21 +1,21 @@
 /* =============================================================================
    🧬 GAJE — y2k-light.css (SCANDINAVIAN-DESIGN & LEARNING NOTEBOOK THEME)
-   Filosofía: Minimalismo nórdico/escandinavo cálido (hygge) + Cuaderno de Campo
-   de Investigación Genómica. Fondo marfil suave (#f6f5f3) con cuadrícula técnica
-   dot-grid, margen de libreta ámbar, acentos orgánicos verde bosque (#2c5234) y
-   fichas de notas de aprendizaje encuadernadas con cero fatiga visual.
+   Filosofía: Funcionalismo nórdico/escandinavo puro + Cuaderno Técnico de Campo.
+   Geometría 100% CUADRADA (Square / Sharp Edge Architecture - 0px radius),
+   fondo marfil suave (#f6f5f3) con dot-grid técnico, margen editorial ámbar,
+   acentos orgánicos verde bosque (#2c5234) y fichas de notas rectangulares.
    ============================================================================= */
 
 [data-theme="light"] {
-    /* ── PALETA DE COLORES LIGHT (SCANDINAVIAN NOTEBOOK) ── */
+    /* ── PALETA DE COLORES LIGHT (SCANDINAVIAN SQUARE NOTEBOOK) ── */
     --theme-name: 'SCANDINAVIAN-DESIGN';
     --bg-primary: #f6f5f3;
-    --bg-surface: rgba(255, 255, 255, 0.95);
+    --bg-surface: rgba(255, 255, 255, 0.98);
     --bg-surface-elevated: #ffffff;
     --bg-surface-card: #ffffff;
-    --border-subtle: rgba(44, 82, 52, 0.14);
-    --border-medium: rgba(44, 82, 52, 0.22);
-    --border-highlight: rgba(44, 82, 52, 0.45);
+    --border-subtle: rgba(44, 82, 52, 0.16);
+    --border-medium: rgba(44, 82, 52, 0.28);
+    --border-highlight: rgba(44, 82, 52, 0.6);
 
     /* Acentos Orgánicos & Botánicos */
     --accent-forest: #2c5234;
@@ -25,14 +25,19 @@
     --accent-crimson: #b91c1c;
     --accent-glow: rgba(44, 82, 52, 0.2);
 
-    --user-msg-gradient: linear-gradient(135deg, #2c5234 0%, #1c3521 100%);
+    --user-msg-gradient: linear-gradient(135deg, #24462b 0%, #183320 100%);
     --bot-msg-bg: #ffffff;
     --bot-msg-border-accent: #2c5234;
-    --sys-msg-gradient: linear-gradient(135deg, rgba(44, 82, 52, 0.06), rgba(44, 53, 57, 0.04));
-    --sys-msg-border: rgba(44, 82, 52, 0.22);
+    --sys-msg-gradient: linear-gradient(135deg, rgba(44, 82, 52, 0.06), rgba(44, 53, 57, 0.03));
+    --sys-msg-border: rgba(44, 82, 52, 0.25);
 }
 
-/* ── ESTILOS ESPECÍFICOS DE COMPONENTES EN MODO CLARO (CUADERNO ESCANDINAVO) ── */
+/* ── CONTENEDOR PRINCIPAL CUADRADO ── */
+[data-theme="light"] .app-container {
+    border-radius: 0px !important;
+    border: 1px solid rgba(44, 82, 52, 0.2);
+    box-shadow: 0 16px 48px rgba(44, 53, 57, 0.08);
+}
 
 /* Fondo Cuaderno Técnico (Dot-grid & Margen Guía) */
 [data-theme="light"] .chat-window {
@@ -44,55 +49,66 @@
     background-position: 0 0, 0 0;
 }
 
-/* Toolbar */
+/* ── TOOLBAR RECTANGULAR ── */
 [data-theme="light"] .chat-toolbar {
-    background: rgba(246, 245, 243, 0.96);
-    border-bottom: 1px solid rgba(44, 82, 52, 0.14);
+    background: rgba(246, 245, 243, 0.98);
+    border-bottom: 1px solid rgba(44, 82, 52, 0.16);
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .header-model-dropdown {
     background: #ffffff;
-    border-color: rgba(44, 82, 52, 0.18);
+    border-color: rgba(44, 82, 52, 0.2);
     color: var(--text);
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .header-model-dropdown:hover {
     border-color: var(--accent);
-    box-shadow: 0 0 0 2px var(--accent-glow);
+    box-shadow: 0 0 0 1px var(--accent);
 }
 
-/* Píldoras de Recursos y Metadatos */
+/* Píldoras y Badges Rectangulares */
 [data-theme="light"] .chat-pill-ram {
     background: rgba(44, 82, 52, 0.08);
-    border-color: rgba(44, 82, 52, 0.25);
+    border-color: rgba(44, 82, 52, 0.28);
     color: var(--accent);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .ram-led.active {
     background: var(--accent);
     box-shadow: 0 0 6px rgba(44, 82, 52, 0.6);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .chat-pill-meta {
     background: #ffffff;
-    border-color: rgba(44, 82, 52, 0.14);
+    border-color: rgba(44, 82, 52, 0.16);
     color: var(--muted);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .status-indicator-pill {
     background: #ffffff;
-    border-color: rgba(44, 82, 52, 0.14);
+    border-color: rgba(44, 82, 52, 0.16);
     color: var(--muted);
+    border-radius: 0px !important;
 }
 
-/* Botones y Badges */
+[data-theme="light"] .pulse-engine-dot {
+    border-radius: 0px !important;
+}
+
+/* Botones Rectangulares de Cabecera */
 [data-theme="light"] .chat-header-pill-btn {
     background: #ffffff;
-    border-color: rgba(44, 82, 52, 0.22);
+    border-color: rgba(44, 82, 52, 0.25);
     color: var(--accent);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .chat-header-pill-btn:hover {
@@ -100,26 +116,30 @@
     border-color: var(--accent);
     color: var(--accent);
     box-shadow: 0 2px 8px rgba(44, 82, 52, 0.15);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .chat-header-icon-btn {
     background: #ffffff;
-    border-color: rgba(44, 82, 52, 0.18);
+    border-color: rgba(44, 82, 52, 0.2);
     color: var(--text);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .chat-header-icon-btn:hover {
     background: rgba(44, 82, 52, 0.08);
     border-color: var(--accent);
     color: var(--accent);
+    border-radius: 0px !important;
 }
 
-/* Menú Dropdown Flotante */
+/* Menú Dropdown Rectangular Flotante */
 [data-theme="light"] .chat-menu-dropdown {
-    background: rgba(255, 255, 255, 0.98);
-    border-color: rgba(44, 82, 52, 0.18);
+    background: rgba(255, 255, 255, 0.99);
+    border: 1px solid rgba(44, 82, 52, 0.22);
     box-shadow: 0 14px 36px rgba(44, 82, 52, 0.15), 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .menu-section-label {
@@ -127,11 +147,12 @@
 }
 
 [data-theme="light"] .menu-divider {
-    background: rgba(44, 82, 52, 0.1);
+    background: rgba(44, 82, 52, 0.12);
 }
 
 [data-theme="light"] .chat-menu-item {
     color: var(--text);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .chat-menu-item svg {
@@ -141,6 +162,7 @@
 [data-theme="light"] .chat-menu-item:hover {
     background: rgba(44, 82, 52, 0.08);
     color: var(--accent);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .chat-menu-item:hover svg {
@@ -149,19 +171,20 @@
 
 [data-theme="light"] .menu-inline-select {
     background: #f6f5f3;
-    border-color: rgba(44, 82, 52, 0.2);
+    border-color: rgba(44, 82, 52, 0.25);
     color: var(--text);
+    border-radius: 0px !important;
 }
 
-/* ── MENSAJES EDITORIALES (SCANDINAVIAN RESEARCH NOTES) ── */
+/* ── MENSAJES Y FICHAS DE APRENDIZAJE COMPLETAMENTE CUADRADAS ── */
 
-/* Burbuja de Usuario: Verde Jade / Bosque Nórdico */
+/* Burbuja de Usuario: Tarjeta Rectangular en Verde Jade */
 [data-theme="light"] .message.user {
     background: linear-gradient(135deg, #24462b 0%, #183320 100%);
-    border: 1px solid rgba(36, 70, 43, 0.35);
-    border-radius: 18px 18px 4px 18px;
+    border: 1px solid rgba(36, 70, 43, 0.4);
+    border-radius: 0px !important;
     color: #ffffff;
-    box-shadow: 0 4px 16px rgba(36, 70, 43, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 16px rgba(36, 70, 43, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15);
     padding: 1rem 1.4rem;
 }
 
@@ -171,14 +194,14 @@
     line-height: 1.65;
 }
 
-/* Tarjeta de Respuesta del Asistente: Ficha de Libreta de Laboratorio */
+/* Tarjeta de Respuesta: Ficha de Libreta Técnica Cuadrada */
 [data-theme="light"] .message.bot {
     background: #ffffff;
-    border: 1px solid rgba(44, 82, 52, 0.16);
-    border-left: 4.5px solid var(--accent);
+    border: 1px solid rgba(44, 82, 52, 0.18);
+    border-left: 5px solid var(--accent);
     color: #1e293b;
-    box-shadow: 0 6px 24px rgba(44, 53, 57, 0.06), 0 1px 3px rgba(0, 0, 0, 0.02), inset 0 1px 0 #ffffff;
-    border-radius: 4px 18px 18px 18px;
+    box-shadow: 0 6px 20px rgba(44, 53, 57, 0.06), 0 1px 3px rgba(0, 0, 0, 0.02), inset 0 1px 0 #ffffff;
+    border-radius: 0px !important;
     position: relative;
     padding: 1.15rem 1.45rem;
     margin-top: 0.5rem;
@@ -188,7 +211,7 @@
     content: "📓 Ficha de Aprendizaje Genómico";
     position: absolute;
     top: -9px;
-    right: 16px;
+    right: 14px;
     font-size: 0.6rem;
     font-weight: 700;
     font-family: var(--mono);
@@ -197,8 +220,8 @@
     background: #faf8f5;
     color: #b45309;
     padding: 2px 8px;
-    border-radius: 5px;
-    border: 1px solid rgba(180, 83, 9, 0.28);
+    border-radius: 0px !important;
+    border: 1px solid rgba(180, 83, 9, 0.35);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
@@ -213,11 +236,11 @@
     font-weight: 600;
 }
 
-/* Mensaje del Sistema (Boletín de Campo) */
+/* Mensaje del Sistema Rectangular */
 [data-theme="light"] .message.system {
     background: linear-gradient(135deg, rgba(44, 82, 52, 0.06), rgba(44, 53, 57, 0.03));
-    border: 1px solid rgba(44, 82, 52, 0.22);
-    border-radius: 12px;
+    border: 1px solid rgba(44, 82, 52, 0.25);
+    border-radius: 0px !important;
     color: #2c3539;
     box-shadow: 0 2px 8px rgba(44, 82, 52, 0.04);
     padding: 0.8rem 1.2rem;
@@ -230,9 +253,9 @@
     letter-spacing: 1px;
 }
 
-/* Metadatos al pie del mensaje (Micro-etiquetas Táctiles) */
+/* Metadatos al pie del mensaje (Micro-etiquetas Táctiles Cuadradas) */
 [data-theme="light"] .message-meta {
-    border-top: 1px solid rgba(44, 82, 52, 0.1);
+    border-top: 1px solid rgba(44, 82, 52, 0.12);
     margin-top: 0.65rem;
     padding-top: 0.5rem;
 }
@@ -240,9 +263,9 @@
 [data-theme="light"] .meta-badge,
 [data-theme="light"] .meta-tag {
     background: #f8f7f5;
-    border-color: rgba(44, 82, 52, 0.16);
+    border: 1px solid rgba(44, 82, 52, 0.18);
     color: #475569;
-    border-radius: 6px;
+    border-radius: 0px !important;
     font-weight: 500;
     transition: all 0.15s ease;
 }
@@ -252,26 +275,30 @@
     background: rgba(44, 82, 52, 0.08);
     border-color: var(--accent);
     color: var(--accent);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .meta-tag.meta-model {
     background: rgba(44, 82, 52, 0.08);
-    border-color: rgba(44, 82, 52, 0.25);
+    border-color: rgba(44, 82, 52, 0.3);
     color: var(--accent);
     font-weight: 600;
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .meta-tag.meta-latency {
     color: #b45309;
     background: rgba(180, 83, 9, 0.06);
-    border-color: rgba(180, 83, 9, 0.2);
+    border-color: rgba(180, 83, 9, 0.25);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .meta-btn-copy,
 [data-theme="light"] .meta-copy-btn {
     background: #ffffff;
-    border-color: rgba(44, 82, 52, 0.2);
+    border: 1px solid rgba(44, 82, 52, 0.25);
     color: #475569;
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .meta-btn-copy:hover,
@@ -279,27 +306,30 @@
     background: rgba(44, 82, 52, 0.1);
     border-color: var(--accent);
     color: var(--accent);
+    border-radius: 0px !important;
 }
 
-/* Memorando de Razonamiento CoT (Cuaderno de Observación) */
+/* Memorando de Razonamiento CoT Rectangular */
 [data-theme="light"] .apple-thought-box {
     background: #fbfaf8;
-    border: 1px solid rgba(44, 82, 52, 0.18);
-    border-left: 3.5px solid #b45309;
+    border: 1px solid rgba(44, 82, 52, 0.2);
+    border-left: 4px solid #b45309;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-    border-radius: 8px;
+    border-radius: 0px !important;
     margin: 0.5rem 0 0.9rem;
 }
 
 [data-theme="light"] .apple-thought-box[open] {
     background: #ffffff;
-    border-color: rgba(44, 82, 52, 0.22);
+    border-color: rgba(44, 82, 52, 0.25);
     border-left-color: #b45309;
     box-shadow: 0 4px 16px rgba(44, 82, 52, 0.06);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .apple-thought-summary {
     padding: 0.6rem 0.95rem;
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .apple-thought-summary:hover {
@@ -322,39 +352,42 @@
 [data-theme="light"] .thought-badge {
     background: rgba(180, 83, 9, 0.12);
     color: #b45309;
-    border: 1px solid rgba(180, 83, 9, 0.25);
-    border-radius: 4px;
+    border: 1px solid rgba(180, 83, 9, 0.3);
+    border-radius: 0px !important;
     font-size: 0.62rem;
 }
 
 [data-theme="light"] .apple-thought-content {
-    border-top: 1px solid rgba(44, 82, 52, 0.1);
+    border-top: 1px solid rgba(44, 82, 52, 0.12);
     color: #334155;
     background: #faf8f5;
     padding: 0.85rem 1rem 1rem;
     font-size: 0.86rem;
     line-height: 1.65;
+    border-radius: 0px !important;
 }
 
-/* Bloques de Código en Ficha Nórdica */
+/* Bloques de Código Rectangulares */
 [data-theme="light"] .code-block-wrapper {
     background: #fbfaf8;
-    border: 1px solid rgba(44, 82, 52, 0.18);
-    border-radius: 10px;
+    border: 1px solid rgba(44, 82, 52, 0.2);
+    border-radius: 0px !important;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
     margin: 0.7rem 0;
 }
 
 [data-theme="light"] .code-block-header {
     background: #f3f0ec;
-    border-bottom: 1px solid rgba(44, 82, 52, 0.14);
+    border-bottom: 1px solid rgba(44, 82, 52, 0.16);
     color: #475569;
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .code-copy-btn {
     background: #ffffff;
-    border: 1px solid rgba(44, 82, 52, 0.2);
+    border: 1px solid rgba(44, 82, 52, 0.25);
     color: var(--accent);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .code-copy-btn:hover {
@@ -364,52 +397,90 @@
 
 [data-theme="light"] .code-block {
     background: #fbfaf8;
-    border: 1px solid rgba(44, 82, 52, 0.18);
+    border: 1px solid rgba(44, 82, 52, 0.2);
     color: #1e293b;
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.03);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .inline-code {
     background: rgba(180, 83, 9, 0.08);
-    border: 1px solid rgba(180, 83, 9, 0.22);
+    border: 1px solid rgba(180, 83, 9, 0.25);
     color: #b45309;
+    border-radius: 0px !important;
 }
 
-/* Tooltips */
+/* Tooltips Cuadrados */
 [data-theme="light"] [data-tooltip]::after {
-    background: rgba(255, 255, 255, 0.95);
-    border-color: rgba(0, 0, 0, 0.12);
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(44, 82, 52, 0.2);
     color: #1e293b;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] [data-tooltip]::before {
-    border-color: transparent transparent rgba(0, 0, 0, 0.12) transparent;
+    border-color: transparent transparent rgba(44, 82, 52, 0.2) transparent;
 }
 
-/* Input Area Composer */
+/* ── INPUT COMPOSER RECTANGULAR ── */
 [data-theme="light"] .input-area {
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(44, 82, 52, 0.2);
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(44, 82, 52, 0.25);
     box-shadow: 0 6px 24px rgba(44, 53, 57, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] .input-area:focus-within {
     border-color: var(--accent);
-    box-shadow: 0 8px 28px rgba(44, 53, 57, 0.08), 0 0 0 2.5px var(--accent-glow);
+    box-shadow: 0 8px 28px rgba(44, 53, 57, 0.08), 0 0 0 1.5px var(--accent);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] input#user-input {
     color: var(--text);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] button#send-btn {
     background: linear-gradient(135deg, #2c5234 0%, #1a301f 100%);
-    border: 1px solid rgba(44, 82, 52, 0.4);
-    box-shadow: 0 4px 12px rgba(44, 82, 52, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(44, 82, 52, 0.45);
+    box-shadow: 0 4px 12px rgba(44, 82, 52, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border-radius: 0px !important;
 }
 
 [data-theme="light"] button#send-btn:hover:not(:disabled) {
     background: linear-gradient(135deg, #376541 0%, #223f29 100%);
-    box-shadow: 0 6px 16px rgba(44, 82, 52, 0.35);
+    box-shadow: 0 6px 16px rgba(44, 82, 52, 0.3);
+    border-radius: 0px !important;
+}
+
+[data-theme="light"] .stop-btn {
+    border-radius: 0px !important;
+}
+
+/* ── MODAL HUD Y TARJETAS TELEMETRÍA CUADRADAS ── */
+[data-theme="light"] .modal-mac-window {
+    border-radius: 0px !important;
+    border: 1px solid rgba(44, 82, 52, 0.25);
+    box-shadow: 0 20px 60px rgba(44, 53, 57, 0.12);
+}
+
+[data-theme="light"] .hud-card {
+    border-radius: 0px !important;
+    border: 1px solid rgba(44, 82, 52, 0.18);
+}
+
+[data-theme="light"] .apple-pill-btn {
+    border-radius: 0px !important;
+    border: 1px solid rgba(44, 82, 52, 0.25);
+}
+
+[data-theme="light"] .seg-tab {
+    border-radius: 0px !important;
+}
+
+[data-theme="light"] .segmented-tabs {
+    border-radius: 0px !important;
+    border: 1px solid rgba(44, 82, 52, 0.2);
 }
