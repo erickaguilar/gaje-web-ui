@@ -584,8 +584,77 @@ main {
     position: relative;
     display: inline-flex;
     align-items: center;
-    max-width: 280px;
+    gap: 6px;
+    max-width: 380px;
     flex: 1;
+}
+
+.model-status-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+    outline: none;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.model-status-btn.active {
+    background: rgba(48, 209, 88, 0.14);
+    border-color: rgba(48, 209, 88, 0.4);
+    color: #30d158;
+}
+
+.model-status-btn.active:hover {
+    background: rgba(48, 209, 88, 0.25);
+    box-shadow: 0 0 10px rgba(48, 209, 88, 0.3);
+}
+
+.model-status-btn.inactive {
+    background: rgba(255, 69, 58, 0.12);
+    border-color: rgba(255, 69, 58, 0.35);
+    color: #ff453a;
+}
+
+.model-status-btn.inactive:hover {
+    background: rgba(255, 69, 58, 0.22);
+    box-shadow: 0 0 10px rgba(255, 69, 58, 0.3);
+}
+
+.model-status-btn .status-dot-led {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.model-status-btn.active .status-dot-led {
+    background: #30d158;
+    box-shadow: 0 0 6px #30d158;
+    animation: pulse-live 1.8s infinite;
+}
+
+.model-status-btn.inactive .status-dot-led {
+    background: #ff453a;
+    box-shadow: 0 0 4px #ff453a;
+}
+
+[data-theme="light"] .model-status-btn {
+    border-radius: 0px !important;
+}
+
+[data-theme="light"] .model-status-btn.active {
+    background: rgba(44, 82, 52, 0.12);
+    border-color: rgba(44, 82, 52, 0.35);
+    color: var(--accent);
 }
 
 .header-model-dropdown {

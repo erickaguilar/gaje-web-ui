@@ -65,6 +65,16 @@ window.ChatToolbarController = {
             });
         }
 
+        const modelToggleBtn = document.getElementById('model-toggle-btn');
+        if (modelToggleBtn) {
+            modelToggleBtn.addEventListener('click', () => this.toggleCurrentModel());
+        }
+
+        const stopAllBtn = document.getElementById('stop-all-models-btn');
+        if (stopAllBtn) {
+            stopAllBtn.addEventListener('click', () => this.stopAllModels());
+        }
+
         const clearHistoryBtn = document.getElementById('clear-history-btn');
         if (clearHistoryBtn) {
             clearHistoryBtn.addEventListener('click', () => {
@@ -319,12 +329,15 @@ window.ChatToolbarController = {
             const data = await response.json();
             if (data.status === 'ok') {
                 window.ChatComposerController?.addMessage(`✅ Organismo [${modelName}] cargado y listo en memoria.`, 'system');
+                this.updateModelToggleState(true);
                 await this.refreshModelMeta(modelName);
             } else {
                 window.ChatComposerController?.addMessage(`❌ Error cargando el modelo: ${data.error}`, 'bot');
+                this.updateModelToggleState(false);
             }
         } catch (err) {
             window.ChatComposerController?.addMessage(`❌ Error de conexión al cargar [${modelName}].`, 'bot');
+            this.updateModelToggleState(false);
             console.error(err);
         } finally {
             this.setModelLoading(false);
@@ -338,6 +351,51 @@ window.ChatToolbarController = {
         }
     },
 
+    updateModelToggleState(isActive) {
+        const toggleBtn = document.getElementById('model-toggle-btn');
+        const toggleText = document.getElementById('model-toggle-text');
+        if (!toggleBtn) return;
+
+        if (isActive) {
+            toggleBtn.classList.remove('inactive');
+            toggleBtn.classList.add('active');
+            if (toggleText) toggleText.textContent = 'Activo';
+            toggleBtn.setAttribute('data-tooltip', 'Modelo activo en RAM (Haz clic para desactivar)');
+        } else {
+            toggleBtn.classList.remove('active');
+            toggleBtn.classList.add('inactive');
+            if (toggleText) toggleText.textContent = 'Inactivo';
+            toggleBtn.setAttribute('data-tooltip', 'Modelo inactivo (Haz clic para activar en RAM)');
+        }
+    },
+
+    async toggleCurrentModel() {
+        const toggleBtn = document.getElementById('model-toggle-btn');
+        const isActive = toggleBtn ? toggleBtn.classList.contains('active') : true;
+        const modelSelect = document.getElementById('model-select');
+        const modelName = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'qwen2_5_3b.flat');
+
+        if (isActive) {
+            await this.unloadModels();
+            this.updateModelToggleState(false);
+        } else {
+            await this.preloadModel(modelName);
+            this.updateModelToggleState(true);
+        }
+    },
+
+    async stopAllModels() {
+        // 1. Detener streaming activo de inferencia si existe
+        const stopBtn = document.getElementById('stop-btn');
+        if (stopBtn && !stopBtn.hidden) {
+            stopBtn.click();
+        }
+
+        window.ChatComposerController?.addMessage('🛑 [KILL-SWITCH] Deteniendo inferencia y purgando TODOS los modelos GAJE de la sesión...', 'system');
+        await this.unloadModels();
+        this.updateModelToggleState(false);
+    },
+
     async unloadModels() {
         const unloadModelBtn = document.getElementById('unload-model-btn');
         if (unloadModelBtn) unloadModelBtn.disabled = true;
@@ -348,6 +406,7 @@ window.ChatToolbarController = {
             if (data.status === 'ok') {
                 window.ChatComposerController?.addMessage(`✅ Memoria RAM del servidor liberada al 100%. Todos los modelos inactivos.`, 'system');
                 window.ChatState.modelsData.forEach(m => { m.ram_mb = 0.0; });
+                this.updateModelToggleState(false);
                 this.updateModelMeta();
                 this.loadEnvInfo();
             } else {

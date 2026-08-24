@@ -6,7 +6,7 @@
         <button type="button" class="traffic-dot dot-max" id="win-btn-max" data-tooltip="Maximizar (Pantalla Completa)" aria-label="Maximizar Ventana"></button>
     </div>
 
-    <!-- Selector de Modelo Principal -->
+    <!-- Selector de Modelo Principal + Toggle Activo/Inactivo -->
     <div class="model-select-wrapper" data-tooltip="Seleccionar modelo activo (.flat / .gaje)">
         <label for="model-select" class="visually-hidden">Seleccionar Modelo</label>
         <select id="model-select" class="header-model-dropdown" aria-label="Seleccionar Modelo">
@@ -16,6 +16,10 @@
             <option value="qwen2_0_5b.flat">Qwen 2 0.5B · [Micro Flat]</option>
             <option value="smollm2_135m.flat">SmolLM2 135M · [Nano Flat]</option>
         </select>
+        <button type="button" id="model-toggle-btn" class="model-status-btn active" data-tooltip="Alternar estado del modelo (Activo / Desactivado)" aria-label="Alternar Estado del Modelo">
+            <span class="status-dot-led"></span>
+            <span id="model-toggle-text">Activo</span>
+        </button>
     </div>
 
     <!-- Píldora compacta de Recursos (RAM + Tamaño) -->
@@ -102,6 +106,11 @@
             <button id="unload-model-btn" class="chat-menu-item warning" role="menuitem">
                 <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-unload"/></svg>
                 <span>Liberar Memoria RAM</span>
+            </button>
+
+            <button id="stop-all-models-btn" class="chat-menu-item danger" role="menuitem" data-tooltip="Detener inferencia activa y purgar todos los modelos de la sesión">
+                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
+                <span>Detener Todos los Modelos</span>
             </button>
 
             <div class="menu-divider"></div>
