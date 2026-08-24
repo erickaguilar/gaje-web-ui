@@ -170,6 +170,32 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header("Expires", "0")
         super().end_headers()
 
+    def log_message(self, format, *args):
+        # Filtrar peticiones estáticas y endpoints de telemetría de polling frecuente
+        # para mantener la consola limpia y legible.
+        if len(args) >= 2:
+            code = str(args[1])
+            req = str(args[0])
+            if code in ("200", "304") and (
+                req.startswith("GET /static/")
+                or req.startswith("GET /favicon")
+                or req.startswith("GET / ")
+                or req.startswith("GET /index.html")
+                or req.startswith("GET /docs.html")
+                or req.startswith("GET /architecture.html")
+                or req.startswith("GET /api/info")
+                or req.startswith("GET /api/models")
+                or req.startswith("GET /api/memory/epochs")
+            ):
+                return
+            if code.startswith(("4", "5")):
+                logger.warning("HTTP %s: %s", code, req)
+                return
+            if "POST /api/" in req:
+                logger.info("HTTP %s: %s", code, req)
+                return
+        logger.debug(format, *args)
+
     def do_GET(self):
         if self.path == "/api/models":
             models = list_available_models(MODELS_ROOT)
