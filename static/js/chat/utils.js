@@ -59,9 +59,7 @@ window.ChatUtils = {
             const originalHtml = btnElement.innerHTML;
             btnElement.classList.add('copied');
             btnElement.innerHTML = `
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
+                <svg class="y2k-icon" width="12" height="12" style="color:#10b981;"><use href="static/icons/y2k/sprite.svg#i-check"/></svg>
                 <span style="color:#10b981; font-weight:600;">¡Copiado!</span>
             `;
             setTimeout(() => {
@@ -122,9 +120,7 @@ window.ChatUtils = {
             btnElement.classList.add('copied');
             btnElement.setAttribute('title', '¡Chat copiado!');
             btnElement.innerHTML = `
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
+                <svg class="y2k-icon" width="15" height="15" style="color:#10b981;" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-check"/></svg>
                 <span class="visually-hidden">¡Chat Copiado!</span>
             `;
             setTimeout(() => {
@@ -283,9 +279,7 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
             btnElement.classList.add('copied');
             btnElement.setAttribute('title', '¡Log copiado al portapapeles!');
             btnElement.innerHTML = `
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
+                <svg class="y2k-icon" width="15" height="15" style="color:#10b981;" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-check"/></svg>
                 <span class="visually-hidden">¡Log Copiado!</span>
             `;
             setTimeout(() => {
