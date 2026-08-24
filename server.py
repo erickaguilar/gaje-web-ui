@@ -4,6 +4,7 @@ Modular HTTP server for local LLM inference, embedding visualization,
 and Island Model context orchestration.
 """
 
+from datetime import datetime
 import http.server
 import json
 import logging
@@ -515,6 +516,8 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
                 "response": cleaned_response,
                 "metrics": {
                     "latency_ms": round(elapsed_ms, 2),
+                    "server_time": datetime.now().strftime("%H:%M:%S::%f")[:-3],
+                    "timestamp_posix": time.time(),
                     "prompt_tokens": prompt_tokens_count,
                     "generated_tokens": generated_tokens_count,
                     "tokens_count": total_tokens,
@@ -727,6 +730,8 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             metrics_event = {
                 "__gaje_metrics__": {
                     "latency_ms": round(elapsed_ms, 2),
+                    "server_time": datetime.now().strftime("%H:%M:%S::%f")[:-3],
+                    "timestamp_posix": time.time(),
                     "prefill_ms": round(prefill_ms, 2) if prefill_ms is not None else None,
                     "decode_tokens_sec": (
                         round(decode_tok_per_sec, 1)

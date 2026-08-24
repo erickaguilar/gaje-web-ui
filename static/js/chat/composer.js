@@ -122,12 +122,26 @@ window.ChatComposerController = {
 
     createBotMessage(modelName = null) {
         const modelSelect = document.getElementById('model-select');
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'message bot';
-        const msgTime = window.ChatUtils.formatExactTime();
-        msgDiv.setAttribute('data-time', msgTime);
         const mName = modelName || (modelSelect ? modelSelect.value : window.ChatState?.activeModel) || 'gaje-model';
+        const shortName = mName.replace('.gaje.flat', '').replace('.flat', '').replace('.gaje', '');
+        const msgTime = window.ChatUtils.formatExactTime();
+
+        const msgDiv = document.createElement('article');
+        msgDiv.className = 'message bot';
+        msgDiv.setAttribute('data-time', msgTime);
         msgDiv.setAttribute('data-model', mName);
+
+        msgDiv.innerHTML = `
+            <header class="msg-header">
+                <div class="msg-author">
+                    <span class="msg-avatar-icon"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg></span>
+                    <span class="msg-author-name">GAJE AI</span>
+                    <span class="msg-model-tag">${shortName}</span>
+                </div>
+                <time class="msg-timestamp" title="Hora del Servidor (Linux Clock)">${msgTime}</time>
+            </header>
+            <section class="msg-content"></section>
+        `;
         return msgDiv;
     },
 
@@ -136,42 +150,40 @@ window.ChatComposerController = {
         const modelSelect = document.getElementById('model-select');
         if (!chatWindow) return;
 
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `message ${type}`;
-
-        const timeStr = explicitTime || window.ChatUtils.formatExactTime();
-        msgDiv.setAttribute('data-time', timeStr);
-
+        const timeStr = (meta && meta.server_time) || explicitTime || window.ChatUtils.formatExactTime();
         const mName = modelName || (modelSelect ? modelSelect.value : window.ChatState?.activeModel) || 'gaje-model';
+
+        const msgDiv = document.createElement(type === 'bot' ? 'article' : 'div');
+        msgDiv.className = `message ${type}`;
+        msgDiv.setAttribute('data-time', timeStr);
         msgDiv.setAttribute('data-model', mName);
 
         if (type === 'bot') {
-            const shortName = mName ? mName.replace('.gaje.flat', '').replace('.flat', '').replace('.gaje', '') : 'GAJE';
-            const headerHtml = `
-                <div class="bot-card-header">
-                    <div class="bot-author">
-                        <span class="bot-author-icon"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg></span>
-                        <span class="bot-author-title">GAJE AI</span>
-                        <span class="bot-model-chip">${shortName}</span>
+            const shortName = mName.replace('.gaje.flat', '').replace('.flat', '').replace('.gaje', '');
+            const parsedBody = window.ChatMarkdown?.parse(text) || text;
+            const footerHtml = this.renderTelemetryFooterHtml(meta, mName, text);
+
+            msgDiv.innerHTML = `
+                <header class="msg-header">
+                    <div class="msg-author">
+                        <span class="msg-avatar-icon"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg></span>
+                        <span class="msg-author-name">GAJE AI</span>
+                        <span class="msg-model-tag">${shortName}</span>
                     </div>
-                    <span class="bot-timestamp">${timeStr}</span>
-                </div>
+                    <time class="msg-timestamp" title="Hora de Linux (POSIX Clock)">${timeStr}</time>
+                </header>
+                <section class="msg-content">
+                    ${parsedBody}
+                </section>
+                ${footerHtml}
             `;
-            msgDiv.innerHTML = headerHtml + (window.ChatMarkdown?.parse(text) || text);
-            const latencyMs = meta && meta.latency_ms ? meta.latency_ms : null;
-            const latencyStr = window.ChatUtils.formatLatency(latencyMs);
 
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = this.renderMinimalMetaHtml(meta, mName, latencyStr, text, timeStr);
-            const metaEl = tempDiv.firstElementChild;
-
-            const copyBtn = metaEl.querySelector('.meta-btn-copy, .meta-copy-btn');
+            const copyBtn = msgDiv.querySelector('.copy-btn');
             if (copyBtn) {
                 copyBtn.addEventListener('click', () => {
                     window.ChatUtils.copyTextToClipboard(text, copyBtn);
                 });
             }
-            msgDiv.appendChild(metaEl);
         } else if (type === 'user') {
             msgDiv.innerHTML = `<p>${window.ChatUtils.escapeHtml(text)}</p>`;
         } else {
@@ -182,37 +194,47 @@ window.ChatComposerController = {
         chatWindow.scrollTop = chatWindow.scrollHeight;
     },
 
-    renderMinimalMetaHtml(meta, mName, latencyStr, fullText, timeStr = null) {
-        const shortName = mName ? mName.replace('.gaje.flat', '').replace('.flat', '').replace('.gaje', '') : 'GAJE';
-        const displayTime = timeStr || window.ChatUtils.formatExactTime();
+    renderTelemetryFooterHtml(meta, mName, fullText, latencyOverride = null) {
+        let pillsHtml = '';
+        const latencyMs = (meta && meta.latency_ms) ? meta.latency_ms : null;
+        const latencyStr = latencyOverride || window.ChatUtils.formatLatency(latencyMs);
 
-        let badgesHtml = '';
+        // 1. Latencia de Inferencia (Linux Monotonic Clock)
+        pillsHtml += `<span class="telemetry-pill pill-latency" data-tooltip="Latencia de Inferencia (Linux Clock: HH:MM:SS::MS)"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-clock"/></svg> <span>${latencyStr}</span></span>`;
+
         if (meta) {
-            if (meta.compression_ratio) {
-                badgesHtml += `<span class="meta-tag meta-stats" data-tooltip="Ratio de Compresión Semántica"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg> ${meta.compression_ratio}</span>`;
+            // 2. Velocidad de Generación (tok/s)
+            const tokSec = meta.tokens_per_second || meta.tokens_sec || (meta.decode_tokens_sec ? `${meta.decode_tokens_sec}` : null);
+            if (tokSec) {
+                pillsHtml += `<span class="telemetry-pill pill-speed" data-tooltip="Velocidad de Generación"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg> <span>${tokSec} tok/s</span></span>`;
             }
+            // 3. Ratio de Compresión Semántica
+            const ratio = meta.compression_ratio || (meta.ratio ? `${meta.ratio}x` : null);
+            if (ratio) {
+                pillsHtml += `<span class="telemetry-pill pill-compression" data-tooltip="Ratio de Compresión Semántica"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg> <span>${ratio}</span></span>`;
+            }
+            // 4. Memoria Island .gmem
             if (meta.island_retrieval_ms) {
-                badgesHtml += `<span class="meta-tag meta-island" data-tooltip="Latencia de Memoria .gmem"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-island"/></svg> ${meta.island_retrieval_ms}ms</span>`;
+                pillsHtml += `<span class="telemetry-pill pill-memory" data-tooltip="Latencia de Memoria .gmem"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-island"/></svg> <span>${meta.island_retrieval_ms}ms</span></span>`;
             }
-            if (meta.tokens_per_second) {
-                badgesHtml += `<span class="meta-tag meta-stats" data-tooltip="Velocidad de Generación"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg> ${meta.tokens_per_second} tok/s</span>`;
-            }
+            // 5. Perplejidad PPL
             if (meta.ppl) {
-                badgesHtml += `<span class="meta-tag meta-stats" data-tooltip="Perplejidad Semántica"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg> PPL ${meta.ppl.toFixed(2)}</span>`;
+                pillsHtml += `<span class="telemetry-pill pill-ppl" data-tooltip="Perplejidad Semántica"><span>PPL ${meta.ppl.toFixed(2)}</span></span>`;
             }
         }
 
         return `
-            <div class="message-meta">
-                <span class="meta-tag meta-model" data-tooltip="Modelo Activo"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-sparkle"/></svg> ${shortName}</span>
-                <span class="meta-tag meta-latency" data-tooltip="Latencia de Inferencia (HH:MM:SS::MS)"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-clock"/></svg> ${latencyStr}</span>
-                <span class="meta-tag meta-time" data-tooltip="Hora de Generación">${displayTime}</span>
-                ${badgesHtml}
-                <button class="meta-btn-copy" data-tooltip="Copiar respuesta al portapapeles" aria-label="Copiar respuesta">
-                    <svg class="y2k-icon" width="12" height="12"><use href="static/icons/y2k/sprite.svg#i-copy"/></svg>
-                    <span>Copiar</span>
-                </button>
-            </div>
+            <footer class="msg-footer">
+                <div class="msg-telemetry">
+                    ${pillsHtml}
+                </div>
+                <div class="msg-actions">
+                    <button type="button" class="msg-action-btn copy-btn" data-tooltip="Copiar respuesta al portapapeles" aria-label="Copiar respuesta">
+                        <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-copy"/></svg>
+                        <span>Copiar</span>
+                    </button>
+                </div>
+            </footer>
         `;
     },
 
@@ -220,20 +242,29 @@ window.ChatComposerController = {
         const mName = modelName || msgEl.getAttribute('data-model') || '';
         const latencyText = window.ChatUtils.formatLatency(metrics && metrics.latency_ms ? metrics.latency_ms : elapsed);
         const finalLatency = prefix ? `${latencyText} (${prefix})` : latencyText;
-        const msgTime = msgEl.getAttribute('data-time') || window.ChatUtils.formatExactTime();
+
+        // Si el backend envió la hora exacta del servidor Linux, actualizar el timestamp en header
+        if (metrics && metrics.server_time) {
+            const timeEl = msgEl.querySelector('.msg-timestamp');
+            if (timeEl) timeEl.textContent = metrics.server_time;
+        }
+
+        // Remover footer previo si existiera
+        const existingFooter = msgEl.querySelector('.msg-footer, .message-meta');
+        if (existingFooter) existingFooter.remove();
 
         const tempContainer = document.createElement('div');
-        tempContainer.innerHTML = this.renderMinimalMetaHtml(metrics, mName, finalLatency, fullText, msgTime);
-        const meta = tempContainer.firstElementChild;
+        tempContainer.innerHTML = this.renderTelemetryFooterHtml(metrics, mName, fullText, finalLatency);
+        const footerEl = tempContainer.firstElementChild;
 
-        const copyBtn = meta.querySelector('.meta-btn-copy, .meta-copy-btn');
+        const copyBtn = footerEl.querySelector('.copy-btn');
         if (copyBtn) {
             copyBtn.addEventListener('click', () => {
                 const textToCopy = fullText || msgEl.innerText;
                 window.ChatUtils.copyTextToClipboard(textToCopy, copyBtn);
             });
         }
-        msgEl.appendChild(meta);
+        msgEl.appendChild(footerEl);
     },
 
     updateMetrics(metrics) {

@@ -121,18 +121,20 @@ window.ChatEngineController = {
         if (!botMsg) return false;
         botMsg.classList.add('streaming');
 
+        const contentSection = botMsg.querySelector('.msg-content') || botMsg;
+
         const statusEl = document.createElement('span');
         statusEl.className = 'stream-status';
         statusEl.textContent = 'WASM';
         const statusAnchor = document.createElement('div');
         statusAnchor.className = 'stream-status-row';
         statusAnchor.appendChild(statusEl);
-        botMsg.appendChild(statusAnchor);
+        contentSection.appendChild(statusAnchor);
 
-        const contentEl = document.createElement('p');
-        contentEl.className = 'stream-text';
+        const contentEl = document.createElement('div');
+        contentEl.className = 'stream-text response-body';
         contentEl.textContent = 'Procesando en WebAssembly...';
-        botMsg.appendChild(contentEl);
+        contentSection.appendChild(contentEl);
         chatWindow.appendChild(botMsg);
         chatWindow.scrollTop = chatWindow.scrollHeight;
 
@@ -212,17 +214,19 @@ window.ChatEngineController = {
         if (!botMsg) return false;
         botMsg.classList.add('streaming');
 
+        const contentSection = botMsg.querySelector('.msg-content') || botMsg;
+
         const statusEl = document.createElement('span');
         statusEl.className = 'stream-status';
         statusEl.textContent = 'Generando';
         const statusAnchor = document.createElement('div');
         statusAnchor.className = 'stream-status-row';
         statusAnchor.appendChild(statusEl);
-        botMsg.appendChild(statusAnchor);
+        contentSection.appendChild(statusAnchor);
 
-        const contentEl = document.createElement('p');
-        contentEl.className = 'stream-text';
-        botMsg.appendChild(contentEl);
+        const contentEl = document.createElement('div');
+        contentEl.className = 'stream-text response-body';
+        contentSection.appendChild(contentEl);
         chatWindow.appendChild(botMsg);
         chatWindow.scrollTop = chatWindow.scrollHeight;
 
@@ -245,6 +249,9 @@ window.ChatEngineController = {
             botMsg.classList.remove('streaming');
             statusAnchor.remove();
             const elapsed = Date.now() - started;
+            if (fullText) {
+                contentEl.innerHTML = window.ChatMarkdown?.parse(fullText) || fullText;
+            }
             if (aborted && fullText) {
                 window.ChatComposerController?.addMetaTo(botMsg, elapsed, '⏹️ detenido', fullText, modelName, latestMetrics);
             } else if (!aborted) {
