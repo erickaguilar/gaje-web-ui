@@ -416,8 +416,9 @@ window.ChatToolbarController = {
 
         this.updateModelMeta();
 
-        // En modo WASM (ej. Vercel), activar de inmediato y precargar desde caché si está disponible
-        if (this.engineMode === 'wasm') {
+        // En modo WASM o entorno estático (ej. Vercel), activar de inmediato y precargar desde caché si está disponible
+        if (this.engineMode === 'wasm' || this.isStaticEnvironment()) {
+            if (this.engineMode !== 'wasm') this.onEngineModeChange('wasm');
             this.setModelLoading(false);
             if (modelSelect) modelSelect.disabled = false;
             if (userInput) userInput.disabled = false;

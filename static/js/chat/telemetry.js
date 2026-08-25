@@ -126,8 +126,25 @@ window.ChatTelemetryController = {
         const selectedModel = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'qwen2_5_3b.flat');
         const organism = selectedModel.replace('.flat', '').replace('.gaje', '');
 
+        // En modo estático Zero-Server (WASM / Vercel), sintetizar datos de época sin consultar backend
+        if (window.ChatToolbarController?.isStaticEnvironment() || window.ChatState?.engineMode === 'wasm') {
+            tableBody.innerHTML = `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.04); background: rgba(56, 189, 248, 0.08);">
+                    <td style="padding: 0.4rem; font-weight: bold; color: var(--neon-cyan);">★ 0</td>
+                    <td style="padding: 0.4rem; color: var(--text-muted);">None</td>
+                    <td style="padding: 0.4rem;"><span style="display: inline-block; padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.65rem; background: rgba(74, 222, 128, 0.14); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.35);">GENESIS</span></td>
+                    <td style="padding: 0.4rem;">${window.ChatState?.autonomic?.interactions || 0}</td>
+                    <td style="padding: 0.4rem; font-family: monospace; font-size: 0.68rem; color: var(--text-muted);">Soberano (WASM)</td>
+                    <td style="padding: 0.4rem; color: var(--text-muted);">Memoria genómica .gmem persistente en IndexedDB</td>
+                    <td style="padding: 0.4rem; text-align: center;"><span style="font-size: 0.65rem; color: var(--neon-cyan);">ACTIVA</span></td>
+                </tr>
+            `;
+            return;
+        }
+
         try {
             const res = await fetch(`/api/memory/epochs?organism=${encodeURIComponent(organism)}`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
             if (!data || data.error || !data.epochs) {
                 tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 0.8rem; color: var(--text-muted);">${data?.error || 'Sin épocas registradas'}</td></tr>`;
