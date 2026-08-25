@@ -1192,6 +1192,88 @@ main {
     animation: livePulse 2s infinite ease-in-out;
 }
 
+/* Card de información y recursos dentro del Dropdown */
+.menu-info-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin: 2px 4px 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+[data-theme="light"] .menu-info-card {
+    background: rgba(44, 82, 52, 0.04);
+    border: 1px solid rgba(44, 82, 52, 0.12);
+    border-radius: 0px !important;
+}
+
+.menu-info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.menu-info-label {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+[data-theme="light"] .menu-info-label {
+    color: var(--muted);
+}
+
+.menu-info-badges {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+    padding-top: 5px;
+    margin-top: 2px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .menu-info-badges {
+    border-top: 1px dashed rgba(44, 82, 52, 0.12);
+}
+
+.chat-menu-item.highlight-item {
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.22);
+    color: #38bdf8;
+    margin: 2px 4px 4px;
+    width: calc(100% - 8px);
+}
+
+.chat-menu-item.highlight-item svg {
+    color: #38bdf8;
+}
+
+.chat-menu-item.highlight-item:hover {
+    background: rgba(56, 189, 248, 0.2);
+    border-color: #38bdf8;
+    color: #ffffff;
+}
+
+.chat-menu-item.highlight-item:hover svg {
+    color: #ffffff;
+}
+
+[data-theme="light"] .chat-menu-item.highlight-item {
+    background: rgba(44, 82, 52, 0.07);
+    border-color: rgba(44, 82, 52, 0.22);
+    color: var(--accent);
+    border-radius: 0px !important;
+}
+
+[data-theme="light"] .chat-menu-item.highlight-item svg {
+    color: var(--accent);
+}
+
 /* ============================================================
    APPLE HIG GLASSMORPHIC TOOLTIPS (DATA-TOOLTIP)
    ============================================================ */

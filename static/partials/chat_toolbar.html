@@ -1,4 +1,4 @@
-<!-- Fila 1: Barra Principal Superior (Controles de Ventana, Selector de Modelo, Motor y Acciones Principales) -->
+<!-- Barra Principal Superior Unificada GAJE (Apple HIG / Scandinavian Y2K) -->
 <div class="chat-toolbar-primary-row">
     <div class="chat-toolbar-left">
         <div class="chat-window-mac-dots" aria-label="Controles de ventana">
@@ -23,35 +23,69 @@
         </div>
     </div>
 
-    <!-- Acciones Derecha (Fila Superior) -->
+    <!-- Acciones Derecha (Fila Superior Limpia y Minimalista) -->
     <div class="chat-toolbar-actions">
-        <!-- Toggle para Ocultar / Mostrar Barra de Información -->
-        <button id="toggle-info-bar-btn" class="chat-header-pill-btn info-toggle-btn active" data-tooltip="Ocultar / Mostrar panel de telemetría y recursos" aria-label="Alternar información">
-            <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-info"/></svg>
-            <span class="info-toggle-text">Telemetría</span>
-            <svg class="y2k-icon chevron-icon"><use href="static/icons/y2k/sprite.svg#i-chevron-down"/></svg>
-        </button>
-
-        <!-- Botón directo: HUD de Métricas -->
-        <button id="y2k-open-monitor-btn" class="chat-header-pill-btn monitor-pill-btn" data-tooltip="Abrir Dashboard de Telemetría (HUD)" data-tooltip-pos="left" aria-label="Abrir Dashboard de Telemetría">
-            <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-monitor"/></svg>
-            <span>Métricas</span>
-            <span class="live-dot-pulse-mini" aria-hidden="true"></span>
-        </button>
-
         <!-- Botón Rápido de Borrar Chat -->
         <button id="btn-quick-clear-chat" class="chat-header-icon-btn danger-hover" data-tooltip="Borrar historial de chat" data-tooltip-pos="left" aria-label="Borrar historial">
             <svg class="y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-trash"/></svg>
         </button>
 
-        <!-- Menú Desplegable Compacto de Acciones (•••) -->
+        <!-- Menú Desplegable de Herramientas y Acciones (•••) -->
         <div class="chat-overflow-menu-container">
             <button id="chat-overflow-menu-btn" class="chat-header-icon-btn" aria-haspopup="true" aria-expanded="false" data-tooltip="Herramientas y Acciones" data-tooltip-pos="left" aria-label="Más opciones del chat">
                 <svg class="y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-dots"/></svg>
             </button>
 
-            <!-- Dropdown flotante Apple HIG / Scandinavian -->
+            <!-- Dropdown flotante Apple HIG / Scandinavian con Telemetría & Info Integradas -->
             <div id="chat-actions-dropdown" class="chat-menu-dropdown" role="menu" hidden>
+                <!-- 1. Telemetría y Métricas -->
+                <div class="menu-section-label">Telemetría y Métricas</div>
+                <button id="y2k-open-monitor-btn" class="chat-menu-item highlight-item" role="menuitem">
+                    <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-monitor"/></svg>
+                    <span style="flex: 1;">Dashboard de Telemetría (HUD)</span>
+                    <span class="live-dot-pulse-mini" aria-hidden="true"></span>
+                </button>
+
+                <!-- 2. Submenú Informativo: Recursos y Estado del Modelo -->
+                <div class="menu-section-label">Info y Recursos del Modelo</div>
+                <div class="menu-info-card">
+                    <div class="menu-info-row">
+                        <span class="menu-info-label">Memoria:</span>
+                        <span class="chat-pill-ram" id="model-ram" data-tooltip="Memoria RAM residente consumida">
+                            <span class="ram-led"></span><span>RAM —</span>
+                        </span>
+                    </div>
+                    <div class="menu-info-row">
+                        <span class="menu-info-label">Archivo:</span>
+                        <div id="model-meta-block" class="chat-model-meta" data-tooltip="Tamaño del archivo de pesos en disco">
+                            <span id="model-size" class="chat-pill-meta">471 MB</span>
+                            <span id="model-date" class="chat-pill-meta" hidden>—</span>
+                        </div>
+                    </div>
+                    <div id="model-load-bar" class="model-load chat-model-load" role="progressbar" aria-label="Cargando modelo" aria-valuemin="0" aria-valuemax="100" aria-valuetext="inactivo" hidden>
+                        <span class="model-load-track"><span class="model-load-fill"></span></span>
+                    </div>
+                    <div class="menu-info-badges">
+                        <span id="wasm-header-badge" class="status-indicator-pill wasm-indicator-pill" data-tooltip="Motor WebAssembly In-Browser Activo (Zero-Server)" style="display: none;">
+                            <span class="pulse-engine-dot wasm-pulse"></span>
+                            <span id="wasm-header-text">WASM</span>
+                        </span>
+
+                        <span id="gpu-header-badge" class="status-indicator-pill gpu-indicator-pill" data-tooltip="Aceleración GPU Vulkan/WebGL Activa" style="display: none;">
+                            <span class="pulse-engine-dot gpu-pulse"></span>
+                            <span id="gpu-header-text">GPU</span>
+                        </span>
+
+                        <span class="status-indicator-pill core-indicator-pill" data-tooltip="Núcleo GAJE SIMD activo">
+                            <span class="pulse-engine-dot"></span>
+                            <span>Core SIMD</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="menu-divider"></div>
+
+                <!-- 3. Conversación -->
                 <div class="menu-section-label">Conversación</div>
                 <button id="copy-all-btn" class="chat-menu-item" role="menuitem">
                     <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-copy"/></svg>
@@ -65,6 +99,7 @@
 
                 <div class="menu-divider"></div>
 
+                <!-- 4. Motor y Memoria -->
                 <div class="menu-section-label">Motor y Memoria</div>
                 <div class="chat-menu-item engine-select-item">
                     <label for="engine-mode-select" class="menu-item-label">
@@ -95,6 +130,7 @@
 
                 <div class="menu-divider"></div>
 
+                <!-- 5. Aplicación & Historial -->
                 <button id="pwa-install-chat-btn" class="chat-menu-item pwa-install-btn" role="menuitem">
                     <svg class="y2k-icon" style="color: var(--accent);"><use href="static/icons/y2k/sprite.svg#i-install"/></svg>
                     <span style="font-weight: 600; color: var(--accent);">Instalar Aplicación (PWA)</span>
@@ -106,42 +142,5 @@
                 </button>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Fila 2: Barra Inferior Secundaria (Telemetría, Recursos y Estado - OCULTABLE) -->
-<div id="chat-toolbar-infobar" class="chat-toolbar-secondary-row">
-    <div class="chat-infobar-left">
-        <!-- Recursos (RAM + Tamaño) -->
-        <span class="chat-pill-ram" id="model-ram" data-tooltip="Memoria RAM residente consumida">
-            <span class="ram-led"></span><span>RAM —</span>
-        </span>
-
-        <div id="model-meta-block" class="chat-model-meta" data-tooltip="Tamaño del archivo de pesos en disco">
-            <span id="model-size" class="chat-pill-meta">2.2 GB</span>
-            <span id="model-date" class="chat-pill-meta" hidden>—</span>
-        </div>
-
-        <div id="model-load-bar" class="model-load chat-model-load" role="progressbar" aria-label="Cargando modelo" aria-valuemin="0" aria-valuemax="100" aria-valuetext="inactivo" hidden>
-            <span class="model-load-track"><span class="model-load-fill"></span></span>
-        </div>
-    </div>
-
-    <div class="chat-infobar-right">
-        <!-- Badges de Estado del Motor -->
-        <span id="wasm-header-badge" class="status-indicator-pill wasm-indicator-pill" data-tooltip="Motor WebAssembly In-Browser Activo (Zero-Server)" style="display: none;">
-            <span class="pulse-engine-dot wasm-pulse"></span>
-            <span id="wasm-header-text">WASM</span>
-        </span>
-
-        <span id="gpu-header-badge" class="status-indicator-pill gpu-indicator-pill" data-tooltip="Aceleración GPU Vulkan Activa (AMD Radeon)" style="display: none;">
-            <span class="pulse-engine-dot gpu-pulse"></span>
-            <span id="gpu-header-text">GPU</span>
-        </span>
-
-        <span class="status-indicator-pill core-indicator-pill" data-tooltip="Núcleo GAJE SIMD activo">
-            <span class="pulse-engine-dot"></span>
-            <span>Core SIMD</span>
-        </span>
     </div>
 </div>

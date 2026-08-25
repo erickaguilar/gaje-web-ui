@@ -64,26 +64,6 @@ window.ChatToolbarController = {
             });
         }
 
-        // Toggle de Barra Secundaria de Información / Telemetría
-        const toggleInfoBtn = document.getElementById('toggle-info-bar-btn');
-        const infoBar = document.getElementById('chat-toolbar-infobar');
-        if (toggleInfoBtn && infoBar) {
-            const savedVisible = localStorage.getItem('gaje_toolbar_info_visible') !== 'false';
-            if (!savedVisible) {
-                infoBar.classList.add('collapsed');
-                toggleInfoBtn.classList.remove('active');
-            } else {
-                infoBar.classList.remove('collapsed');
-                toggleInfoBtn.classList.add('active');
-            }
-
-            toggleInfoBtn.addEventListener('click', () => {
-                const isCollapsed = infoBar.classList.toggle('collapsed');
-                toggleInfoBtn.classList.toggle('active', !isCollapsed);
-                localStorage.setItem('gaje_toolbar_info_visible', !isCollapsed);
-            });
-        }
-
         // Botón Rápido de Borrar Chat
         const btnQuickClear = document.getElementById('btn-quick-clear-chat');
         if (btnQuickClear) {
