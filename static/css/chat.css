@@ -1438,13 +1438,14 @@ main {
 /* Burbuja de Usuario (Apple iMessage + Y2K Cyberpunk Glass) */
 .message.user {
     align-self: flex-end;
-    background: linear-gradient(135deg, rgba(10, 132, 255, 0.92) 0%, rgba(94, 92, 230, 0.92) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    border-radius: 20px 20px 4px 20px;
-    color: #ffffff;
-    box-shadow: 0 6px 24px rgba(10, 132, 255, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.38);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    background: linear-gradient(135deg, rgba(10, 132, 255, 0.22) 0%, rgba(94, 92, 230, 0.16) 100%);
+    border: 1px solid rgba(10, 132, 255, 0.35);
+    border-right: 3.5px solid var(--accent, #0a84ff);
+    border-radius: 18px 18px 4px 18px;
+    color: #f1f5f9;
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    box-shadow: 0 8px 30px rgba(10, 132, 255, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.35);
     display: flex;
     flex-direction: column;
     gap: 0.45rem;
@@ -1457,7 +1458,7 @@ main {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
     padding-bottom: 0.35rem;
     margin-bottom: 0.15rem;
 }
@@ -1473,16 +1474,16 @@ main {
     width: 20px;
     height: 20px;
     border-radius: 6px;
-    background: rgba(255, 255, 255, 0.22) !important;
-    border: 1px solid rgba(255, 255, 255, 0.45) !important;
-    color: #ffffff !important;
+    background: linear-gradient(135deg, rgba(10, 132, 255, 0.3), rgba(0, 242, 254, 0.2)) !important;
+    border: 1px solid rgba(10, 132, 255, 0.5) !important;
+    color: #60a5fa !important;
     display: inline-flex;
     align-items: center;
     justify-content: center;
 }
 
 .user-author-name {
-    color: #ffffff !important;
+    color: #f1f5f9 !important;
     font-weight: 700;
     font-size: 0.78rem;
     letter-spacing: 0.3px;
@@ -1495,9 +1496,9 @@ main {
     font-weight: 700;
     padding: 1px 6px;
     border-radius: 4px;
-    background: rgba(255, 255, 255, 0.18);
-    border: 1px solid rgba(255, 255, 255, 0.32);
-    color: #ffffff;
+    background: rgba(10, 132, 255, 0.15) !important;
+    border: 1px solid rgba(10, 132, 255, 0.35) !important;
+    color: #93c5fd !important;
     text-transform: uppercase;
     letter-spacing: 0.4px;
 }
@@ -1509,7 +1510,7 @@ main {
 }
 
 .user-timestamp {
-    color: rgba(255, 255, 255, 0.75) !important;
+    color: rgba(241, 245, 249, 0.65) !important;
     font-family: var(--mono);
     font-size: 0.62rem;
 }
@@ -1518,7 +1519,7 @@ main {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    opacity: 0.82;
+    opacity: 0.85;
     transition: opacity 0.2s ease;
 }
 
@@ -1533,17 +1534,18 @@ main {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.16);
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    color: #ffffff;
+    background: rgba(10, 132, 255, 0.15);
+    border: 1px solid rgba(10, 132, 255, 0.35);
+    color: #93c5fd;
     cursor: pointer;
     padding: 0;
     transition: all 0.15s ease;
 }
 
 .user-action-btn:hover {
-    background: rgba(255, 255, 255, 0.32);
-    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(10, 132, 255, 0.32);
+    border-color: #60a5fa;
+    color: #ffffff;
     transform: scale(1.06);
 }
 
@@ -1559,7 +1561,7 @@ main {
 
 .msg-user-content p,
 .user-content p {
-    color: #ffffff;
+    color: #f8fafc !important;
     margin: 0;
     font-size: 0.93rem;
     line-height: 1.65;
@@ -1569,27 +1571,28 @@ main {
 
 .msg-user-content code,
 .user-content code {
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     padding: 2px 6px;
     border-radius: 4px;
     font-family: var(--mono);
     font-size: 0.86em;
-    color: #ffffff;
+    color: #93c5fd;
 }
 
 [data-theme="light"] .message.user {
-    background: linear-gradient(135deg, #24462b 0%, #183320 100%);
-    border: 1px solid rgba(36, 70, 43, 0.45);
+    background: #ffffff !important;
+    border: 1px solid rgba(44, 82, 52, 0.22) !important;
+    border-right: 4.5px solid #2c5234 !important;
     border-radius: 0px !important;
-    color: #ffffff;
-    box-shadow: 0 4px 16px rgba(36, 70, 43, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    padding: 0.9rem 1.35rem;
+    color: #1e293b !important;
+    box-shadow: 0 4px 16px rgba(44, 53, 57, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+    padding: 0.95rem 1.35rem;
 }
 
 [data-theme="light"] .msg-user-header,
 [data-theme="light"] .user-header {
-    border-bottom-color: rgba(255, 255, 255, 0.15) !important;
+    border-bottom: 1px solid rgba(44, 82, 52, 0.12) !important;
 }
 
 [data-theme="light"] .msg-avatar-icon.user-avatar,
@@ -1602,36 +1605,40 @@ main {
 
 [data-theme="light"] .msg-avatar-icon.user-avatar,
 [data-theme="light"] .user-avatar {
-    background: rgba(255, 255, 255, 0.15) !important;
-    border-color: rgba(255, 255, 255, 0.3) !important;
-    color: #ffffff !important;
+    background: #eaf3ec !important;
+    border: 1px solid rgba(44, 82, 52, 0.3) !important;
+    color: #2c5234 !important;
+}
+
+[data-theme="light"] .user-author-name {
+    color: #2c5234 !important;
 }
 
 [data-theme="light"] .msg-user-tag,
 [data-theme="light"] .user-role-tag {
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.25);
-    color: #ffffff;
+    background: #edf7ef !important;
+    border: 1px solid rgba(44, 82, 52, 0.25) !important;
+    color: #2c5234 !important;
 }
 
 [data-theme="light"] .user-timestamp {
-    color: rgba(255, 255, 255, 0.75) !important;
+    color: #64748b !important;
 }
 
 [data-theme="light"] .user-action-btn {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.22);
-    color: #ffffff;
+    background: #edf7ef !important;
+    border: 1px solid rgba(44, 82, 52, 0.25) !important;
+    color: #2c5234 !important;
 }
 
 [data-theme="light"] .user-action-btn:hover {
-    background: rgba(255, 255, 255, 0.25);
-    border-color: rgba(255, 255, 255, 0.4);
+    background: #dcf0e1 !important;
+    border-color: #2c5234 !important;
 }
 
 [data-theme="light"] .msg-user-content p,
 [data-theme="light"] .user-content p {
-    color: #ffffff;
+    color: #1e293b !important;
     font-size: 0.93rem;
     line-height: 1.65;
 }
