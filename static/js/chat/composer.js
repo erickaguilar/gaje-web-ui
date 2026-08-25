@@ -210,30 +210,55 @@ window.ChatComposerController = {
         } else if (type === 'user') {
             msgDiv.innerHTML = `
                 <header class="msg-header msg-user-header">
-                    <div class="msg-author">
-                        <span class="msg-avatar-icon user-avatar"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-terminal"/></svg></span>
-                        <span class="msg-author-name">USUARIO</span>
-                        <span class="msg-user-tag">INPUT</span>
+                    <div class="msg-author user-author">
+                        <span class="msg-avatar-icon user-avatar"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-user"/></svg></span>
+                        <span class="msg-author-name user-author-name">Tú</span>
+                        <span class="msg-user-tag user-role-tag">PROMPT</span>
                     </div>
-                    <time class="msg-timestamp" datetime="${isoTime}" data-unix="${Number(posixVal).toFixed(3)}" data-tooltip="Tiempo Unix POSIX: ${Number(posixVal).toFixed(3)}s">${timeStr}</time>
+                    <div class="user-header-right">
+                        <time class="msg-timestamp user-timestamp" datetime="${isoTime}" data-unix="${Number(posixVal).toFixed(3)}" data-tooltip="Tiempo Unix POSIX: ${Number(posixVal).toFixed(3)}s">${timeStr}</time>
+                        <div class="user-msg-actions">
+                            <button type="button" class="user-action-btn user-copy-btn copy-btn" data-tooltip="Copiar prompt al portapapeles" aria-label="Copiar prompt">
+                                <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-copy"/></svg>
+                            </button>
+                            <button type="button" class="user-action-btn user-edit-btn" data-tooltip="Reutilizar / Editar en composer" aria-label="Reutilizar prompt">
+                                <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-edit"/></svg>
+                            </button>
+                        </div>
+                    </div>
                 </header>
-                <section class="msg-content msg-user-content">
+                <section class="msg-content msg-user-content user-content">
                     <p>${window.ChatUtils.escapeHtml(text)}</p>
                 </section>
-                <footer class="msg-footer msg-user-footer">
-                    <div class="msg-actions">
-                        <button type="button" class="msg-action-btn copy-btn" data-tooltip="Copiar prompt al portapapeles" aria-label="Copiar prompt">
-                            <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-copy"/></svg>
-                            <span>Copiar</span>
-                        </button>
-                    </div>
-                </footer>
             `;
 
-            const copyBtn = msgDiv.querySelector('.copy-btn');
+            const copyBtn = msgDiv.querySelector('.copy-btn, .user-copy-btn');
             if (copyBtn) {
                 copyBtn.addEventListener('click', () => {
                     window.ChatUtils.copyTextToClipboard(text, copyBtn);
+                });
+            }
+
+            const editBtn = msgDiv.querySelector('.user-edit-btn');
+            if (editBtn) {
+                editBtn.addEventListener('click', () => {
+                    const input = document.getElementById('user-input');
+                    if (input) {
+                        input.value = text;
+                        input.focus();
+                        input.style.height = 'auto';
+                        input.style.height = `${Math.min(input.scrollHeight, 180)}px`;
+                        const charCount = document.getElementById('char-count');
+                        if (charCount) charCount.textContent = `${text.length} car.`;
+                        const sendBtn = document.getElementById('send-btn');
+                        if (sendBtn) {
+                            sendBtn.hidden = false;
+                            sendBtn.disabled = false;
+                        }
+                        const stopBtn = document.getElementById('stop-btn');
+                        if (stopBtn) stopBtn.hidden = true;
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
                 });
             }
         } else {

@@ -181,16 +181,64 @@
 /* Burbuja de Usuario: Tarjeta Rectangular en Ficha Nórdica */
 [data-theme="light"] .message.user {
     background: #ffffff;
-    border: 1px solid rgba(44, 82, 52, 0.2);
-    border-right: 4px solid #2c5234;
+    border: 1px solid rgba(44, 82, 52, 0.22);
+    border-right: 4.5px solid #2c5234;
     border-radius: 0px !important;
     color: #1e293b;
     box-shadow: 0 4px 16px rgba(44, 53, 57, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    padding: 1rem 1.4rem;
+    padding: 0.95rem 1.35rem;
 }
 
+[data-theme="light"] .msg-user-header,
+[data-theme="light"] .user-header {
+    border-bottom: 1px solid rgba(44, 82, 52, 0.12) !important;
+}
+
+[data-theme="light"] .msg-avatar-icon.user-avatar,
+[data-theme="light"] .user-avatar,
+[data-theme="light"] .msg-user-tag,
+[data-theme="light"] .user-role-tag,
+[data-theme="light"] .user-action-btn {
+    border-radius: 0px !important;
+}
+
+[data-theme="light"] .msg-avatar-icon.user-avatar,
+[data-theme="light"] .user-avatar {
+    background: #eaf3ec !important;
+    border-color: rgba(44, 82, 52, 0.3) !important;
+    color: #2c5234 !important;
+}
+
+[data-theme="light"] .user-author-name {
+    color: #2c5234 !important;
+}
+
+[data-theme="light"] .msg-user-tag,
+[data-theme="light"] .user-role-tag {
+    background: #edf7ef !important;
+    border: 1px solid rgba(44, 82, 52, 0.25) !important;
+    color: #2c5234 !important;
+}
+
+[data-theme="light"] .user-timestamp {
+    color: #64748b !important;
+}
+
+[data-theme="light"] .user-action-btn {
+    background: #f1f5f2 !important;
+    border: 1px solid rgba(44, 82, 52, 0.2) !important;
+    color: #2c5234 !important;
+}
+
+[data-theme="light"] .user-action-btn:hover {
+    background: #e2ede5 !important;
+    border-color: #2c5234 !important;
+}
+
+[data-theme="light"] .msg-user-content p,
+[data-theme="light"] .user-content p,
 [data-theme="light"] .message.user p {
-    color: #1e293b;
+    color: #1e293b !important;
     font-size: 0.93rem;
     line-height: 1.65;
 }

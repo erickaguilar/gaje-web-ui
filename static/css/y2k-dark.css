@@ -136,13 +136,10 @@
 /* Mensajes */
 :root .message.user,
 [data-theme="dark"] .message.user {
-    background: linear-gradient(135deg, rgba(10, 132, 255, 0.22) 0%, rgba(94, 92, 230, 0.16) 100%);
-    border: 1px solid rgba(10, 132, 255, 0.35);
-    border-right: 3.5px solid var(--accent, #0a84ff);
-    color: #f8fafc;
-    backdrop-filter: blur(28px) saturate(180%);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    box-shadow: 0 8px 30px rgba(10, 132, 255, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+    background: linear-gradient(135deg, rgba(10, 132, 255, 0.92) 0%, rgba(94, 92, 230, 0.92) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    color: #ffffff;
+    box-shadow: 0 6px 24px rgba(10, 132, 255, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.38);
 }
 
 :root .message.bot,
