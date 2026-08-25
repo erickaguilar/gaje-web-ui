@@ -7,38 +7,43 @@
             <button type="button" class="traffic-dot dot-max" id="win-btn-max" data-tooltip="Pantalla Completa (Maximizar)" aria-label="Maximizar Ventana"></button>
         </div>
 
-        <!-- Selector de Modelo Estandarizado GAJE -->
-        <div class="model-select-wrapper" data-tooltip="Seleccionar modelo activo (.flat / .gaje)">
-            <label for="model-select" class="visually-hidden">Seleccionar Modelo</label>
-            <select id="model-select" class="header-model-dropdown" aria-label="Seleccionar Modelo">
-                <option value="gaje_pico_135m.flat" selected>GAJE Pico 135M · [Móvil Ultra-Rápido 470MB]</option>
-                <option value="gaje_nano_1.5b.flat">GAJE Nano 1.5B · [WASM 1.2GB]</option>
-                <option value="gaje_prime_3b.flat">GAJE Prime 3B · [Desktop 2.2GB]</option>
-                <option value="gaje_ultra_7b.flat">GAJE Ultra 7B · [Cloud 4.9GB]</option>
-            </select>
-            <button type="button" id="model-toggle-btn" class="model-status-btn active" data-tooltip="Alternar estado del modelo (Activo / Desactivado)" aria-label="Alternar Estado del Modelo">
-                <span class="status-dot-led"></span>
-                <span id="model-toggle-text">Activo</span>
-            </button>
+        <div class="toolbar-brand-title" aria-label="GAJE Helix">
+            <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg>
+            <span>GAJE HELIX</span>
         </div>
     </div>
 
-    <!-- Acciones Derecha (Fila Superior Limpia y Minimalista) -->
+    <!-- Acciones Derecha (Menú Desplegable Unificado) -->
     <div class="chat-toolbar-actions">
-        <!-- Botón Rápido de Borrar Chat -->
-        <button id="btn-quick-clear-chat" class="chat-header-icon-btn danger-hover" data-tooltip="Borrar historial de chat" data-tooltip-pos="left" aria-label="Borrar historial">
-            <svg class="y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-trash"/></svg>
-        </button>
-
         <!-- Menú Desplegable de Herramientas y Acciones (•••) -->
         <div class="chat-overflow-menu-container">
             <button id="chat-overflow-menu-btn" class="chat-header-icon-btn" aria-haspopup="true" aria-expanded="false" data-tooltip="Herramientas y Acciones" data-tooltip-pos="left" aria-label="Más opciones del chat">
                 <svg class="y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-dots"/></svg>
             </button>
 
-            <!-- Dropdown flotante Apple HIG / Scandinavian con Telemetría & Info Integradas -->
+            <!-- Dropdown flotante Apple HIG / Scandinavian con Modelo, Telemetría & Info Integradas -->
             <div id="chat-actions-dropdown" class="chat-menu-dropdown" role="menu" hidden>
-                <!-- 1. Telemetría y Métricas -->
+                <!-- 1. Selector de Modelo Activo con LED -->
+                <div class="menu-section-label">Organismo Genómico</div>
+                <div class="chat-menu-item model-select-menu-item">
+                    <div class="model-select-wrapper" data-tooltip="Seleccionar modelo activo (.flat / .gaje)">
+                        <label for="model-select" class="visually-hidden">Seleccionar Modelo</label>
+                        <select id="model-select" class="header-model-dropdown" aria-label="Seleccionar Modelo">
+                            <option value="gaje_pico_135m.flat" selected>GAJE Pico 135M · [Móvil 470MB]</option>
+                            <option value="gaje_nano_1.5b.flat">GAJE Nano 1.5B · [WASM 1.2GB]</option>
+                            <option value="gaje_prime_3b.flat">GAJE Prime 3B · [Desktop 2.2GB]</option>
+                            <option value="gaje_ultra_7b.flat">GAJE Ultra 7B · [Cloud 4.9GB]</option>
+                        </select>
+                        <button type="button" id="model-toggle-btn" class="model-status-btn active" data-tooltip="Alternar estado del modelo (Activo / Desactivado)" aria-label="Alternar Estado del Modelo">
+                            <span class="status-dot-led"></span>
+                            <span id="model-toggle-text">Activo</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="menu-divider"></div>
+
+                <!-- 2. Telemetría y Métricas -->
                 <div class="menu-section-label">Telemetría y Métricas</div>
                 <button id="y2k-open-monitor-btn" class="chat-menu-item highlight-item" role="menuitem">
                     <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-monitor"/></svg>
@@ -46,7 +51,7 @@
                     <span class="live-dot-pulse-mini" aria-hidden="true"></span>
                 </button>
 
-                <!-- 2. Submenú Informativo: Recursos y Estado del Modelo -->
+                <!-- 3. Submenú Informativo: Recursos y Estado del Modelo -->
                 <div class="menu-section-label">Info y Recursos del Modelo</div>
                 <div class="menu-info-card">
                     <div class="menu-info-row">
@@ -85,7 +90,7 @@
 
                 <div class="menu-divider"></div>
 
-                <!-- 3. Conversación -->
+                <!-- 4. Conversación -->
                 <div class="menu-section-label">Conversación</div>
                 <button id="copy-all-btn" class="chat-menu-item" role="menuitem">
                     <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-copy"/></svg>
@@ -99,7 +104,7 @@
 
                 <div class="menu-divider"></div>
 
-                <!-- 4. Motor y Memoria -->
+                <!-- 5. Motor y Memoria -->
                 <div class="menu-section-label">Motor y Memoria</div>
                 <div class="chat-menu-item engine-select-item">
                     <label for="engine-mode-select" class="menu-item-label">
@@ -130,7 +135,7 @@
 
                 <div class="menu-divider"></div>
 
-                <!-- 5. Aplicación & Historial -->
+                <!-- 6. Aplicación & Historial -->
                 <button id="pwa-install-chat-btn" class="chat-menu-item pwa-install-btn" role="menuitem">
                     <svg class="y2k-icon" style="color: var(--accent);"><use href="static/icons/y2k/sprite.svg#i-install"/></svg>
                     <span style="font-weight: 600; color: var(--accent);">Instalar Aplicación (PWA)</span>

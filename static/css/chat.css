@@ -1274,6 +1274,66 @@ main {
     color: var(--accent);
 }
 
+/* Selector de Modelo embebido en el Dropdown de Acciones */
+.model-select-menu-item {
+    padding: 4px 6px;
+    cursor: default;
+    background: transparent !important;
+}
+
+.model-select-menu-item .model-select-wrapper {
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.model-select-menu-item .header-model-dropdown {
+    flex: 1;
+    font-size: 0.72rem;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    color: var(--text-color);
+}
+
+[data-theme="light"] .model-select-menu-item .header-model-dropdown {
+    background: #ffffff;
+    border-color: rgba(44, 82, 52, 0.22);
+    color: var(--text);
+    border-radius: 0px !important;
+}
+
+/* Título de Marca en el Toolbar */
+.toolbar-brand-title {
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    color: var(--text-color);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+    padding-left: 4px;
+}
+
+.toolbar-brand-title svg {
+    width: 14px;
+    height: 14px;
+    color: var(--accent);
+}
+
+[data-theme="light"] .toolbar-brand-title {
+    color: #1e293b;
+}
+
+[data-theme="light"] .toolbar-brand-title svg {
+    color: #2c5234;
+}
+
 /* ============================================================
    APPLE HIG GLASSMORPHIC TOOLTIPS (DATA-TOOLTIP)
    ============================================================ */

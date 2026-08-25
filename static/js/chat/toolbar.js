@@ -64,14 +64,6 @@ window.ChatToolbarController = {
             });
         }
 
-        // Botón Rápido de Borrar Chat
-        const btnQuickClear = document.getElementById('btn-quick-clear-chat');
-        if (btnQuickClear) {
-            btnQuickClear.addEventListener('click', () => {
-                this.clearChatInterface();
-            });
-        }
-
         const modelSelect = document.getElementById('model-select');
         if (modelSelect) {
             modelSelect.addEventListener('change', () => {
@@ -146,7 +138,7 @@ window.ChatToolbarController = {
                 }
             });
 
-            menuDropdown.querySelectorAll('.chat-menu-item:not(.engine-select-item)').forEach(item => {
+            menuDropdown.querySelectorAll('.chat-menu-item:not(.engine-select-item):not(.model-select-menu-item)').forEach(item => {
                 item.addEventListener('click', () => {
                     menuDropdown.setAttribute('hidden', '');
                     menuBtn.setAttribute('aria-expanded', 'false');
