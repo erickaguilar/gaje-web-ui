@@ -967,65 +967,93 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
 .y2k-segmented-nav {
   display: flex;
   align-items: center;
-  gap: 4px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 3px 5px;
+  gap: 3px;
+  background: rgba(28, 28, 30, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 3px 4px;
   border-radius: 12px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 10;
 }
 
 .segmented-tab {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 12px;
+  padding: 5px 13px;
   border-radius: 8px;
   font-family: var(--sans);
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--muted);
+  color: var(--text-muted);
   text-decoration: none;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
+  user-select: none;
+}
+
+.segmented-tab svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s ease, color 0.2s ease;
+  color: inherit;
 }
 
 .segmented-tab:hover {
   color: var(--text-color);
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.segmented-tab:hover svg {
+  transform: scale(1.1);
 }
 
 .segmented-tab.active {
   color: #ffffff;
-  background: linear-gradient(135deg, rgba(10, 132, 255, 0.35) 0%, rgba(94, 92, 230, 0.35) 100%);
-  border: 1px solid rgba(10, 132, 255, 0.45);
-  box-shadow: 0 2px 10px rgba(10, 132, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.segmented-tab.active svg {
+  color: var(--neon-cyan);
+  filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.4));
 }
 
 [data-theme="light"] .y2k-segmented-nav {
-  background: #edebe9;
-  border-color: rgba(44, 82, 52, 0.18);
+  background: #e8e6e2;
+  border: 1px solid rgba(44, 82, 52, 0.22);
   border-radius: 0px !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 [data-theme="light"] .segmented-tab {
-  color: var(--muted);
+  color: #595652;
   border-radius: 0px !important;
+  letter-spacing: 0.2px;
 }
 
 [data-theme="light"] .segmented-tab:hover {
-  color: var(--text);
-  background: rgba(255, 255, 255, 0.6);
+  color: #1a1918;
+  background: rgba(255, 255, 255, 0.8);
 }
 
 [data-theme="light"] .segmented-tab.active {
   background: #ffffff;
-  color: var(--accent);
-  border: 1px solid rgba(44, 82, 52, 0.28);
-  box-shadow: 0 1px 4px rgba(44, 53, 57, 0.08);
+  color: #2c5234;
+  font-weight: 700;
+  border: 1px solid rgba(44, 82, 52, 0.3);
+  border-bottom: 2px solid #2c5234;
+  box-shadow: 0 2px 6px rgba(44, 53, 57, 0.1);
+}
+
+[data-theme="light"] .segmented-tab.active svg {
+  color: #2c5234;
+  filter: none;
 }
 
 /* ── DIRECT THEME TOGGLE (SOL / LUNA) ── */

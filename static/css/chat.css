@@ -2572,62 +2572,77 @@ textarea#user-input::placeholder {
 }
 
 button#send-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
     background: linear-gradient(135deg, #0a84ff 0%, #5e5ce6 100%);
     color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    box-shadow: 0 4px 14px rgba(10, 132, 255, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 16px rgba(10, 132, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 button#send-btn:disabled {
-    opacity: 0.32;
+    opacity: 0.35;
     cursor: not-allowed;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.06);
     border-color: rgba(255, 255, 255, 0.08);
     box-shadow: none;
     color: var(--text-muted);
+    transform: none !important;
+}
+
+button#send-btn:hover:not(:disabled) {
+    transform: scale(1.06) translateY(-1px);
+    box-shadow: 0 6px 22px rgba(10, 132, 255, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    filter: brightness(1.12);
+}
+
+button#send-btn:active:not(:disabled) {
+    transform: scale(0.94) translateY(1px);
+    box-shadow: 0 2px 8px rgba(10, 132, 255, 0.35);
+}
+
+.send-icon {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+button#send-btn:hover:not(:disabled) .send-icon {
+    transform: translate(2px, -2px) rotate(-8deg) scale(1.08);
 }
 
 [data-theme="light"] button#send-btn {
     background: #2c5234;
     color: #ffffff;
-    border: 1px solid rgba(44, 82, 52, 0.4);
-    box-shadow: 0 2px 8px rgba(44, 82, 52, 0.2);
+    border: 1px solid #1e3a24;
+    box-shadow: 2px 2px 0px rgba(44, 82, 52, 0.35);
     border-radius: 0px !important;
 }
 
 [data-theme="light"] button#send-btn:disabled {
-    opacity: 0.32;
-    background: #e2e0dc;
-    border-color: #cfcdc9;
-    color: #8c8984;
+    opacity: 0.4;
+    background: #e8e6e2;
+    border: 1px solid #d4d1cb;
+    color: #9e9a93;
     box-shadow: none;
+    transform: none !important;
 }
 
 [data-theme="light"] button#send-btn:hover:not(:disabled) {
     background: #376541;
-    box-shadow: 0 4px 12px rgba(44, 82, 52, 0.35);
-    transform: scale(1.05);
+    border-color: #23432a;
+    box-shadow: 3px 3px 0px rgba(44, 82, 52, 0.45);
+    transform: translate(-1px, -1px);
+    filter: none;
 }
 
-button#send-btn:hover:not(:disabled) {
-    transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(10, 132, 255, 0.5);
-    filter: brightness(1.1);
-}
-
-button#send-btn:active:not(:disabled) {
-    transform: scale(0.95);
-}
-
-.send-icon {
-    width: 15px;
-    height: 15px;
-    fill: currentColor;
-    transition: transform 0.2s ease;
-}
-
-button#send-btn:hover:not(:disabled) .send-icon {
-    transform: translate(1px, -1px);
+[data-theme="light"] button#send-btn:active:not(:disabled) {
+    background: #23432a;
+    box-shadow: 0px 0px 0px rgba(44, 82, 52, 0.4);
+    transform: translate(1px, 1px);
 }
 
 .stop-btn {

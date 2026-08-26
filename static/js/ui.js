@@ -130,6 +130,9 @@
           if (a.getAttribute('href') === target || a.getAttribute('data-page') === page) {
             a.classList.add('active');
             a.setAttribute('aria-current', 'page');
+            a.setAttribute('aria-selected', 'true');
+          } else if (a.classList.contains('segmented-tab')) {
+            a.setAttribute('aria-selected', 'false');
           }
         });
         initHeaderMenu(host);
