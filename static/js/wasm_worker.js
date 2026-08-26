@@ -25,19 +25,31 @@ self.onmessage = async (e) => {
 
             const t0 = performance.now();
             if (wasmEngine) {
-                wasmEngine.free();
+                try { wasmEngine.free(); } catch (_) {}
                 wasmEngine = null;
             }
-            wasmEngine = GajeWasmEngine.load_from_bytes(uint8Array);
-            const loadTimeMs = (performance.now() - t0).toFixed(2);
-            const info = JSON.parse(wasmEngine.get_model_info());
+            try {
+                wasmEngine = GajeWasmEngine.load_from_bytes(uint8Array);
+                const loadTimeMs = (performance.now() - t0).toFixed(2);
+                const info = JSON.parse(wasmEngine.get_model_info());
 
-            self.postMessage({
-                status: 'model_loaded',
-                modelName,
-                loadTimeMs,
-                info
-            });
+                self.postMessage({
+                    status: 'model_loaded',
+                    modelName,
+                    loadTimeMs,
+                    info
+                });
+            } catch (wasmErr) {
+                const msg = wasmErr?.message || String(wasmErr);
+                let friendlyErr = `Error en motor WASM: ${msg}`;
+                if (msg.includes('unreachable') || msg.includes('memory') || uint8Array.byteLength > 600 * 1024 * 1024) {
+                    friendlyErr = `El modelo (${(uint8Array.byteLength / (1024 * 1024)).toFixed(0)} MB) excede la memoria del navegador WebAssembly (32-bit heap limit) o carece de tokenizador GTOK incrustado. Para modelos de este tamaño, selecciona 'Modo Servidor (Nativo Rust)' en el menú de Motor.`;
+                }
+                self.postMessage({
+                    status: 'error',
+                    error: friendlyErr
+                });
+            }
         } else if (action === 'chat') {
             if (!wasmEngine) {
                 throw new Error("No hay ningún modelo cargado en WebAssembly");

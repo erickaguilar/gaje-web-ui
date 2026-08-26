@@ -843,7 +843,7 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         },
 
         async onLocalFlatSelected(e) {
-            const file = e.target.files[0];
+            const file = e.target?.files?.[0];
             if (!file) return;
 
             const engineModeSelect = document.getElementById('engine-mode-select');
@@ -856,15 +856,23 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
             this.setModelLoading(true);
             ChatComposerController.addMessage(`📂 Cargando modelo local ${file.name} (${(file.size / (1024 * 1024)).toFixed(1)} MB)...`, 'system');
 
-            const reader = new FileReader();
-            reader.onload = async (event) => {
-                const buffer = event.target.result;
+            try {
+                const buffer = await file.arrayBuffer();
                 const modelName = file.name;
+
+                // 1. Guardar en IndexedDB local para persistencia instantánea
+                if (window.GajeDB && typeof window.GajeDB.saveCachedModel === 'function') {
+                    await window.GajeDB.saveCachedModel(modelName, buffer.slice(0));
+                }
 
                 await new Promise((resolve, reject) => {
                     const handler = async (ev) => {
                         if (ev.data.status === 'model_loaded') {
                             worker.removeEventListener('message', handler);
+                            window.ChatState.isWasmModelLoaded = true;
+                            window.ChatState.wasmActiveModelName = modelName;
+                            window.ChatState.activeModel = modelName;
+
                             if (window.GajeDB) {
                                 const docBuf = await window.GajeDB.loadMemoryIsland(modelName, 'documental');
                                 if (docBuf) worker.postMessage({ action: 'import_memory', payload: { niche: 'documental', buffer: docBuf } });
@@ -880,8 +888,33 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
                     worker.addEventListener('message', handler);
                     worker.postMessage({ action: 'load_model', payload: { buffer, modelName } }, [buffer]);
                 });
-            };
-            reader.readAsArrayBuffer(file);
+
+                // 2. Actualizar estado y selector de modelos en la barra de herramientas
+                window.ChatState.isWasmModelLoaded = true;
+                window.ChatState.wasmActiveModelName = modelName;
+                window.ChatState.activeModel = modelName;
+
+                const modelSelect = document.getElementById('model-select');
+                if (modelSelect) {
+                    let existingOpt = Array.from(modelSelect.options).find(opt => opt.value === modelName);
+                    if (!existingOpt) {
+                        existingOpt = document.createElement('option');
+                        existingOpt.value = modelName;
+                        existingOpt.innerText = `${modelName.replace('.flat', '')} · [Local .flat]`;
+                        modelSelect.appendChild(existingOpt);
+                    }
+                    modelSelect.value = modelName;
+                }
+                this.updateModelToggleState(true);
+                this.updateModelMeta();
+                ChatComposerController.addMessage(`Modelo local [${modelName}] cargado y listo en memoria WebAssembly.`, 'system');
+            } catch (err) {
+                console.error('Error cargando modelo flat local:', err);
+                ChatComposerController.addMessage(`Error cargando modelo local: ${err.message}`, 'system');
+            } finally {
+                this.setModelLoading(false);
+                if (e.target) e.target.value = '';
+            }
         }
     };
 

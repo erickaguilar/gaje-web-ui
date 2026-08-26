@@ -141,6 +141,32 @@ window.ChatEngineController = {
         const started = Date.now();
         window.ChatToolbarController?.setModelLoading(true);
 
+        const stopBtn = document.getElementById('stop-btn');
+        if (stopBtn) stopBtn.hidden = false;
+        const msgStopBtn = botMsg.querySelector('.msg-header-stop-btn');
+
+        let wasmAborted = false;
+        const handleWasmStop = () => {
+            if (wasmAborted) return;
+            wasmAborted = true;
+            if (worker) worker.postMessage({ action: 'abort' });
+            window.ChatToolbarController?.setModelLoading(false);
+            botMsg.classList.remove('streaming');
+            statusAnchor.remove();
+            msgStopBtn?.remove();
+            if (stopBtn) stopBtn.hidden = true;
+            contentEl.innerHTML = '<span style="color: var(--text-muted); display: inline-flex; align-items: center; gap: 4px;"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg> Inferencia detenida por el usuario.</span>';
+            window.ChatComposerController?.addMetaTo(botMsg, Date.now() - started, 'detenido', 'Inferencia detenida.', modelName);
+        };
+
+        if (stopBtn) stopBtn.onclick = handleWasmStop;
+        if (msgStopBtn) {
+            msgStopBtn.onclick = (e) => {
+                e.stopPropagation();
+                handleWasmStop();
+            };
+        }
+
         try {
             if (!window.ChatState.isWasmModelLoaded || window.ChatState.wasmActiveModelName !== modelName) {
                 let buffer = null;
@@ -164,7 +190,7 @@ window.ChatEngineController = {
                             contentEl.textContent = `Cargando ${modelName} desde almacenamiento local...`;
                             buffer = cachedBuf;
                         } else {
-                            console.warn(`⚠️ [GAJE-WASM] El modelo ${modelName} en caché local IndexedDB está desactualizado (sin GTOK). Purgando y descargando versión actualizada...`);
+                            console.warn(`[GAJE-WASM] El modelo ${modelName} en caché local IndexedDB está desactualizado (sin GTOK). Purgando y descargando versión actualizada...`);
                             if (typeof window.GajeDB.deleteCachedModel === 'function') {
                                 await window.GajeDB.deleteCachedModel(modelName);
                             }
@@ -188,10 +214,33 @@ window.ChatEngineController = {
                     }
                 }
 
-                // 2. Si no hay backend local (ej. Vercel/PWA), descargar desde el CDN oficial de Hugging Face
+                // 2. Si no hay backend local (ej. Vercel/PWA), descargar desde el CDN oficial de Hugging Face con Alerta de Datos
                 if (!buffer) {
                     const cdnBase = window.GAJE_CONFIG?.cdnBaseUrl || 'https://huggingface.co/eaguilar/gaje-models/resolve/main/';
                     const cdnUrl = `${cdnBase}${encodeURIComponent(modelName)}`;
+
+                    const dataAlert = document.createElement('div');
+                    dataAlert.className = 'data-usage-alert';
+                    dataAlert.setAttribute('role', 'alert');
+                    dataAlert.innerHTML = `
+                        <div class="data-alert-icon"><svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-download"/></svg></div>
+                        <div class="data-alert-content">
+                            <div class="data-alert-header">
+                                <span class="data-alert-title"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-alert"/></svg> Descarga y Consumo de Datos</span>
+                                <span class="data-alert-badge">Red Externa</span>
+                            </div>
+                            <p class="data-alert-text">Descargando pesos de <strong>${modelName}</strong>. Precaución si usas red móvil. Los pesos se guardarán en caché local IndexedDB para futuras ejecuciones offline sin consumo de datos.</p>
+                            <div class="data-alert-progress-track">
+                                <div class="data-alert-progress-bar" style="width: 0%"></div>
+                            </div>
+                            <div class="data-alert-stats">
+                                <span class="data-alert-pct">Iniciando...</span>
+                                <span class="data-alert-mb">Calculando</span>
+                            </div>
+                        </div>
+                    `;
+                    contentSection.insertBefore(dataAlert, contentEl);
+
                     contentEl.textContent = `Conectando con CDN (${modelName})...`;
                     const cdnRes = await fetch(cdnUrl, { mode: 'cors' });
                     if (!cdnRes.ok) {
@@ -200,12 +249,19 @@ window.ChatEngineController = {
 
                     const contentLength = cdnRes.headers.get('content-length');
                     const totalBytes = contentLength ? parseInt(contentLength, 10) : 0;
+                    const bar = dataAlert.querySelector('.data-alert-progress-bar');
+                    const pctEl = dataAlert.querySelector('.data-alert-pct');
+                    const mbEl = dataAlert.querySelector('.data-alert-mb');
 
                     if (cdnRes.body && totalBytes > 0) {
                         const reader = cdnRes.body.getReader();
                         let receivedBytes = 0;
                         const chunks = [];
                         while (true) {
+                            if (wasmAborted) {
+                                reader.cancel();
+                                throw new Error('Descarga cancelada por el usuario');
+                            }
                             const { done, value } = await reader.read();
                             if (done) break;
                             chunks.push(value);
@@ -213,6 +269,10 @@ window.ChatEngineController = {
                             const pct = Math.round((receivedBytes / totalBytes) * 100);
                             const recMb = (receivedBytes / (1024 * 1024)).toFixed(1);
                             const totMb = (totalBytes / (1024 * 1024)).toFixed(1);
+
+                            if (bar) bar.style.width = `${pct}%`;
+                            if (pctEl) pctEl.textContent = `${pct}%`;
+                            if (mbEl) mbEl.textContent = `${recMb} / ${totMb} MB`;
                             contentEl.textContent = `Descargando ${modelName}: ${pct}% (${recMb} / ${totMb} MB)...`;
                         }
                         const allChunks = new Uint8Array(receivedBytes);
@@ -225,6 +285,14 @@ window.ChatEngineController = {
                     } else {
                         buffer = await cdnRes.arrayBuffer();
                     }
+
+                    dataAlert.classList.add('completed');
+                    const iconContainer = dataAlert.querySelector('.data-alert-icon');
+                    if (iconContainer) iconContainer.innerHTML = '<svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-database"/></svg>';
+                    const titleEl = dataAlert.querySelector('.data-alert-title');
+                    const badgeEl = dataAlert.querySelector('.data-alert-badge');
+                    if (titleEl) titleEl.innerHTML = '<svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-check"/></svg> Descarga completada · Guardado en caché local';
+                    if (badgeEl) badgeEl.textContent = 'IndexedDB Listo';
 
                     // Guardar en caché IndexedDB para que en futuros inicios la carga sea instantánea (0s descarga)
                     if (buffer && buffer.byteLength >= 4096 && window.GajeDB && typeof window.GajeDB.saveCachedModel === 'function') {
@@ -279,6 +347,8 @@ window.ChatEngineController = {
             });
 
             window.ChatToolbarController?.setModelLoading(false);
+            if (stopBtn) stopBtn.hidden = true;
+            msgStopBtn?.remove();
             botMsg.classList.remove('streaming');
             statusAnchor.remove();
 
@@ -305,9 +375,13 @@ window.ChatEngineController = {
             return true;
         } catch (err) {
             window.ChatToolbarController?.setModelLoading(false);
+            if (stopBtn) stopBtn.hidden = true;
+            msgStopBtn?.remove();
             botMsg.classList.remove('streaming');
             statusAnchor.remove();
-            contentEl.innerHTML = `<span style="color: #fca5a5">⚠️ Error WASM: ${err.message}</span>`;
+            if (!wasmAborted) {
+                contentEl.innerHTML = `<span style="color: #fca5a5; display: inline-flex; align-items: center; gap: 4px;"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-alert"/></svg> Error WASM: ${window.ChatUtils?.escapeHtml(err.message) || err.message}</span>`;
+            }
             chatWindow.scrollTop = chatWindow.scrollHeight;
             return false;
         }
@@ -338,6 +412,7 @@ window.ChatEngineController = {
         window.ChatState.abortController = new AbortController();
         const stopBtn = document.getElementById('stop-btn');
         if (stopBtn) stopBtn.hidden = false;
+        const msgStopBtn = botMsg.querySelector('.msg-header-stop-btn');
         if (chatWindow) chatWindow.setAttribute('aria-busy', 'true');
 
         let fullText = '';
@@ -350,6 +425,7 @@ window.ChatEngineController = {
             done = true;
             window.ChatState.abortController = null;
             if (stopBtn) stopBtn.hidden = true;
+            msgStopBtn?.remove();
             if (chatWindow) chatWindow.setAttribute('aria-busy', 'false');
             botMsg.classList.remove('streaming');
             statusAnchor.remove();
@@ -358,7 +434,7 @@ window.ChatEngineController = {
                 contentEl.innerHTML = window.ChatMarkdown?.parse(fullText) || fullText;
             }
             if (aborted && fullText) {
-                window.ChatComposerController?.addMetaTo(botMsg, elapsed, '⏹️ detenido', fullText, modelName, latestMetrics);
+                window.ChatComposerController?.addMetaTo(botMsg, elapsed, 'detenido', fullText, modelName, latestMetrics);
             } else if (!aborted) {
                 window.ChatComposerController?.addMetaTo(botMsg, elapsed, '', fullText, modelName, latestMetrics);
             }
@@ -366,9 +442,15 @@ window.ChatEngineController = {
             chatWindow.scrollTop = chatWindow.scrollHeight;
         };
 
-        if (stopBtn) {
-            stopBtn.onclick = () => {
-                if (window.ChatState.abortController) window.ChatState.abortController.abort();
+        const handleStop = () => {
+            if (window.ChatState.abortController) window.ChatState.abortController.abort();
+        };
+
+        if (stopBtn) stopBtn.onclick = handleStop;
+        if (msgStopBtn) {
+            msgStopBtn.onclick = (e) => {
+                e.stopPropagation();
+                handleStop();
             };
         }
 

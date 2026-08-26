@@ -146,7 +146,13 @@ window.ChatComposerController = {
                     <span class="msg-author-name">GAJE AI</span>
                     <span class="msg-model-tag">${shortName}</span>
                 </div>
-                <time class="msg-timestamp" datetime="${isoTime}" data-unix="${posixNow.toFixed(3)}" data-tooltip="Tiempo Unix POSIX: ${posixNow.toFixed(3)}s">${msgTime}</time>
+                <div class="msg-header-controls">
+                    <button type="button" class="msg-header-stop-btn" title="Detener generación" aria-label="Detener generación">
+                        <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
+                        <span>Detener</span>
+                    </button>
+                    <time class="msg-timestamp" datetime="${isoTime}" data-unix="${posixNow.toFixed(3)}" data-tooltip="Tiempo Unix POSIX: ${posixNow.toFixed(3)}s">${msgTime}</time>
+                </div>
             </header>
             <section class="msg-content"></section>
         `;
