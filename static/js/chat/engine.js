@@ -352,25 +352,43 @@ window.ChatEngineController = {
             botMsg.classList.remove('streaming');
             statusAnchor.remove();
 
-            const responseText = (result && typeof result.response === 'string' && result.response.trim().length > 0)
-                ? result.response
-                : 'Inferencia completada.';
-            contentEl.innerHTML = window.ChatMarkdown?.parse(responseText) || responseText;
+            const hasGeneratedText = result && typeof result.response === 'string' && result.response.trim().length > 0;
+            const responseText = hasGeneratedText ? result.response : '';
+
+            if (hasGeneratedText) {
+                contentEl.innerHTML = window.ChatMarkdown?.parse(responseText) || responseText;
+            } else {
+                contentEl.innerHTML = '<div class="empty-response-notice"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-check"/></svg> <span>Inferencia finalizada por delimitador de secuencia (<code class="y2k-code-inline">&lt;|im_end|&gt;</code>).</span></div>';
+            }
 
             const elapsed = Date.now() - started;
             const wasmMetrics = {
                 latency_ms: elapsed,
-                tokens_per_second: result.genTimeMs ? ((responseText.length / 4) / (parseFloat(result.genTimeMs) / 1000)).toFixed(1) : '35.0',
+                tokens_per_second: result.genTimeMs ? ((Math.max(responseText.length, 4) / 4) / (parseFloat(result.genTimeMs) / 1000)).toFixed(1) : '35.0',
                 compression_ratio: '16.0x (WASM)',
                 mode: 'WASM In-Browser',
                 server_time: window.ChatUtils ? window.ChatUtils.formatExactTime() : null,
                 timestamp_posix: window.ChatUtils ? window.ChatUtils.getUnixTimestamp() : (Date.now() / 1000)
             };
 
-            window.ChatComposerController?.addMetaTo(botMsg, elapsed, 'WASM', responseText, modelName, wasmMetrics);
-            window.ChatStorage?.pushHistory({ role: 'assistant', content: responseText, model: modelName, metrics: wasmMetrics });
+            window.ChatComposerController?.addMetaTo(botMsg, elapsed, 'WASM', responseText || 'EOS', modelName, wasmMetrics);
+            if (responseText) {
+                window.ChatStorage?.pushHistory({ role: 'assistant', content: responseText, model: modelName, metrics: wasmMetrics });
+            }
             window.ChatComposerController?.updateMetrics(wasmMetrics);
             this.registerWasmInteraction();
+
+            window.ChatUtils?.showToast(
+                hasGeneratedText ? 'Inferencia completada en WebAssembly' : 'Inferencia completada · Delimitador EOS alcanzado',
+                'success',
+                3500,
+                {
+                    model: modelName.replace('.flat', ''),
+                    latency: `${elapsed}ms`,
+                    speed: `${wasmMetrics.tokens_per_second} tok/s`
+                }
+            );
+
             chatWindow.scrollTop = chatWindow.scrollHeight;
             return true;
         } catch (err) {
@@ -433,10 +451,20 @@ window.ChatEngineController = {
             if (fullText) {
                 contentEl.innerHTML = window.ChatMarkdown?.parse(fullText) || fullText;
             }
-            if (aborted && fullText) {
-                window.ChatComposerController?.addMetaTo(botMsg, elapsed, 'detenido', fullText, modelName, latestMetrics);
+            if (aborted) {
+                window.ChatUtils?.showToast('Inferencia detenida por el usuario', 'warning', 3000, { model: modelName });
+                if (fullText) {
+                    window.ChatComposerController?.addMetaTo(botMsg, elapsed, 'detenido', fullText, modelName, latestMetrics);
+                }
             } else if (!aborted) {
                 window.ChatComposerController?.addMetaTo(botMsg, elapsed, '', fullText, modelName, latestMetrics);
+                if (fullText) {
+                    window.ChatUtils?.showToast('Inferencia completada', 'success', 3500, {
+                        model: modelName,
+                        latency: `${elapsed}ms`,
+                        speed: latestMetrics?.tokens_per_second ? `${latestMetrics.tokens_per_second} tok/s` : null
+                    });
+                }
             }
             if (fullText) window.ChatStorage?.pushHistory({ role: 'assistant', content: fullText, model: modelName, metrics: latestMetrics });
             chatWindow.scrollTop = chatWindow.scrollHeight;

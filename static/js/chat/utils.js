@@ -381,5 +381,80 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         }).catch(err => {
             console.error('Error al copiar el log del proyecto:', err);
         });
+    },
+
+    showToast(message, type = 'info', duration = 3500, meta = null) {
+        let container = document.getElementById('y2k-toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'y2k-toast-container';
+            container.className = 'y2k-toast-container';
+            container.setAttribute('aria-live', 'polite');
+            document.body.appendChild(container);
+        }
+
+        const iconMap = {
+            success: 'i-check',
+            info: 'i-info',
+            warning: 'i-alert',
+            error: 'i-alert',
+            inference: 'i-bolt',
+            dna: 'i-sparkle'
+        };
+
+        const iconId = iconMap[type] || 'i-info';
+        const toast = document.createElement('div');
+        toast.className = `y2k-toast y2k-toast-${type}`;
+        toast.setAttribute('role', 'status');
+
+        const exactTime = this.formatExactTime();
+        let metaHtml = '';
+        if (meta && typeof meta === 'object') {
+            const parts = [];
+            if (meta.model) parts.push(`<span class="toast-meta-pill">${this.escapeHtml(meta.model)}</span>`);
+            if (meta.latency) parts.push(`<span class="toast-meta-pill">${this.escapeHtml(meta.latency)}</span>`);
+            if (meta.speed) parts.push(`<span class="toast-meta-pill">${this.escapeHtml(meta.speed)}</span>`);
+            if (parts.length > 0) metaHtml = `<div class="toast-meta-row">${parts.join('')}</div>`;
+        }
+
+        toast.innerHTML = `
+            <div class="toast-icon-wrap">
+                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#${iconId}"/></svg>
+            </div>
+            <div class="toast-body">
+                <div class="toast-header-row">
+                    <span class="toast-title">${type === 'success' ? 'Inferencia Completada' : type === 'warning' ? 'Aviso' : type === 'error' ? 'Error' : 'Sistema'}</span>
+                    <time class="toast-time">${exactTime}</time>
+                </div>
+                <div class="toast-msg">${this.escapeHtml(message)}</div>
+                ${metaHtml}
+            </div>
+            <button type="button" class="toast-close-btn" aria-label="Cerrar notificación">
+                <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-close"/></svg>
+            </button>
+        `;
+
+        const closeBtn = toast.querySelector('.toast-close-btn');
+        let dismissed = false;
+        const dismiss = () => {
+            if (dismissed) return;
+            dismissed = true;
+            toast.classList.add('dismissing');
+            setTimeout(() => {
+                toast.remove();
+                if (container.children.length === 0) {
+                    container.remove();
+                }
+            }, 220);
+        };
+
+        if (closeBtn) closeBtn.onclick = dismiss;
+
+        container.appendChild(toast);
+
+        if (duration > 0) {
+            setTimeout(dismiss, duration);
+        }
+        return toast;
     }
 };

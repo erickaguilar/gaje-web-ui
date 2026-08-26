@@ -3523,3 +3523,259 @@ dialog.y2k-apple-modal[open]::backdrop {
         padding: 0.35rem 0.45rem;
     }
 }
+
+/* =============================================================================
+   🧬 GAJE — Sistema de Notificaciones Toast Y2K Dual-Theme
+   ============================================================================= */
+
+.y2k-toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    max-width: calc(100vw - 40px);
+    width: 360px;
+}
+
+.y2k-toast {
+    pointer-events: auto;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 0.75rem 1rem;
+    background: rgba(28, 28, 30, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 1px 1px 0 rgba(255, 255, 255, 0.15);
+    color: var(--text-color);
+    animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.22s ease, opacity 0.22s ease;
+}
+
+.y2k-toast.dismissing {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+@keyframes toastSlideIn {
+    from {
+        transform: translateX(100%) scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.y2k-toast-success {
+    border-left: 3px solid #30d158;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 16px rgba(48, 209, 88, 0.15);
+}
+
+.y2k-toast-warning {
+    border-left: 3px solid #ff9f0a;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 16px rgba(255, 159, 10, 0.15);
+}
+
+.y2k-toast-error {
+    border-left: 3px solid #ff453a;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 16px rgba(255, 69, 58, 0.15);
+}
+
+.y2k-toast-info, .y2k-toast-inference {
+    border-left: 3px solid #0a84ff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 16px rgba(10, 132, 255, 0.15);
+}
+
+.toast-icon-wrap {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.y2k-toast-success .toast-icon-wrap { color: #30d158; }
+.y2k-toast-warning .toast-icon-wrap { color: #ff9f0a; }
+.y2k-toast-error .toast-icon-wrap { color: #ff453a; }
+.y2k-toast-info .toast-icon-wrap, .y2k-toast-inference .toast-icon-wrap { color: #0a84ff; }
+
+.toast-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.toast-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.toast-title {
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    text-transform: uppercase;
+}
+
+.y2k-toast-success .toast-title { color: #30d158; }
+.y2k-toast-warning .toast-title { color: #ff9f0a; }
+.y2k-toast-error .toast-title { color: #ff453a; }
+.y2k-toast-info .toast-title { color: #0a84ff; }
+
+.toast-time {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: var(--text-muted);
+}
+
+.toast-msg {
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: var(--text-color);
+    word-break: break-word;
+}
+
+.toast-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.toast-meta-pill {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--text-muted);
+}
+
+.toast-close-btn {
+    background: transparent;
+    border: none;
+    padding: 2px;
+    cursor: pointer;
+    color: var(--text-muted);
+    opacity: 0.7;
+    transition: opacity 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toast-close-btn:hover {
+    opacity: 1;
+    color: var(--text-color);
+}
+
+/* ── Scandinavian Light Theme para Toast ── */
+[data-theme="light"] .y2k-toast {
+    background: #ffffff;
+    border-radius: 0px !important;
+    border: 1px solid rgba(44, 82, 52, 0.22);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    color: var(--text);
+}
+
+[data-theme="light"] .y2k-toast-success {
+    border-left: 3px solid #2c5234;
+    box-shadow: 0 4px 16px rgba(44, 82, 52, 0.1);
+}
+
+[data-theme="light"] .y2k-toast-warning {
+    border-left: 3px solid #b45309;
+    box-shadow: 0 4px 16px rgba(180, 83, 9, 0.1);
+}
+
+[data-theme="light"] .y2k-toast-error {
+    border-left: 3px solid #b91c1c;
+}
+
+[data-theme="light"] .y2k-toast-info,
+[data-theme="light"] .y2k-toast-inference {
+    border-left: 3px solid #2c5234;
+}
+
+[data-theme="light"] .y2k-toast-success .toast-title,
+[data-theme="light"] .y2k-toast-success .toast-icon-wrap {
+    color: #2c5234;
+}
+
+[data-theme="light"] .y2k-toast-warning .toast-title,
+[data-theme="light"] .y2k-toast-warning .toast-icon-wrap {
+    color: #b45309;
+}
+
+[data-theme="light"] .toast-msg {
+    color: #2c3539;
+}
+
+[data-theme="light"] .toast-meta-pill {
+    border-radius: 0px !important;
+    background: #f6f5f3;
+    border: 1px solid rgba(44, 82, 52, 0.15);
+    color: #2c5234;
+}
+
+/* ── Tarjeta de Estado para Inferencia EOS / Vacía ── */
+.empty-response-notice {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.55rem 0.85rem;
+    border-radius: 8px;
+    background: rgba(48, 209, 88, 0.08);
+    border: 1px solid rgba(48, 209, 88, 0.25);
+    color: var(--text-color);
+    font-size: 0.82rem;
+}
+
+[data-theme="light"] .empty-response-notice {
+    border-radius: 0px !important;
+    background: rgba(44, 82, 52, 0.06);
+    border: 1px solid rgba(44, 82, 52, 0.2);
+    color: var(--text);
+}
+
+.empty-response-notice svg {
+    color: #30d158;
+    flex-shrink: 0;
+}
+
+[data-theme="light"] .empty-response-notice svg {
+    color: #2c5234;
+}
+
+.y2k-code-inline {
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #22d3ee;
+}
+
+[data-theme="light"] .y2k-code-inline {
+    border-radius: 0px !important;
+    background: #f6f5f3;
+    border: 1px solid rgba(44, 82, 52, 0.18);
+    color: #b45309;
+}
