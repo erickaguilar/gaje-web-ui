@@ -6,8 +6,8 @@
 (function (scope) {
   'use strict';
 
-  var VERSION = '1.7.7';
-  var BUILD_DATE = '2026-08-24';
+  var VERSION = '1.7.8';
+  var BUILD_DATE = '2026-08-26';
 
   var CONFIG = {
     version: VERSION,
@@ -16,7 +16,7 @@
     appDescription: 'Motor de inferencia LLM y compresión semántica genómica.',
     
     // CDN oficial de modelos binarios .flat
-    cdnBaseUrl: 'https://huggingface.co/eaguilar/gaje-models/resolve/main/',
+    cdnBaseUrl: 'https://huggingface.co/erickaguilar/gaje-models/resolve/main/',
     
     // Modelo por defecto al iniciar
     defaultModel: 'gaje_pico_135m.flat',

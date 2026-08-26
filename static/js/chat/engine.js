@@ -256,27 +256,48 @@ window.ChatEngineController = {
                     const pctEl = dataAlert.querySelector('.data-alert-pct');
                     const mbEl = dataAlert.querySelector('.data-alert-mb');
 
+                    const dlStart = Date.now();
+                    let lastSpeedCheck = dlStart;
+                    let lastReceived = 0;
+                    let currentSpeedMb = 0;
+
                     if (cdnRes.body && totalBytes > 0) {
                         const reader = cdnRes.body.getReader();
                         let receivedBytes = 0;
                         const chunks = [];
                         while (true) {
                             if (wasmAborted) {
-                                reader.cancel();
+                                try { await reader.cancel(); } catch (e) {}
                                 throw new Error('Descarga cancelada por el usuario');
                             }
                             const { done, value } = await reader.read();
                             if (done) break;
                             chunks.push(value);
                             receivedBytes += value.length;
-                            const pct = Math.round((receivedBytes / totalBytes) * 100);
+
+                            const now = Date.now();
+                            const elapsedSec = (now - dlStart) / 1000;
+                            const intervalSec = (now - lastSpeedCheck) / 1000;
+
+                            if (intervalSec >= 0.4 || receivedBytes === totalBytes) {
+                                const bytesInInterval = receivedBytes - lastReceived;
+                                currentSpeedMb = (bytesInInterval / (1024 * 1024)) / (intervalSec || 0.001);
+                                lastSpeedCheck = now;
+                                lastReceived = receivedBytes;
+                            }
+
+                            const pct = Math.min(100, Math.round((receivedBytes / totalBytes) * 100));
                             const recMb = (receivedBytes / (1024 * 1024)).toFixed(1);
                             const totMb = (totalBytes / (1024 * 1024)).toFixed(1);
+                            const remainingBytes = totalBytes - receivedBytes;
+                            const avgSpeedBytesPerSec = receivedBytes / (elapsedSec || 0.001);
+                            const etaSec = avgSpeedBytesPerSec > 0 ? Math.ceil(remainingBytes / avgSpeedBytesPerSec) : 0;
+                            const etaStr = etaSec > 60 ? `${Math.floor(etaSec / 60)}m ${etaSec % 60}s` : `${etaSec}s`;
 
                             if (bar) bar.style.width = `${pct}%`;
-                            if (pctEl) pctEl.textContent = `${pct}%`;
-                            if (mbEl) mbEl.textContent = `${recMb} / ${totMb} MB`;
-                            contentEl.textContent = `Descargando ${modelName}: ${pct}% (${recMb} / ${totMb} MB)...`;
+                            if (pctEl) pctEl.textContent = `${pct}% (${currentSpeedMb > 0 ? currentSpeedMb.toFixed(1) : (receivedBytes / (1024*1024*Math.max(0.1, elapsedSec))).toFixed(1)} MB/s)`;
+                            if (mbEl) mbEl.textContent = `${recMb} / ${totMb} MB · ETA ${etaStr}`;
+                            contentEl.textContent = `Descargando ${modelName}: ${pct}% (${recMb} / ${totMb} MB · ${currentSpeedMb.toFixed(1)} MB/s)...`;
                         }
                         const allChunks = new Uint8Array(receivedBytes);
                         let position = 0;
@@ -289,12 +310,15 @@ window.ChatEngineController = {
                         buffer = await cdnRes.arrayBuffer();
                     }
 
+                    const dlTotalSec = ((Date.now() - dlStart) / 1000).toFixed(1);
+                    const avgSpeedMb = ((buffer.byteLength / (1024 * 1024)) / Math.max(0.1, dlTotalSec)).toFixed(1);
+
                     dataAlert.classList.add('completed');
                     const iconContainer = dataAlert.querySelector('.data-alert-icon');
                     if (iconContainer) iconContainer.innerHTML = '<svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-database"/></svg>';
                     const titleEl = dataAlert.querySelector('.data-alert-title');
                     const badgeEl = dataAlert.querySelector('.data-alert-badge');
-                    if (titleEl) titleEl.innerHTML = '<svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-check"/></svg> Descarga completada · Guardado en caché local';
+                    if (titleEl) titleEl.innerHTML = `<svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-check"/></svg> Descarga completada en ${dlTotalSec}s (${avgSpeedMb} MB/s)`;
                     if (badgeEl) badgeEl.textContent = 'IndexedDB Listo';
 
                     // Guardar en caché IndexedDB para que en futuros inicios la carga sea instantánea (0s descarga)
