@@ -217,30 +217,34 @@ window.ChatComposerController = {
             }
         } else if (type === 'user') {
             msgDiv.innerHTML = `
-                <header class="msg-header msg-user-header">
-                    <div class="msg-author user-author">
+                <header class="msg-header">
+                    <div class="msg-author">
                         <span class="msg-avatar-icon user-avatar"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-user"/></svg></span>
-                        <span class="msg-author-name user-author-name">Tú</span>
-                        <span class="msg-user-tag user-role-tag">PROMPT</span>
+                        <span class="msg-author-name">Tú</span>
                     </div>
-                    <div class="user-header-right">
-                        <time class="msg-timestamp user-timestamp" datetime="${isoTime}" data-unix="${Number(posixVal).toFixed(3)}" data-tooltip="Tiempo Unix POSIX: ${Number(posixVal).toFixed(3)}s">${timeStr}</time>
-                        <div class="user-msg-actions">
-                            <button type="button" class="user-action-btn user-copy-btn copy-btn" data-tooltip="Copiar prompt al portapapeles" aria-label="Copiar prompt">
-                                <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-copy"/></svg>
-                            </button>
-                            <button type="button" class="user-action-btn user-edit-btn" data-tooltip="Reutilizar / Editar en composer" aria-label="Reutilizar prompt">
-                                <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-edit"/></svg>
-                            </button>
-                        </div>
-                    </div>
+                    <time class="msg-timestamp" datetime="${isoTime}" data-unix="${Number(posixVal).toFixed(3)}" data-tooltip="Tiempo Unix POSIX: ${Number(posixVal).toFixed(3)}s">${timeStr}</time>
                 </header>
-                <section class="msg-content msg-user-content user-content">
+                <section class="msg-content">
                     <p>${window.ChatUtils.escapeHtml(text)}</p>
                 </section>
+                <footer class="msg-footer">
+                    <div class="msg-telemetry">
+                        <span class="telemetry-pill pill-prompt" data-tooltip="Longitud del Prompt"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-docs"/></svg> <span>${text.length} car.</span></span>
+                    </div>
+                    <div class="msg-actions">
+                        <button type="button" class="msg-action-btn user-edit-btn" data-tooltip="Reutilizar / Editar en composer" aria-label="Reutilizar prompt">
+                            <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-edit"/></svg>
+                            <span>Editar</span>
+                        </button>
+                        <button type="button" class="msg-action-btn copy-btn" data-tooltip="Copiar prompt al portapapeles" aria-label="Copiar prompt">
+                            <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-copy"/></svg>
+                            <span>Copiar</span>
+                        </button>
+                    </div>
+                </footer>
             `;
 
-            const copyBtn = msgDiv.querySelector('.copy-btn, .user-copy-btn');
+            const copyBtn = msgDiv.querySelector('.copy-btn');
             if (copyBtn) {
                 copyBtn.addEventListener('click', () => {
                     window.ChatUtils.copyTextToClipboard(text, copyBtn);
