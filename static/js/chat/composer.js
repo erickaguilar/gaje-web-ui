@@ -144,7 +144,6 @@ window.ChatComposerController = {
                 <div class="msg-author">
                     <span class="msg-avatar-icon"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg></span>
                     <span class="msg-author-name">GAJE AI</span>
-                    <span class="msg-model-tag">${shortName}</span>
                 </div>
                 <div class="msg-header-controls">
                     <button type="button" class="msg-header-stop-btn" title="Detener generación" aria-label="Detener generación">
@@ -188,7 +187,6 @@ window.ChatComposerController = {
         msgDiv.setAttribute('data-model', mName);
 
         if (type === 'bot') {
-            const shortName = mName.replace('.gaje.flat', '').replace('.flat', '').replace('.gaje', '');
             const parsedBody = window.ChatMarkdown?.parse(text) || text;
             const footerHtml = this.renderTelemetryFooterHtml(meta, mName, text);
 
@@ -197,7 +195,6 @@ window.ChatComposerController = {
                     <div class="msg-author">
                         <span class="msg-avatar-icon"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg></span>
                         <span class="msg-author-name">GAJE AI</span>
-                        <span class="msg-model-tag">${shortName}</span>
                     </div>
                     <time class="msg-timestamp" datetime="${isoTime}" data-unix="${Number(posixVal).toFixed(3)}" data-tooltip="Tiempo Unix POSIX: ${Number(posixVal).toFixed(3)}s">${timeStr}</time>
                 </header>

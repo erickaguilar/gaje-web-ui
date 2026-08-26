@@ -1903,24 +1903,6 @@ main {
     color: var(--muted);
 }
 
-[data-theme="light"] .message.bot::after {
-    content: "📓 Ficha de Aprendizaje Genómico";
-    position: absolute;
-    top: -8px;
-    right: 14px;
-    font-size: 0.58rem;
-    font-weight: 700;
-    font-family: var(--mono);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    background: #fbfaf8;
-    color: #b45309;
-    padding: 1px 7px;
-    border-radius: 0px !important;
-    border: 1px solid rgba(180, 83, 9, 0.25);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-}
-
 /* Tipografía de Markdown en respuestas */
 .response-body {
     display: flex;
@@ -2501,6 +2483,27 @@ h4.md-heading { font-size: 0.92rem; color: var(--text-muted); }
     display: flex;
     align-items: center;
     gap: 6px;
+}
+
+.composer-model-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    font-weight: 600;
+    color: #c4b5fd;
+    background: rgba(167, 139, 250, 0.1);
+    border: 1px solid rgba(167, 139, 250, 0.25);
+    padding: 1px 6px;
+    border-radius: 4px;
+}
+
+[data-theme="light"] .composer-model-badge {
+    border-radius: 0px !important;
+    background: rgba(44, 82, 52, 0.08);
+    border-color: rgba(44, 82, 52, 0.22);
+    color: #2c5234;
 }
 
 .composer-status-badge {

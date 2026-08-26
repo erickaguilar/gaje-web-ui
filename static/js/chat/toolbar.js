@@ -344,6 +344,13 @@ window.ChatToolbarController = {
         if (!modelSelect) return;
         const selected = modelSelect.value;
         window.ChatState.activeModel = selected;
+
+        const composerModelEl = document.getElementById('composer-active-model-name');
+        if (composerModelEl && selected) {
+            const cleanName = selected.replace('.gaje.flat', '').replace('.flat', '').replace('.gaje', '');
+            composerModelEl.innerText = cleanName;
+        }
+
         const model = window.ChatState.modelsData.find(m => m.name === selected);
         if (!model) return;
 

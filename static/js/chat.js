@@ -712,6 +712,13 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
             if (!modelSelect) return;
             const selected = modelSelect.value;
             ChatState.activeModel = selected;
+
+            const composerModelEl = document.getElementById('composer-active-model-name');
+            if (composerModelEl && selected) {
+                const cleanName = selected.replace('.gaje.flat', '').replace('.flat', '').replace('.gaje', '');
+                composerModelEl.innerText = cleanName;
+            }
+
             const model = ChatState.modelsData.find(m => m.name === selected);
             if (!model) return;
 
