@@ -3685,6 +3685,53 @@ dialog.y2k-apple-modal[open]::backdrop {
     color: var(--text-color);
 }
 
+.toast-progress-track {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+[data-theme="light"] .toast-progress-track {
+    background: rgba(44, 82, 52, 0.08);
+    border-radius: 0px !important;
+}
+
+.toast-progress-bar {
+    height: 100%;
+    width: 100%;
+    background: currentColor;
+    opacity: 0.65;
+    animation: toastProgress linear forwards;
+    transform-origin: left center;
+}
+
+.y2k-toast.paused .toast-progress-bar {
+    animation-play-state: paused;
+}
+
+.y2k-toast-success .toast-progress-bar { background: #30d158; }
+.y2k-toast-warning .toast-progress-bar { background: #ff9f0a; }
+.y2k-toast-error .toast-progress-bar { background: #ff453a; }
+.y2k-toast-info .toast-progress-bar, .y2k-toast-inference .toast-progress-bar { background: #0a84ff; }
+
+[data-theme="light"] .y2k-toast-success .toast-progress-bar { background: #2c5234; }
+[data-theme="light"] .y2k-toast-warning .toast-progress-bar { background: #b45309; }
+
+@keyframes toastProgress {
+    from {
+        transform: scaleX(1);
+    }
+    to {
+        transform: scaleX(0);
+    }
+}
+
 /* ── Scandinavian Light Theme para Toast ── */
 [data-theme="light"] .y2k-toast {
     background: #ffffff;

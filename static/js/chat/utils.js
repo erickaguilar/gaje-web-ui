@@ -383,7 +383,7 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         });
     },
 
-    showToast(message, type = 'info', duration = 3500, meta = null) {
+    showToast(message, type = 'info', duration = 6000, meta = null) {
         let container = document.getElementById('y2k-toast-container');
         if (!container) {
             container = document.createElement('div');
@@ -417,6 +417,10 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
             if (parts.length > 0) metaHtml = `<div class="toast-meta-row">${parts.join('')}</div>`;
         }
 
+        const progressHtml = duration > 0
+            ? `<div class="toast-progress-track"><div class="toast-progress-bar" style="animation-duration: ${duration}ms;"></div></div>`
+            : '';
+
         toast.innerHTML = `
             <div class="toast-icon-wrap">
                 <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#${iconId}"/></svg>
@@ -432,6 +436,7 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
             <button type="button" class="toast-close-btn" aria-label="Cerrar notificación">
                 <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-close"/></svg>
             </button>
+            ${progressHtml}
         `;
 
         const closeBtn = toast.querySelector('.toast-close-btn');
@@ -450,11 +455,38 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
 
         if (closeBtn) closeBtn.onclick = dismiss;
 
-        container.appendChild(toast);
+        let timerId = null;
+        let remainingTime = duration;
+        let startTime = Date.now();
+
+        const startTimer = (ms) => {
+            if (ms <= 0) return;
+            startTime = Date.now();
+            timerId = setTimeout(dismiss, ms);
+        };
 
         if (duration > 0) {
-            setTimeout(dismiss, duration);
+            startTimer(duration);
+
+            // Pausar temporizador si el usuario pasa el cursor sobre el toast para leer
+            toast.addEventListener('mouseenter', () => {
+                if (timerId) {
+                    clearTimeout(timerId);
+                    timerId = null;
+                    remainingTime -= (Date.now() - startTime);
+                    toast.classList.add('paused');
+                }
+            });
+
+            toast.addEventListener('mouseleave', () => {
+                if (!dismissed && remainingTime > 0) {
+                    toast.classList.remove('paused');
+                    startTimer(remainingTime);
+                }
+            });
         }
+
+        container.appendChild(toast);
         return toast;
     }
 };

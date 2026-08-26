@@ -381,7 +381,7 @@ window.ChatEngineController = {
             window.ChatUtils?.showToast(
                 hasGeneratedText ? 'Inferencia completada en WebAssembly' : 'Inferencia completada · Delimitador EOS alcanzado',
                 'success',
-                3500,
+                6000,
                 {
                     model: modelName.replace('.flat', ''),
                     latency: `${elapsed}ms`,
@@ -452,14 +452,14 @@ window.ChatEngineController = {
                 contentEl.innerHTML = window.ChatMarkdown?.parse(fullText) || fullText;
             }
             if (aborted) {
-                window.ChatUtils?.showToast('Inferencia detenida por el usuario', 'warning', 3000, { model: modelName });
+                window.ChatUtils?.showToast('Inferencia detenida por el usuario', 'warning', 4500, { model: modelName });
                 if (fullText) {
                     window.ChatComposerController?.addMetaTo(botMsg, elapsed, 'detenido', fullText, modelName, latestMetrics);
                 }
             } else if (!aborted) {
                 window.ChatComposerController?.addMetaTo(botMsg, elapsed, '', fullText, modelName, latestMetrics);
                 if (fullText) {
-                    window.ChatUtils?.showToast('Inferencia completada', 'success', 3500, {
+                    window.ChatUtils?.showToast('Inferencia completada', 'success', 6000, {
                         model: modelName,
                         latency: `${elapsed}ms`,
                         speed: latestMetrics?.tokens_per_second ? `${latestMetrics.tokens_per_second} tok/s` : null
