@@ -144,7 +144,7 @@ window.ChatEngineController = {
 
         const stopBtn = document.getElementById('stop-btn');
         if (stopBtn) stopBtn.hidden = false;
-        const msgStopBtn = botMsg.querySelector('.msg-header-stop-btn');
+        const msgStopBtn = botMsg.querySelector('.msg-stop-btn, .msg-header-stop-btn, .stop-btn-action');
 
         let wasmAborted = false;
         const handleWasmStop = () => {
@@ -155,6 +155,8 @@ window.ChatEngineController = {
             botMsg.classList.remove('streaming');
             statusAnchor.remove();
             msgStopBtn?.remove();
+            const streamingFooter = botMsg.querySelector('.msg-footer-streaming');
+            if (streamingFooter) streamingFooter.remove();
             if (stopBtn) stopBtn.hidden = true;
             contentEl.innerHTML = '<span style="color: var(--text-muted); display: inline-flex; align-items: center; gap: 4px;"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg> Inferencia detenida por el usuario.</span>';
             window.ChatComposerController?.addMetaTo(botMsg, Date.now() - started, 'detenido', 'Inferencia detenida.', modelName);
@@ -470,7 +472,7 @@ window.ChatEngineController = {
         window.ChatState.abortController = new AbortController();
         const stopBtn = document.getElementById('stop-btn');
         if (stopBtn) stopBtn.hidden = false;
-        const msgStopBtn = botMsg.querySelector('.msg-header-stop-btn');
+        const msgStopBtn = botMsg.querySelector('.msg-stop-btn, .msg-header-stop-btn, .stop-btn-action');
         if (chatWindow) chatWindow.setAttribute('aria-busy', 'true');
 
         let fullText = '';
@@ -484,6 +486,8 @@ window.ChatEngineController = {
             window.ChatState.abortController = null;
             if (stopBtn) stopBtn.hidden = true;
             msgStopBtn?.remove();
+            const streamingFooter = botMsg.querySelector('.msg-footer-streaming');
+            if (streamingFooter) streamingFooter.remove();
             if (chatWindow) chatWindow.setAttribute('aria-busy', 'false');
             botMsg.classList.remove('streaming');
             statusAnchor.remove();

@@ -145,15 +145,20 @@ window.ChatComposerController = {
                     <span class="msg-avatar-icon"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg></span>
                     <span class="msg-author-name">GAJE AI</span>
                 </div>
-                <div class="msg-header-controls">
-                    <button type="button" class="msg-header-stop-btn" title="Detener generación" aria-label="Detener generación">
+                <time class="msg-timestamp" datetime="${isoTime}" data-unix="${posixNow.toFixed(3)}" data-tooltip="Tiempo Unix POSIX: ${posixNow.toFixed(3)}s">${msgTime}</time>
+            </header>
+            <section class="msg-content"></section>
+            <footer class="msg-footer msg-footer-streaming">
+                <div class="msg-telemetry">
+                    <span class="telemetry-pill pill-streaming"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg> <span>Generando...</span></span>
+                </div>
+                <div class="msg-actions">
+                    <button type="button" class="msg-action-btn msg-stop-btn" title="Detener generación" aria-label="Detener generación">
                         <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
                         <span>Detener</span>
                     </button>
-                    <time class="msg-timestamp" datetime="${isoTime}" data-unix="${posixNow.toFixed(3)}" data-tooltip="Tiempo Unix POSIX: ${posixNow.toFixed(3)}s">${msgTime}</time>
                 </div>
-            </header>
-            <section class="msg-content"></section>
+            </footer>
         `;
         return msgDiv;
     },

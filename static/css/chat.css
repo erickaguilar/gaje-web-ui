@@ -2151,9 +2151,6 @@ h4.md-heading { font-size: 0.92rem; color: var(--text-muted); }
     border-color: var(--accent);
     color: var(--accent);
 }
-    transform: translateY(-1px);
-    box-shadow: 0 0 10px rgba(94, 92, 230, 0.35);
-}
 
 .meta-badge.meta-copy-btn.copied {
     border-color: #30d158;
@@ -2161,91 +2158,57 @@ h4.md-heading { font-size: 0.92rem; color: var(--text-muted); }
     color: #30d158;
 }
 
-/* Streaming Indicator */
-.message.streaming { border-color: var(--accent-color); }
-.stream-status-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
-.stream-status {
-    font-size: 0.68rem;
-    color: var(--accent-color);
-    font-family: var(--mono);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-}
-
-.stream-status::before {
-    content: '';
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--accent-color);
-    box-shadow: 0 0 8px var(--accent-color);
-    animation: streamBlink 1s infinite ease-in-out;
-}
-
-@keyframes streamBlink {
-    0%, 100% { opacity: 0.25; transform: scale(0.8); }
-    50% { opacity: 1; transform: scale(1.2); }
-}
-
-.stream-text { word-break: break-word; white-space: pre-wrap; font-size: 0.93rem; line-height: 1.6; }
-
-.message.bot.error { border-color: var(--red); background: rgba(255, 69, 58, 0.08); }
-.message.bot.error p { color: var(--red); font-weight: 500; }
-
-/* ── BOT MESSAGE STOP BUTTON ── */
-.msg-header-controls {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
+/* ── BOT MESSAGE FOOTER STOP BUTTON (ZONA DE COPIAR) ── */
+.msg-action-btn.msg-stop-btn,
 .msg-header-stop-btn {
     cursor: pointer;
     user-select: none;
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 2px 8px;
+    padding: 0.2rem 0.6rem;
     font-size: 0.65rem;
     font-family: var(--sans);
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.3px;
     border-radius: 6px;
     background: rgba(255, 69, 58, 0.15);
-    border: 1px solid rgba(255, 69, 58, 0.4);
+    border: 1px solid rgba(255, 69, 58, 0.45);
     color: #ff453a;
     transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.1), inset -1px -1px 0 rgba(0, 0, 0, 0.2);
 }
 
+.msg-action-btn.msg-stop-btn:hover,
 .msg-header-stop-btn:hover {
-    background: rgba(255, 69, 58, 0.28);
+    background: rgba(255, 69, 58, 0.3);
     border-color: #ff453a;
     color: #ffffff;
-    box-shadow: 0 0 10px rgba(255, 69, 58, 0.4);
+    box-shadow: 0 2px 10px rgba(255, 69, 58, 0.4);
     transform: translateY(-1px);
 }
 
+.msg-action-btn.msg-stop-btn:active,
 .msg-header-stop-btn:active {
     transform: translateY(1px);
     box-shadow: inset -1px -1px 0 rgba(255, 255, 255, 0.1), inset 1px 1px 0 rgba(0, 0, 0, 0.3);
 }
 
+[data-theme="light"] .msg-action-btn.msg-stop-btn,
 [data-theme="light"] .msg-header-stop-btn {
     background: rgba(185, 28, 28, 0.08);
-    border: 1px solid rgba(185, 28, 28, 0.3);
+    border: 1px solid rgba(185, 28, 28, 0.35);
     color: #b91c1c;
     border-radius: 0px !important;
     box-shadow: none;
 }
 
+[data-theme="light"] .msg-action-btn.msg-stop-btn:hover,
 [data-theme="light"] .msg-header-stop-btn:hover {
     background: #b91c1c;
     color: #ffffff;
     border-color: #b91c1c;
-    box-shadow: 0 2px 6px rgba(185, 28, 28, 0.2);
+    box-shadow: 0 2px 6px rgba(185, 28, 28, 0.25);
 }
 
 /* ── DATA USAGE & DOWNLOAD ALERT BANNER ── */
