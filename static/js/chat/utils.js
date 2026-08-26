@@ -1,7 +1,13 @@
-/* =============================================================================
-   🧬 GAJE — static/js/chat/utils.js
-   Utilidades, formateadores temporales, métricas y copiado al portapapeles.
-   ============================================================================= */
+window.GAJE_STATUS_CODES = {
+    200: { code: 'GAJE-200', name: 'OK_SYNTHESIS', title: 'Síntesis Genómica Completada', desc: 'Resonancia semántica calculada y finalizada con éxito.' },
+    204: { code: 'GAJE-204', name: 'EOS_DELIMITER', title: 'Delimitador EOS Alcanzado', desc: 'Secuencia finalizada por token de parada (<|im_end|>).' },
+    206: { code: 'GAJE-206', name: 'STREAM_ABORTED', title: 'Inferencia Interrumpida', desc: 'Ciclo de generación detenido manualmente por el operador.' },
+    404: { code: 'GAJE-404', name: 'GENOME_NOT_FOUND', title: 'Organismo No Encontrado', desc: 'El archivo de pesos .flat solicitado no existe en el catálogo o almacenamiento local.' },
+    413: { code: 'GAJE-413', name: 'GENOME_HEAP_OVERFLOW', title: 'Desbordamiento de Memoria en Cliente', desc: 'El modelo excede el límite de memoria del cliente (32-bit heap). Selecciona "Modo Servidor (Nativo Rust AVX2)" en el menú de Motor.' },
+    422: { code: 'GAJE-422', name: 'VOCAB_GTOK_MISSING', title: 'Vocabulario GTOK Ausente', desc: 'El archivo .flat no contiene el tokenizador nativo GTOK incrustado necesario para la ejecución local.' },
+    500: { code: 'GAJE-500', name: 'KERNEL_PANIC', title: 'Fallo en Kernel Matemático', desc: 'Excepción crítica en la descompresión genómica o cálculo tensorial.' },
+    503: { code: 'GAJE-503', name: 'RUNTIME_UNAVAILABLE', title: 'Tronco Encefálico Inactivo', desc: 'El entorno de ejecución del cliente no está inicializado o listo en memoria.' }
+};
 
 window.ChatUtils = {
     escapeHtml(value) {
@@ -186,13 +192,13 @@ window.ChatUtils = {
         const ramText = navigator.deviceMemory ? `~${navigator.deviceMemory} GB RAM` : 'Memoria Dinámica Navegador';
 
         return {
-            software: `GAJE WebAssembly Runtime (WASM32 SIMD128) · ${os}`,
+            software: `GAJE Genomic Runtime (Tronco Encefálico SIMD128) · ${os}`,
             hardware: `${os} (${cores}, ${ramText})`,
             gpu: gpuName,
             architecture: isMobile ? 'ARM / Mobile SoC' : (navigator.userAgentData?.platform || 'Cliente Web'),
-            simd: 'WASM SIMD128 + Bulk Memory (Browser)',
+            simd: 'SIMD128 Genómico + Memoria Zero-Copy (Cliente)',
             cores: navigator.hardwareConcurrency || '—',
-            latency: 'Inferencia In-Browser WebAssembly (Zero-Server)'
+            latency: 'Inferencia en Tronco Encefálico Local (Zero-Server)'
         };
     },
 
@@ -411,6 +417,7 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
         let metaHtml = '';
         if (meta && typeof meta === 'object') {
             const parts = [];
+            if (meta.code) parts.push(`<span class="toast-code-badge">${this.escapeHtml(meta.code)}</span>`);
             if (meta.model) parts.push(`<span class="toast-meta-pill">${this.escapeHtml(meta.model)}</span>`);
             if (meta.latency) parts.push(`<span class="toast-meta-pill">${this.escapeHtml(meta.latency)}</span>`);
             if (meta.speed) parts.push(`<span class="toast-meta-pill">${this.escapeHtml(meta.speed)}</span>`);

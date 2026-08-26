@@ -252,13 +252,13 @@ window.ChatToolbarController = {
                                navigator.userAgent.includes('Mac') ? 'macOS Darwin' : 'Windows x86_64';
 
         const clientEnv = {
-            software: `GAJE WebAssembly Runtime (WASM32 SIMD128) · v${window.GAJE_CONFIG?.version || '1.7.6'}`,
+            software: `GAJE Genomic Runtime (Tronco Encefálico SIMD128) · v${window.GAJE_CONFIG?.version || '1.7.7'}`,
             hardware: `${clientPlatform} (${cores} Cores, ${memoryGb} RAM)`,
             architecture: `${clientPlatform} (Cores: ${cores})`,
             cores: cores,
             gpu: getGpuRenderer(),
-            simd: 'WASM SIMD128 + Bulk Memory (Browser)',
-            throughput: 'Inferencia In-Browser WebAssembly (Zero-Server)',
+            simd: 'SIMD128 Genómico + Memoria Zero-Copy (Cliente)',
+            throughput: 'Inferencia en Tronco Encefálico Local (Zero-Server)',
             island: {
                 memory_type: '.gmem (IndexedDB GajeHelixDB Zero-Server)',
                 retrieval_latency_ms: 0.45,
@@ -627,7 +627,7 @@ window.ChatToolbarController = {
             }
             this.updateModelToggleState(true);
             this.updateModelMeta();
-            window.ChatComposerController?.addMessage(`Modelo local [${modelName}] cargado y listo en memoria WebAssembly.`, 'system');
+            window.ChatComposerController?.addMessage(`Organismo local [${modelName}] cargado y listo en el Tronco Encefálico Local.`, 'system');
         } catch (err) {
             console.error('Error cargando modelo flat local:', err);
             window.ChatComposerController?.addMessage(`Error cargando modelo local: ${err.message}`, 'system');

@@ -14,18 +14,19 @@ window.ChatEngineController = {
             if (data.status === 'ready') {
                 console.log('⚡ [GAJE-WASM] Web Worker listo para inferencia.');
             } else if (data.status === 'model_loaded') {
-                console.log(`✅ [GAJE-WASM] Modelo ${data.modelName} cargado en ${data.loadTimeMs} ms`, data.info);
+                console.log(`✅ [GAJE-CORE] Organismo ${data.modelName} cargado en ${data.loadTimeMs} ms`, data.info);
                 window.ChatState.isWasmModelLoaded = true;
                 window.ChatState.wasmActiveModelName = data.modelName;
                 this.resetAutonomicCycle();
                 this.startAutonomicTick();
                 window.ChatToolbarController?.setModelLoading(false);
                 if (modelRam) modelRam.innerHTML = `<span class="ram-led active"></span><span>WASM ${data.loadTimeMs}ms</span>`;
-                window.ChatComposerController?.addMessage(`Modelo ${data.modelName} listo en WebAssembly (${data.loadTimeMs} ms).`, 'system');
+                window.ChatComposerController?.addMessage(`Organismo [${data.modelName}] listo en Tronco Encefálico Local (${data.loadTimeMs} ms).`, 'system');
             } else if (data.status === 'error') {
-                console.error('🔥 [GAJE-WASM Error]:', data.error);
+                console.error('🔥 [GAJE-CORE Error]:', data);
                 window.ChatToolbarController?.setModelLoading(false);
-                window.ChatComposerController?.addMessage(`Error WASM: ${data.error}`, 'system');
+                const code = data.code || 'GAJE-500';
+                window.ChatComposerController?.addMessage(`[${code}] ${data.error}`, 'system');
             }
         };
         return window.ChatState.wasmWorker;
@@ -304,7 +305,7 @@ window.ChatEngineController = {
                     throw new Error(`El archivo de modelo es inválido o menor a 4096 bytes (${buffer ? buffer.byteLength : 0} B)`);
                 }
 
-                contentEl.textContent = `Compilando organismo genómico en WebAssembly...`;
+                contentEl.textContent = `Compilando matriz genómica en Tronco Encefálico...`;
                 await new Promise((resolve, reject) => {
                     const handler = (ev) => {
                         if (ev.data.status === 'model_loaded') {
@@ -314,7 +315,11 @@ window.ChatEngineController = {
                             resolve();
                         } else if (ev.data.status === 'error') {
                             worker.removeEventListener('message', handler);
-                            reject(new Error(ev.data.error));
+                            const err = new Error(ev.data.error || 'Error compilando organismo');
+                            err.code = ev.data.code || 'GAJE-500';
+                            err.name = ev.data.name || 'KERNEL_PANIC';
+                            err.recommendation = ev.data.recommendation;
+                            reject(err);
                         }
                     };
                     worker.addEventListener('message', handler);
@@ -322,7 +327,7 @@ window.ChatEngineController = {
                 });
             }
 
-            contentEl.textContent = 'Generando respuesta en WebAssembly...';
+            contentEl.textContent = 'Calculando resonancia semántica en núcleo local...';
             const result = await new Promise((resolve, reject) => {
                 const handler = (ev) => {
                     if (ev.data.status === 'chat_response') {
@@ -330,7 +335,11 @@ window.ChatEngineController = {
                         resolve(ev.data);
                     } else if (ev.data.status === 'error') {
                         worker.removeEventListener('message', handler);
-                        reject(new Error(ev.data.error));
+                        const err = new Error(ev.data.error || 'Error durante la inferencia genómica');
+                        err.code = ev.data.code || 'GAJE-500';
+                        err.name = ev.data.name || 'KERNEL_PANIC';
+                        err.recommendation = ev.data.recommendation;
+                        reject(err);
                     }
                 };
                 worker.addEventListener('message', handler);
@@ -358,20 +367,26 @@ window.ChatEngineController = {
             if (hasGeneratedText) {
                 contentEl.innerHTML = window.ChatMarkdown?.parse(responseText) || responseText;
             } else {
-                contentEl.innerHTML = '<div class="empty-response-notice"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-check"/></svg> <span>Inferencia finalizada por delimitador de secuencia (<code class="y2k-code-inline">&lt;|im_end|&gt;</code>).</span></div>';
+                contentEl.innerHTML = `
+                    <div class="empty-response-notice">
+                        <span class="gaje-code-badge ok">GAJE-204</span>
+                        <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-check"/></svg>
+                        <span>Inferencia finalizada por delimitador de secuencia (<code class="y2k-code-inline">&lt;|im_end|&gt;</code>).</span>
+                    </div>
+                `;
             }
 
             const elapsed = Date.now() - started;
             const wasmMetrics = {
                 latency_ms: elapsed,
                 tokens_per_second: result.genTimeMs ? ((Math.max(responseText.length, 4) / 4) / (parseFloat(result.genTimeMs) / 1000)).toFixed(1) : '35.0',
-                compression_ratio: '16.0x (WASM)',
-                mode: 'WASM In-Browser',
+                compression_ratio: '16.0x (Genomic)',
+                mode: 'Tronco Encefálico Local',
                 server_time: window.ChatUtils ? window.ChatUtils.formatExactTime() : null,
                 timestamp_posix: window.ChatUtils ? window.ChatUtils.getUnixTimestamp() : (Date.now() / 1000)
             };
 
-            window.ChatComposerController?.addMetaTo(botMsg, elapsed, 'WASM', responseText || 'EOS', modelName, wasmMetrics);
+            window.ChatComposerController?.addMetaTo(botMsg, elapsed, 'Tronco Encefálico', responseText || 'EOS', modelName, wasmMetrics);
             if (responseText) {
                 window.ChatStorage?.pushHistory({ role: 'assistant', content: responseText, model: modelName, metrics: wasmMetrics });
             }
@@ -379,10 +394,11 @@ window.ChatEngineController = {
             this.registerWasmInteraction();
 
             window.ChatUtils?.showToast(
-                hasGeneratedText ? 'Inferencia completada en WebAssembly' : 'Inferencia completada · Delimitador EOS alcanzado',
+                hasGeneratedText ? 'Síntesis genómica completada' : 'Delimitador EOS alcanzado',
                 'success',
                 6000,
                 {
+                    code: hasGeneratedText ? 'GAJE-200' : 'GAJE-204',
                     model: modelName.replace('.flat', ''),
                     latency: `${elapsed}ms`,
                     speed: `${wasmMetrics.tokens_per_second} tok/s`
@@ -398,7 +414,31 @@ window.ChatEngineController = {
             botMsg.classList.remove('streaming');
             statusAnchor.remove();
             if (!wasmAborted) {
-                contentEl.innerHTML = `<span style="color: #fca5a5; display: inline-flex; align-items: center; gap: 4px;"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-alert"/></svg> Error WASM: ${window.ChatUtils?.escapeHtml(err.message) || err.message}</span>`;
+                const code = err.code || 'GAJE-500';
+                const name = err.name || 'KERNEL_PANIC';
+                const msg = err.message || 'Error en el cálculo del organismo genómico.';
+                const rec = err.recommendation || 'Verifica la integridad del modelo o selecciona el Modo Servidor Nativo.';
+
+                contentEl.innerHTML = `
+                    <div class="gaje-response-card gaje-error-card">
+                        <div class="gaje-card-header">
+                            <span class="gaje-code-badge error">${window.ChatUtils?.escapeHtml(code) || code}</span>
+                            <span class="gaje-code-name">${window.ChatUtils?.escapeHtml(name) || name}</span>
+                        </div>
+                        <p class="gaje-card-desc">${window.ChatUtils?.escapeHtml(msg) || msg}</p>
+                        <div class="gaje-card-action">
+                            <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-info"/></svg>
+                            <span>${window.ChatUtils?.escapeHtml(rec) || rec}</span>
+                        </div>
+                    </div>
+                `;
+
+                window.ChatUtils?.showToast(
+                    `${name}: ${msg}`,
+                    'error',
+                    6000,
+                    { code }
+                );
             }
             chatWindow.scrollTop = chatWindow.scrollHeight;
             return false;

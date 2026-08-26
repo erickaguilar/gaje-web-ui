@@ -3829,3 +3829,135 @@ dialog.y2k-apple-modal[open]::backdrop {
     border: 1px solid rgba(44, 82, 52, 0.18);
     color: #b45309;
 }
+
+/* ── Badges de Códigos de Respuesta GAJE ── */
+.gaje-code-badge {
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.gaje-code-badge.ok {
+    background: rgba(48, 209, 88, 0.16);
+    border: 1px solid rgba(48, 209, 88, 0.4);
+    color: #30d158;
+}
+
+.gaje-code-badge.error {
+    background: rgba(255, 69, 58, 0.16);
+    border: 1px solid rgba(255, 69, 58, 0.4);
+    color: #ff453a;
+}
+
+.toast-code-badge {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-color);
+}
+
+[data-theme="light"] .gaje-code-badge {
+    border-radius: 0px !important;
+}
+
+[data-theme="light"] .gaje-code-badge.ok {
+    background: rgba(44, 82, 52, 0.12);
+    border-color: rgba(44, 82, 52, 0.35);
+    color: #2c5234;
+}
+
+[data-theme="light"] .gaje-code-badge.error {
+    background: rgba(185, 28, 28, 0.1);
+    border-color: rgba(185, 28, 28, 0.35);
+    color: #b91c1c;
+}
+
+[data-theme="light"] .toast-code-badge {
+    border-radius: 0px !important;
+    background: #edebe9;
+    border-color: rgba(44, 82, 52, 0.2);
+    color: #2c3539;
+}
+
+/* ── Tarjetas de Diagnóstico y Error del Sistema GAJE ── */
+.gaje-response-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0.85rem 1.05rem;
+    border-radius: 10px;
+    margin: 0.3rem 0;
+    animation: fadeInAlert 0.25s ease;
+}
+
+.gaje-error-card {
+    background: rgba(255, 69, 58, 0.08);
+    border: 1px solid rgba(255, 69, 58, 0.35);
+    box-shadow: 0 4px 20px rgba(255, 69, 58, 0.08);
+}
+
+[data-theme="light"] .gaje-error-card {
+    border-radius: 0px !important;
+    background: #fffafa;
+    border: 1px solid rgba(185, 28, 28, 0.3);
+    border-left: 4px solid #b91c1c;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.gaje-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.gaje-code-name {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #ff453a;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+[data-theme="light"] .gaje-code-name {
+    color: #b91c1c;
+}
+
+.gaje-card-desc {
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: var(--text-color);
+    margin: 0;
+}
+
+[data-theme="light"] .gaje-card-desc {
+    color: #2c3539;
+}
+
+.gaje-card-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="light"] .gaje-card-action {
+    border-radius: 0px !important;
+    background: #f6f5f3;
+    border-color: rgba(44, 82, 52, 0.18);
+    color: #2c5234;
+}

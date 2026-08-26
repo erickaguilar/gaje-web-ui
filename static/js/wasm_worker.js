@@ -41,18 +41,41 @@ self.onmessage = async (e) => {
                 });
             } catch (wasmErr) {
                 const msg = wasmErr?.message || String(wasmErr);
-                let friendlyErr = `Error en motor WASM: ${msg}`;
+                let errCode = 'GAJE-500';
+                let errName = 'KERNEL_PANIC';
+                let friendlyErr = `Excepción en el Tronco Encefálico: ${msg}`;
+                let recommendation = 'Verifica la integridad del archivo .flat o consulta el log del sistema.';
+
                 if (msg.includes('unreachable') || msg.includes('memory') || uint8Array.byteLength > 600 * 1024 * 1024) {
-                    friendlyErr = `El modelo (${(uint8Array.byteLength / (1024 * 1024)).toFixed(0)} MB) excede la memoria del navegador WebAssembly (32-bit heap limit) o carece de tokenizador GTOK incrustado. Para modelos de este tamaño, selecciona 'Modo Servidor (Nativo Rust)' en el menú de Motor.`;
+                    errCode = 'GAJE-413';
+                    errName = 'GENOME_HEAP_OVERFLOW';
+                    friendlyErr = `El organismo (${(uint8Array.byteLength / (1024 * 1024)).toFixed(0)} MB) excede la memoria del cliente (32-bit heap limit).`;
+                    recommendation = 'Para modelos medianos y grandes (>500 MB), selecciona "Modo Servidor (Nativo Rust AVX2)" en el menú de Motor.';
+                } else if (msg.includes('gtok') || msg.includes('tokenizer')) {
+                    errCode = 'GAJE-422';
+                    errName = 'VOCAB_GTOK_MISSING';
+                    friendlyErr = 'El archivo .flat no contiene el vocabulario binario GTOK incrustado necesario para la ejecución local.';
+                    recommendation = 'Exporta el modelo incluyendo el tokenizador con gaje-cli export --embed-gtok.';
                 }
+
                 self.postMessage({
                     status: 'error',
-                    error: friendlyErr
+                    code: errCode,
+                    name: errName,
+                    error: friendlyErr,
+                    recommendation
                 });
             }
         } else if (action === 'chat') {
             if (!wasmEngine) {
-                throw new Error("No hay ningún modelo cargado en WebAssembly");
+                self.postMessage({
+                    status: 'error',
+                    code: 'GAJE-503',
+                    name: 'RUNTIME_UNAVAILABLE',
+                    error: 'No hay ningún organismo activo en el Tronco Encefálico Local.',
+                    recommendation: 'Carga un modelo .flat desde el menú o selecciona un organismo del catálogo.'
+                });
+                return;
             }
 
             const { prompt, maxTokens = 64, temperature = 0.7, repetitionPenalty = 1.1, injectRag = true } = payload;
