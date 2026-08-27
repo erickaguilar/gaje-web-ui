@@ -30,10 +30,11 @@
       <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-install"/></svg>
     </button>
 
-    <!-- Theme Switcher Directo (Sol / Luna) -->
-    <button id="direct-theme-toggle" class="y2k-theme-toggle-direct" data-tooltip="Alternar Modo Claro/Oscuro" data-tooltip-pos="left" aria-label="Cambiar Tema">
+    <!-- Theme Switcher Directo (Sol / Luna / Zen) -->
+    <button id="direct-theme-toggle" class="y2k-theme-toggle-direct" data-tooltip="Alternar Tema Visual" data-tooltip-pos="left" aria-label="Cambiar Tema">
       <svg class="y2k-icon icon-sun"><use href="static/icons/y2k/sprite.svg#i-sun"/></svg>
       <svg class="y2k-icon icon-moon"><use href="static/icons/y2k/sprite.svg#i-moon"/></svg>
+      <svg class="y2k-icon icon-zen"><use href="static/icons/y2k/sprite.svg#i-zen"/></svg>
     </button>
 
     <!-- Enlace Directo a GitHub -->
@@ -46,7 +47,7 @@
       <svg class="y2k-icon y2k-menu-icon"><use href="static/icons/y2k/sprite.svg#i-menu"/></svg>
     </button>
 
-    <!-- Panel del Menú Desplegable (Móvil) -->
+    <!-- Panel del Menú Desplegable (Móvil y PC) -->
     <div id="y2k-menu-dropdown" class="y2k-menu-dropdown">
       <nav class="y2k-dropdown-nav" aria-label="Navegación del menú">
         <button id="pwa-update-mobile-btn" class="y2k-dropdown-item pwa-update-btn" style="display: none; text-align: left; background: rgba(48, 209, 88, 0.1); border: 1px solid #30d158; width: 100%; cursor: pointer; border-radius: 6px; margin-bottom: 6px;">
@@ -72,12 +73,21 @@
       </nav>
       <div class="y2k-dropdown-divider"></div>
       <div class="y2k-dropdown-footer">
-        <span class="y2k-menu-label">INTERFAZ</span>
-        <button id="theme-toggle" class="y2k-theme-btn" aria-label="Cambiar Tema">
-          <svg class="y2k-theme-icon icon-sun"><use href="static/icons/y2k/sprite.svg#i-sun"/></svg>
-          <svg class="y2k-theme-icon icon-moon"><use href="static/icons/y2k/sprite.svg#i-moon"/></svg>
-          <span class="theme-text">Alternar Modo</span>
-        </button>
+        <span class="y2k-menu-label">TEMA & INTERFAZ</span>
+        <div class="y2k-theme-selector" role="radiogroup" aria-label="Seleccionar tema visual">
+          <button type="button" class="y2k-theme-opt-btn" data-theme-val="dark" role="radio" aria-checked="false" data-tooltip="Cyberpunk / Apple HIG">
+            <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-moon"/></svg>
+            <span>Oscuro</span>
+          </button>
+          <button type="button" class="y2k-theme-opt-btn" data-theme-val="light" role="radio" aria-checked="false" data-tooltip="Nórdico / Cuaderno Lab">
+            <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-sun"/></svg>
+            <span>Claro</span>
+          </button>
+          <button type="button" class="y2k-theme-opt-btn" data-theme-val="zen" role="radio" aria-checked="false" data-tooltip="Zen / Enfoque Chat">
+            <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-zen"/></svg>
+            <span>Zen</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>

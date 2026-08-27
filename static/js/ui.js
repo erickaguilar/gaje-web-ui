@@ -58,32 +58,62 @@
     });
   }
 
-  /* ── Toggle de tema claro/oscuro ── */
+  /* ── Sistema de Selección y Alternancia de 3 Temas (Oscuro / Claro / Zen) ── */
   function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    var toggles = document.querySelectorAll('#theme-toggle, #direct-theme-toggle');
-    toggles.forEach(function (toggle) {
-      if (toggle) {
-        toggle.setAttribute('aria-label', theme === 'light' ? 'Activar Tema Oscuro' : 'Activar Tema Claro');
-      }
+    var validTheme = (theme === 'dark' || theme === 'zen' || theme === 'light') ? theme : 'light';
+    document.documentElement.setAttribute('data-theme', validTheme);
+    localStorage.setItem('theme', validTheme);
+
+    // Actualizar botones de opción en el submenú del dropdown
+    var optionBtns = document.querySelectorAll('.y2k-theme-opt-btn');
+    optionBtns.forEach(function (btn) {
+      var val = btn.getAttribute('data-theme-val');
+      var isActive = val === validTheme;
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
     });
+
+    // Actualizar tooltip y accesibilidad del botón directo en el header
+    var directToggle = document.getElementById('direct-theme-toggle');
+    if (directToggle) {
+      var labels = {
+        light: 'Tema: Claro Nórdico. Clic para cambiar a Oscuro',
+        dark: 'Tema: Oscuro Cyberpunk. Clic para cambiar a Zen',
+        zen: 'Tema: Zen Enfoque. Clic para cambiar a Claro'
+      };
+      directToggle.setAttribute('data-tooltip', labels[validTheme] || 'Cambiar Tema');
+      directToggle.setAttribute('aria-label', labels[validTheme] || 'Cambiar Tema');
+    }
   }
 
   function initTheme() {
-    var toggles = document.querySelectorAll('#theme-toggle, #direct-theme-toggle');
-    if (!toggles.length) return;
-    applyTheme(localStorage.getItem('theme') || 'light');
-    toggles.forEach(function (toggle) {
-      // Evitar duplicación de listeners
-      if (toggle._hasThemeListener) return;
-      toggle._hasThemeListener = true;
-      toggle.addEventListener('click', function () {
-        var current = document.documentElement.getAttribute('data-theme') || 'light';
-        var next = current === 'light' ? 'dark' : 'light';
-        localStorage.setItem('theme', next);
-        applyTheme(next);
+    var savedTheme = localStorage.getItem('theme') || 'light';
+    applyTheme(savedTheme);
+
+    // 1. Listeners para los botones del submenú en el dropdown
+    var optionBtns = document.querySelectorAll('.y2k-theme-opt-btn');
+    optionBtns.forEach(function (btn) {
+      if (btn._hasThemeListener) return;
+      btn._hasThemeListener = true;
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var val = btn.getAttribute('data-theme-val');
+        if (val) applyTheme(val);
       });
     });
+
+    // 2. Listener para el botón directo en la barra superior (conmutación secuencial: Claro -> Oscuro -> Zen -> Claro)
+    var directToggle = document.getElementById('direct-theme-toggle');
+    if (directToggle && !directToggle._hasThemeListener) {
+      directToggle._hasThemeListener = true;
+      directToggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var current = document.documentElement.getAttribute('data-theme') || 'light';
+        var nextMap = { light: 'dark', dark: 'zen', zen: 'light' };
+        var next = nextMap[current] || 'light';
+        applyTheme(next);
+      });
+    }
   }
 
   /* ── Header Y2K compartido (parcial) ── */
