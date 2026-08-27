@@ -635,5 +635,46 @@ window.ChatToolbarController = {
             this.setModelLoading(false);
             if (e.target) e.target.value = '';
         }
+    },
+
+    clearChatInterface() {
+        // Cerrar menú dropdown si está abierto
+        const menuDropdown = document.getElementById('chat-actions-dropdown');
+        const menuBtn = document.getElementById('chat-overflow-menu-btn');
+        if (menuDropdown) menuDropdown.setAttribute('hidden', '');
+        if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
+
+        // Alerta y notificación visual Y2K inmediata
+        if (window.ChatUtils && typeof window.ChatUtils.showToast === 'function') {
+            window.ChatUtils.showToast('🗑️ Borrando historial de conversación y reiniciando sesión...', 'warning', 3500, {
+                code: 'GAJE-PURGE'
+            });
+        }
+
+        // Limpiar persistencia IndexedDB y local
+        if (window.ChatStorage && typeof window.ChatStorage.clearHistory === 'function') {
+            window.ChatStorage.clearHistory();
+        } else {
+            localStorage.removeItem('gaje_chat_history');
+            localStorage.removeItem('gaje_chat_session');
+        }
+
+        // Purgar mensajes del DOM
+        const chatWindow = document.getElementById('chat-window');
+        if (chatWindow) {
+            const messages = chatWindow.querySelectorAll('.message');
+            messages.forEach(m => {
+                if (!m.classList.contains('system')) {
+                    m.remove();
+                }
+            });
+
+            // Re-mostrar tarjetas iniciales de prompt (starter cards)
+            const starters = document.getElementById('chat-starters');
+            if (starters) starters.style.display = '';
+        }
+
+        // Mensaje de sistema informativo en consola
+        window.ChatComposerController?.addMessage('🧬 Historial de conversación purgado. Sesión y memoria restauradas.', 'system');
     }
 };

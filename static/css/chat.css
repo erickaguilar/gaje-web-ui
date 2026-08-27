@@ -1026,8 +1026,8 @@ main {
     top: calc(100% + 8px);
     right: 0;
     min-width: 270px;
-    max-width: min(340px, 90vw);
-    max-height: calc(100vh - 120px);
+    max-width: min(340px, calc(100vw - 24px));
+    max-height: min(540px, calc(100dvh - 90px), calc(100vh - 90px));
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: 8px;
@@ -3243,6 +3243,27 @@ dialog.y2k-apple-modal[open]::backdrop {
     /* Segunda fila oculta en móvil para máxima área de lectura */
     .chat-toolbar-secondary-row {
         display: none !important;
+    }
+
+    /* Menú Dropdown en Móvil (Ajuste a Pantalla Completa / Touch Friendly) */
+    .chat-menu-dropdown {
+        position: fixed !important;
+        top: 48px !important;
+        right: 8px !important;
+        left: 8px !important;
+        width: calc(100vw - 16px) !important;
+        max-width: calc(100vw - 16px) !important;
+        min-width: 0 !important;
+        max-height: calc(100dvh - 60px) !important;
+        max-height: calc(100vh - 60px) !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        z-index: 9999 !important;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.15) !important;
+    }
+
+    [data-theme="light"] .chat-menu-dropdown {
+        box-shadow: 0 20px 60px rgba(44, 82, 52, 0.25), 0 0 0 1px rgba(44, 82, 52, 0.2) !important;
     }
 
     /* ── Ventana de Chat en Móvil ── */
