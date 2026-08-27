@@ -98,10 +98,7 @@ window.ChatToolbarController = {
             exportLogBtn.addEventListener('click', () => window.ChatUtils.generateProjectLog(exportLogBtn));
         }
 
-        const copyAllBtn = document.getElementById('copy-all-btn');
-        if (copyAllBtn) {
-            copyAllBtn.addEventListener('click', () => window.ChatUtils.copyEntireChat(copyAllBtn));
-        }
+
 
         const engineModeSelect = document.getElementById('engine-mode-select');
         if (engineModeSelect) {
