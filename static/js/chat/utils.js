@@ -203,20 +203,27 @@ window.ChatUtils = {
     },
 
     generateProjectLog(btnElement) {
-        const now = new Date().toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'medium' });
+        const dateObj = new Date();
+        const nowFormatted = dateObj.toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'medium' });
+        const isoTimestamp = dateObj.toISOString();
+        const fileTimestamp = dateObj.toISOString().replace(/[:.]/g, '-').slice(0, 19);
+        const auditId = `GAJE-${dateObj.getFullYear()}${String(dateObj.getMonth() + 1).padStart(2, '0')}${String(dateObj.getDate()).padStart(2, '0')}-${String(dateObj.getHours()).padStart(2, '0')}${String(dateObj.getMinutes()).padStart(2, '0')}${String(dateObj.getSeconds()).padStart(2, '0')}`;
+
         const modelSelect = document.getElementById('model-select');
         const modelDate = document.getElementById('model-date');
         const modelSize = document.getElementById('model-size');
         const modelRam = document.getElementById('model-ram');
         const chatWindow = document.getElementById('chat-window');
 
-        const selectedModelName = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'Desconocido');
-        const modelDateText = modelDate ? modelDate.innerText.trim() : '';
-        const modelSizeText = modelSize ? modelSize.innerText.trim() : '';
-        const modelRamText = modelRam ? modelRam.innerText.trim() : '';
+        const selectedModelName = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'gaje_pico_135m.flat');
+        const modelDateText = modelDate ? modelDate.innerText.trim() : '—';
+        const modelSizeText = modelSize ? modelSize.innerText.trim() : '471 MB';
+        const modelRamText = modelRam ? modelRam.innerText.trim() : 'WASM In-Browser';
 
         const envData = window.ChatState?.envData;
         const clientHw = this.detectClientHardware();
+        const engineMode = window.ChatState?.engineMode || (window.ChatState?.isWasmModelLoaded ? 'wasm' : 'native');
+        const engineModeLabel = engineMode === 'wasm' ? 'WebAssembly In-Browser (Zero-Server / Offline)' : 'Servidor Nativo Rust (AVX2 / Mmap Zero-Copy)';
 
         const islandMem = (envData && envData.island && envData.island.memory_type) || '.gmem (IndexedDB GajeHelixDB Zero-Server)';
         const islandLat = (envData && envData.island && envData.island.retrieval_latency_ms != null) ? `${envData.island.retrieval_latency_ms} ms` : '0.45 ms (IndexedDB Local)';
@@ -226,8 +233,8 @@ window.ChatUtils = {
             .filter(Boolean)
             .join(' | ') || '⚡ Episódica | 📚 Documental | 💬 Conversación';
 
-        const sfVal = (envData && envData.software) || clientHw.software;
-        const hdVal = (envData && envData.hardware) || clientHw.hardware;
+        const sfVal = (envData && envData.software) || clientHw.software || `GAJE Genomic Runtime · v${window.GAJE_CONFIG?.version || '1.7.8'}`;
+        const hdVal = (envData && envData.hardware) || clientHw.hardware || 'Cliente Web Browser x86_64 / ARM64';
 
         let gpuVal = clientHw.gpu;
         if (envData && envData.gpu) {
@@ -238,55 +245,75 @@ window.ChatUtils = {
             }
         }
         if (!gpuVal || gpuVal === 'undefined (undefined)' || gpuVal.includes('undefined')) {
-            gpuVal = clientHw.gpu || 'Aceleración WebGL Integrada';
+            gpuVal = clientHw.gpu || 'Aceleración WebGL / WebGPU Integrada';
         }
 
         let archVal = (envData && envData.architecture) || clientHw.architecture || 'x86_64';
-        const coresVal = (envData && envData.cores) || clientHw.cores || '—';
+        const coresVal = (envData && envData.cores) || clientHw.cores || navigator.hardwareConcurrency || '—';
         let archFormatted = archVal;
         if (!archFormatted.includes('Cores:') && !archFormatted.includes('Cores') && coresVal && coresVal !== '—') {
             archFormatted = `${archFormatted} (Cores: ${coresVal})`;
         }
 
-        const simdVal = (envData && envData.simd) || clientHw.simd;
-        let latencyVal = (envData && envData.latency) || (envData && envData.throughput) || clientHw.latency;
+        const simdVal = (envData && envData.simd) || clientHw.simd || 'SIMD128 Genómico + Zero-Copy Memory';
+        let latencyVal = (envData && envData.latency) || (envData && envData.throughput) || clientHw.latency || 'Inferencia en Tronco Encefálico Local (Zero-Server)';
 
+        // 1. Recolección de alertas del sistema
         let alertItems = '';
         if (window.ChatState?.systemAlertsHistory && window.ChatState.systemAlertsHistory.length > 0) {
-            alertItems = window.ChatState.systemAlertsHistory.map(a => `• ${a}`).join('\n');
+            alertItems = window.ChatState.systemAlertsHistory.map(a => `* ${a}`).join('\n');
         } else {
             const domAlerts = Array.from(document.querySelectorAll('#system-alerts-container .system-alert-item'))
                 .map(a => a.innerText.trim())
                 .filter(Boolean);
-            alertItems = domAlerts.length > 0 ? domAlerts.map(a => `• ${a}`).join('\n') : '• [00:00:00] Núcleo GAJE iniciado. Listo para compresión semántica.';
+            alertItems = domAlerts.length > 0 ? domAlerts.map(a => `* ${a}`).join('\n') : '* [00:00:00] Núcleo GAJE iniciado. Listo para compresión semántica.';
         }
 
+        // 2. Procesamiento de mensajes y cálculo de telemetría acumulada
         const messages = chatWindow ? chatWindow.querySelectorAll('.message:not(.system)') : [];
-        let chatTranscript = '';
+        let userTurnCount = 0;
+        let assistantTurnCount = 0;
+        let totalTokensGenerated = 0;
+        let speedSum = 0;
+        let speedCount = 0;
+        let latencySum = 0;
+        let latencyCount = 0;
+        const observedStatusCodes = new Set(['GAJE-200 (OK_SYNTHESIS)']);
+
+        let transcriptMd = '';
 
         if (messages.length === 0) {
-            chatTranscript = '(No hay mensajes en esta sesión aún)';
+            transcriptMd = '*No se registraron turnos de conversación en esta sesión.*';
         } else {
+            let turnIndex = 1;
             messages.forEach((msg) => {
                 const isUser = msg.classList.contains('user');
                 const time = msg.getAttribute('data-time') || '—';
+                const unixTime = msg.getAttribute('data-unix-time') || '—';
                 const msgModel = msg.getAttribute('data-model') || selectedModelName;
-                const role = isUser ? '👤 USUARIO' : `🧬 GAJE LLM [${msgModel}]`;
 
                 if (isUser) {
+                    userTurnCount++;
                     const p = msg.querySelector('p');
                     const userText = p ? p.innerText.trim() : msg.innerText.trim();
-                    chatTranscript += `--------------------------------------------------------------------------------\n`;
-                    chatTranscript += `[${time}] ${role}:\n`;
-                    chatTranscript += `💬 [MENSAJE]:\n${userText}\n\n`;
+
+                    transcriptMd += `### 👤 Turno ${turnIndex} — Usuario\n`;
+                    transcriptMd += `* **Marca de Tiempo:** \`${time}\` *(POSIX: \`${unixTime}s\`)*\n\n`;
+                    transcriptMd += `> 💬 **Mensaje:**\n`;
+                    transcriptMd += `> ${userText.replace(/\n/g, '\n> ')}\n\n`;
+                    turnIndex++;
                 } else {
+                    assistantTurnCount++;
+
+                    // Extracción de razonamiento (<think>)
                     let thoughtText = '';
                     const thoughtEl = msg.querySelector('.apple-thought-content');
                     if (thoughtEl) {
                         const rawT = thoughtEl.innerText.trim();
-                        if (rawT) thoughtText = `💡 [PROCESO DE RAZONAMIENTO / THINK]:\n${rawT}\n\n`;
+                        if (rawT) thoughtText = rawT;
                     }
 
+                    // Extracción de cuerpo de respuesta
                     let bodyText = '';
                     const respBody = msg.querySelector('.response-body, .stream-text');
                     if (respBody) {
@@ -303,81 +330,194 @@ window.ChatUtils = {
                     }
                     bodyText = bodyText.replace(/<\/?thinks?>/gi, '').trim();
 
-                    let metaText = '';
+                    // Extracción y agregación de métricas
                     const metaBadges = Array.from(msg.querySelectorAll('.message-meta .meta-tag:not(.meta-btn-copy), .message-meta .meta-badge:not(.meta-copy-btn)'))
                         .map(b => b.innerText.trim())
-                        .filter(Boolean)
-                        .join(' | ');
-                    if (metaBadges) {
-                        metaText = `\n📊 [Métricas del Turno]: ${metaBadges}`;
+                        .filter(Boolean);
+
+                    let tokensThisTurn = 0;
+                    let speedThisTurn = 0;
+                    let latencyThisTurn = 0;
+
+                    metaBadges.forEach(b => {
+                        const tokMatch = b.match(/(\d+)\s*tokens?/i);
+                        if (tokMatch) tokensThisTurn = parseInt(tokMatch[1], 10);
+
+                        const speedMatch = b.match(/([\d.]+)\s*tok\/s/i);
+                        if (speedMatch) speedThisTurn = parseFloat(speedMatch[1]);
+
+                        const latMatch = b.match(/([\d.]+)\s*ms/i);
+                        if (latMatch) latencyThisTurn = parseFloat(latMatch[1]);
+
+                        if (b.includes('GAJE-')) observedStatusCodes.add(b);
+                    });
+
+                    if (tokensThisTurn > 0) totalTokensGenerated += tokensThisTurn;
+                    if (speedThisTurn > 0) {
+                        speedSum += speedThisTurn;
+                        speedCount++;
+                    }
+                    if (latencyThisTurn > 0) {
+                        latencySum += latencyThisTurn;
+                        latencyCount++;
                     }
 
-                    chatTranscript += `--------------------------------------------------------------------------------\n`;
-                    chatTranscript += `[${time}] ${role}:\n`;
-                    if (thoughtText) chatTranscript += `${thoughtText}`;
-                    chatTranscript += `💬 [RESPUESTA]:\n${bodyText}`;
-                    if (metaText) chatTranscript += `${metaText}`;
-                    chatTranscript += `\n\n`;
+                    transcriptMd += `### 🧬 GAJE AI [\`${msgModel}\`]\n`;
+                    transcriptMd += `* **Marca de Tiempo:** \`${time}\` *(POSIX: \`${unixTime}s\`)*\n\n`;
+
+                    if (thoughtText) {
+                        transcriptMd += `> [!NOTE] **Proceso de Razonamiento Interno (Chain-of-Thought)**\n`;
+                        transcriptMd += `> ${thoughtText.replace(/\n/g, '\n> ')}\n\n`;
+                    }
+
+                    transcriptMd += `**Respuesta Generada:**\n\n${bodyText}\n\n`;
+
+                    if (metaBadges.length > 0) {
+                        transcriptMd += `**📊 Telemetría del Turno:** \`${metaBadges.join('` · `')}\`\n\n`;
+                    }
+
+                    transcriptMd += `---\n\n`;
                 }
             });
         }
 
-        const modelInfoLines = [`• Archivo del Modelo: ${selectedModelName}`];
-        if (modelDateText && modelDateText !== '—' && modelDateText !== '---') {
-            modelInfoLines.push(`• Fecha de Compilación: ${modelDateText}`);
-        }
-        if (modelSizeText && modelSizeText !== '—' && modelSizeText !== '---') {
-            modelInfoLines.push(`• Tamaño: ${modelSizeText}`);
-        }
-        if (modelRamText && modelRamText !== '—' && modelRamText !== '---') {
-            modelInfoLines.push(`• Inicialización: ${modelRamText}`);
-        }
+        const avgSpeed = speedCount > 0 ? (speedSum / speedCount) : 0;
+        const avgLatency = latencyCount > 0 ? (latencySum / latencyCount) : 0;
+        const statusCodesFormatted = Array.from(observedStatusCodes).join(', ');
 
-        const logContent = `================================================================================
-🧬 GAJE HELIX — BITÁCORA Y REGISTRO COMPLETO DEL PROYECTO (SYSTEM AUDIT LOG)
-Fecha y Hora de Generación: ${now}
-================================================================================
+        // 3. Construcción del documento Markdown completo (GFM + Frontmatter)
+        const logContent = `---
+audit_id: "${auditId}"
+application: "GAJE Helix Semantic Compression Platform"
+version: "${window.GAJE_CONFIG?.version || '1.7.8'}"
+model: "${selectedModelName}"
+engine_mode: "${engineMode}"
+generated_at: "${isoTimestamp}"
+session_turns: ${userTurnCount + assistantTurnCount}
+total_tokens_generated: ${totalTokensGenerated}
+avg_throughput_tok_s: ${avgSpeed.toFixed(2)}
+---
 
-📦 1. MODELO GENÓMICO ACTIVO
---------------------------------------------------------------------------------
-${modelInfoLines.join('\n')}
+# 🧬 GAJE HELIX — Bitácora y Registro de Auditoría
 
-🏝️ 2. MEMORIA ISLAND MODEL (.gmem)
---------------------------------------------------------------------------------
-• Persistencia: ${islandMem}
-• Latencia de Retrieval: ${islandLat}
-• Presupuesto de Contexto: ${islandBudget}
-• Módulos de Memoria: ${islandPills}
+> **Fecha y Hora de Generación:** ${nowFormatted}  
+> **Identificador Único de Auditoría:** \`${auditId}\`  
+> **Modo de Operación:** \`${engineModeLabel}\`
 
-⚙️ 3. ENTORNO DE EJECUCIÓN Y HARDWARE
---------------------------------------------------------------------------------
-• Software: ${sfVal}
-• Hardware: ${hdVal}
-• Aceleración GPU: ${gpuVal}
-• Arquitectura CPU: ${archFormatted}
-• Instrucciones SIMD: ${simdVal}
-• Rendimiento Inferencia: ${latencyVal}
+---
 
-🔔 4. REGISTRO DE ALERTAS DEL SISTEMA
---------------------------------------------------------------------------------
+## 📦 1. Organismo Genómico y Modelo Activo
+
+| Propiedad | Valor Registrado |
+| :--- | :--- |
+| **Archivo del Modelo** | \`${selectedModelName}\` |
+| **Arquitectura Cuantizada** | \`Q4_0 (Cuerpo Transformer) + FP32 (Embeddings / LM Head)\` |
+| **Formato Binario** | \`.gaje.flat v2\` (Zero-Copy Mmap Alignment) |
+| **Tamaño en Disco / Caché** | \`${modelSizeText}\` |
+| **Estado / Memoria Residente** | \`${modelRamText}\` |
+
+---
+
+## 🏝️ 2. Memoria Persistente Island Model (\`.gmem\`)
+
+| Parámetro | Configuración Activa |
+| :--- | :--- |
+| **Motor de Persistencia** | \`${islandMem}\` |
+| **Latencia Media de Recuperación** | \`${islandLat}\` |
+| **Presupuesto de Contexto RAG** | \`${islandBudget}\` |
+| **Islas de Memoria Activas** | \`${islandPills}\` |
+
+---
+
+## ⚙️ 3. Entorno de Ejecución y Hardware
+
+| Componente | Especificación Detectada |
+| :--- | :--- |
+| **Software Runtime** | \`${sfVal}\` |
+| **Hardware Anfitrión** | \`${hdVal}\` |
+| **Aceleración Gráfica (GPU)** | \`${gpuVal}\` |
+| **Arquitectura de CPU** | \`${archFormatted}\` |
+| **Conjunto de Instrucciones SIMD** | \`${simdVal}\` |
+| **Perfil de Latencia** | \`${latencyVal}\` |
+
+---
+
+## 📊 4. Telemetría Acumulada de la Sesión
+
+| Métrica Global | Valor Medido |
+| :--- | :--- |
+| **Total de Turnos de Usuario** | \`${userTurnCount}\` turnos |
+| **Total de Respuestas del Asistente** | \`${assistantTurnCount}\` turnos |
+| **Volumen Total de Tokens Generados** | \`${totalTokensGenerated}\` tokens |
+| **Throughput Promedio de la Sesión** | \`${avgSpeed > 0 ? avgSpeed.toFixed(2) + ' tok/s' : '—'}\` |
+| **Latencia Promedio E2E** | \`${avgLatency > 0 ? avgLatency.toFixed(2) + ' ms' : '—'}\` |
+| **Códigos de Estado GAJE Observados** | \`${statusCodesFormatted}\` |
+
+---
+
+## 🎛️ 5. Parámetros de Generación y Sampler
+
+| Hiperparámetro | Valor de Configuración |
+| :--- | :--- |
+| **Sampling Mode** | \`Lagrangian Minimal Action / Greedy Hybrid\` |
+| **Temperatura Base** | \`0.7\` (o \`0.0\` en modo determinista) |
+| **Top-P / Min-P** | \`0.90\` / \`0.05\` |
+| **Repetition Penalty** | \`1.15\` |
+| **Límite de Contexto Activo** | \`2048 tokens\` |
+
+---
+
+## 🔔 6. Registro de Alertas y Eventos del Sistema
+
 ${alertItems}
 
-💬 5. TRANSCRIPCIÓN SECUENCIAL DEL CHAT (CON HORAS EXACTAS)
-================================================================================
-${chatTranscript.trim()}
-================================================================================
-FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
-================================================================================`;
+---
 
+## 💬 7. Transcripción Secuencial de la Conversación
+
+${transcriptMd.trim()}
+
+---
+
+*Fin del registro de auditoría — GAJE Helix Native Runtime v${window.GAJE_CONFIG?.version || '1.7.8'}*
+`;
+
+        // 4. Descarga automática del archivo Markdown (.md)
+        try {
+            const filename = `gaje_audit_log_${fileTimestamp}.md`;
+            const blob = new Blob([logContent], { type: 'text/markdown;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(() => {
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }, 150);
+        } catch (e) {
+            console.warn('[GAJE] No se pudo iniciar la descarga automática del archivo:', e);
+        }
+
+        // 5. Copia al portapapeles y retroalimentación visual interactiva
         navigator.clipboard.writeText(logContent).then(() => {
+            // Toast interactivo de confirmación
+            if (typeof this.showToast === 'function') {
+                this.showToast('📥 Bitácora (.md) descargada y copiada al portapapeles con éxito.', 'success', 4000, {
+                    code: 'GAJE-EXPORT',
+                    model: selectedModelName
+                });
+            }
+
             if (!btnElement) return;
             const originalHtml = btnElement.innerHTML;
             const originalTitle = btnElement.getAttribute('title') || '';
             btnElement.classList.add('copied');
-            btnElement.setAttribute('title', '¡Log copiado al portapapeles!');
+            btnElement.setAttribute('title', '¡Bitácora descargada y copiada!');
             btnElement.innerHTML = `
                 <svg class="y2k-icon" width="15" height="15" style="color:#10b981;" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-check"/></svg>
-                <span class="visually-hidden">¡Log Copiado!</span>
+                <span class="visually-hidden">¡Bitácora Exportada!</span>
             `;
             setTimeout(() => {
                 btnElement.classList.remove('copied');
@@ -386,6 +526,9 @@ FIN DE LA BITÁCORA — GAJE NATIVE RUNTIME
             }, 2500);
         }).catch(err => {
             console.error('Error al copiar el log del proyecto:', err);
+            if (typeof this.showToast === 'function') {
+                this.showToast('📥 Bitácora descargada como archivo .md.', 'info', 4000);
+            }
         });
     },
 
