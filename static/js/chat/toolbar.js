@@ -98,9 +98,12 @@ window.ChatToolbarController = {
             exportLogBtn.addEventListener('click', () => window.ChatUtils.generateProjectLog(exportLogBtn));
         }
 
-
-
-        const engineModeSelect = document.getElementById('engine-mode-select');
+        const fullscreenBtn = document.getElementById('toggle-fullscreen-btn');
+        if (fullscreenBtn) {
+            fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
+            document.addEventListener('fullscreenchange', () => this.updateFullscreenButtonState());
+            document.addEventListener('webkitfullscreenchange', () => this.updateFullscreenButtonState());
+        }
         if (engineModeSelect) {
             engineModeSelect.addEventListener('change', (e) => this.onEngineModeChange(e.target.value));
         }
@@ -673,5 +676,46 @@ window.ChatToolbarController = {
 
         // Mensaje de sistema informativo en consola
         window.ChatComposerController?.addMessage('🧬 Historial de conversación purgado. Sesión y memoria restauradas.', 'system');
+    },
+
+    toggleFullscreen() {
+        const doc = document.documentElement;
+        const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+
+        if (!isFullscreen) {
+            if (doc.requestFullscreen) {
+                doc.requestFullscreen().catch(err => console.warn('[GAJE] Fullscreen error:', err));
+            } else if (doc.webkitRequestFullscreen) {
+                doc.webkitRequestFullscreen();
+            } else if (doc.msRequestFullscreen) {
+                doc.msRequestFullscreen();
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen().catch(err => console.warn('[GAJE] Exit fullscreen error:', err));
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }
+
+        // Cerrar menú dropdown si está abierto
+        const menuDropdown = document.getElementById('chat-actions-dropdown');
+        const menuBtn = document.getElementById('chat-overflow-menu-btn');
+        if (menuDropdown) menuDropdown.setAttribute('hidden', '');
+        if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
+    },
+
+    updateFullscreenButtonState() {
+        const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+        const textSpan = document.getElementById('fullscreen-btn-text');
+        const btn = document.getElementById('toggle-fullscreen-btn');
+        if (textSpan) {
+            textSpan.textContent = isFullscreen ? 'Salir de Pantalla Completa' : 'Pantalla Completa';
+        }
+        if (btn) {
+            btn.setAttribute('data-tooltip', isFullscreen ? 'Restaurar vista estándar del navegador' : 'Alternar modo pantalla completa inmersiva');
+        }
     }
 };
