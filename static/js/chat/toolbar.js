@@ -104,6 +104,8 @@ window.ChatToolbarController = {
             document.addEventListener('fullscreenchange', () => this.updateFullscreenButtonState());
             document.addEventListener('webkitfullscreenchange', () => this.updateFullscreenButtonState());
         }
+
+        const engineModeSelect = document.getElementById('engine-mode-select');
         if (engineModeSelect) {
             engineModeSelect.addEventListener('change', (e) => this.onEngineModeChange(e.target.value));
         }
