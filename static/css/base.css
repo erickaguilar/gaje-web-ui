@@ -1121,32 +1121,31 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
 }
 
 .y2k-theme-toggle-direct .icon-sun,
-.y2k-theme-toggle-direct .icon-moon {
+.y2k-theme-toggle-direct .icon-moon,
+.y2k-theme-toggle-direct .icon-zen {
+  display: none !important;
   width: 16px;
   height: 16px;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
 }
 
-.y2k-theme-toggle-direct .icon-sun,
-.y2k-theme-toggle-direct .icon-moon,
-.y2k-theme-toggle-direct .icon-zen {
-  display: none;
-}
-
-:root .y2k-theme-toggle-direct .icon-moon,
+/* En Modo Oscuro (Dark) -> Muestra icono Zen (próximo tema en la secuencia) */
 [data-theme="dark"] .y2k-theme-toggle-direct .icon-zen {
-  display: block;
+  display: block !important;
   color: #22d3ee;
 }
 
-[data-theme="light"] .y2k-theme-toggle-direct .icon-moon {
-  display: block;
-  color: var(--accent);
+/* En Modo Zen (Focus) -> Muestra icono Sol (próximo tema en la secuencia) */
+[data-theme="zen"] .y2k-theme-toggle-direct .icon-sun {
+  display: block !important;
+  color: #38bdf8;
 }
 
-[data-theme="zen"] .y2k-theme-toggle-direct .icon-sun {
-  display: block;
-  color: #38bdf8;
+/* En Modo Claro (Light) o por defecto -> Muestra icono Luna (próximo tema en la secuencia) */
+[data-theme="light"] .y2k-theme-toggle-direct .icon-moon,
+:root:not([data-theme]) .y2k-theme-toggle-direct .icon-moon {
+  display: block !important;
+  color: var(--accent);
 }
 
 [data-theme="light"] .y2k-theme-toggle-direct {
