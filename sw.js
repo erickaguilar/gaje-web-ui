@@ -9,7 +9,7 @@ try {
   console.warn('[GAJE-SW] No se pudo cargar config.js de forma síncrona, usando fallback:', e);
 }
 
-const VERSION = (self.GAJE_CONFIG && self.GAJE_CONFIG.version) ? self.GAJE_CONFIG.version : '1.7.9';
+const VERSION = (self.GAJE_CONFIG && self.GAJE_CONFIG.version) ? self.GAJE_CONFIG.version : '1.7.0-alpha';
 const CACHE_NAME = `gaje-helix-pwa-v${VERSION}`;
 
 const STATIC_ASSETS = [
