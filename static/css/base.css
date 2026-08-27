@@ -1151,15 +1151,8 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
   border-radius: 0px !important;
 }
 
-@media (max-width: 820px) {
-  .y2k-segmented-nav {
-    display: none;
-  }
-}
-@media (min-width: 821px) {
-  .y2k-menu-btn {
-    display: none;
-  }
+.y2k-segmented-nav {
+  display: none !important;
 }
 
 /* Menu Toggle Button (Hamburguesa Móvil) */
