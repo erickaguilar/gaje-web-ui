@@ -19,9 +19,21 @@ PROJECT_ROOT = os.path.abspath(os.path.join(SERVER_DIR, "..", "..", ".."))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, "python"))
 sys.path.insert(0, SERVER_DIR)
 
-from gaje.nn.stabilized import GenomicLLM  # noqa: E402
-from gaje.utils.version import get_project_version  # noqa: E402
-from gaje.processing.island_memory import IslandMemoryManager  # noqa: E402
+try:
+    from gaje.nn.stabilized import GenomicLLM  # noqa: E402
+except Exception:
+    GenomicLLM = None
+
+try:
+    from gaje.utils.version import get_project_version  # noqa: E402
+except Exception:
+    get_project_version = lambda: "1.7.0-alpha"  # noqa: E731
+
+try:
+    from gaje.processing.island_memory import IslandMemoryManager  # noqa: E402
+except Exception:
+    IslandMemoryManager = None
+
 from model_manager import find_model_path, get_model, list_available_models, unload_model  # noqa: E402
 from prompt_templates import format_prompt, get_stop_tokens  # noqa: E402
 
