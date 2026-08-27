@@ -504,7 +504,7 @@ ${transcriptMd.trim()}
         navigator.clipboard.writeText(logContent).then(() => {
             // Toast interactivo de confirmación
             if (typeof this.showToast === 'function') {
-                this.showToast('📥 Bitácora (.md) descargada y copiada al portapapeles con éxito.', 'success', 4000, {
+                this.showToast('Bitácora (.md) descargada y copiada al portapapeles con éxito.', 'success', 4000, {
                     code: 'GAJE-EXPORT',
                     model: selectedModelName
                 });
@@ -527,7 +527,7 @@ ${transcriptMd.trim()}
         }).catch(err => {
             console.error('Error al copiar el log del proyecto:', err);
             if (typeof this.showToast === 'function') {
-                this.showToast('📥 Bitácora descargada como archivo .md.', 'info', 4000);
+                this.showToast('Bitácora descargada como archivo .md.', 'info', 4000);
             }
         });
     },

@@ -648,7 +648,7 @@ window.ChatToolbarController = {
 
         // Alerta y notificación visual Y2K inmediata
         if (window.ChatUtils && typeof window.ChatUtils.showToast === 'function') {
-            window.ChatUtils.showToast('🗑️ Borrando historial de conversación y reiniciando sesión...', 'warning', 3500, {
+            window.ChatUtils.showToast('Borrando historial de conversación y reiniciando sesión...', 'warning', 3500, {
                 code: 'GAJE-PURGE'
             });
         }
