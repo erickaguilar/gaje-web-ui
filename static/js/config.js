@@ -16,7 +16,7 @@
     appDescription: 'Motor de inferencia LLM y compresión semántica genómica.',
     
     // CDN oficial de modelos binarios .flat
-    cdnBaseUrl: 'https://huggingface.co/erickaguilar/gaje-models/resolve/main/',
+    cdnBaseUrl: 'https://huggingface.co/eaguilar/gaje-models/resolve/main/',
     
     // Modelo por defecto al iniciar
     defaultModel: 'gaje_pico_135m.flat',
