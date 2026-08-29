@@ -58,46 +58,11 @@
 
                 <!-- 2. Telemetría y Métricas -->
                 <div class="menu-section-label">Telemetría y Métricas</div>
-                <button id="y2k-open-monitor-btn" class="chat-menu-item highlight-item" role="menuitem">
+                <button id="y2k-open-monitor-btn" class="chat-menu-item highlight-item" role="menuitem" data-tooltip="Abrir Dashboard de Telemetría, Recursos del Modelo y Linaje">
                     <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-monitor"/></svg>
                     <span style="flex: 1;">Dashboard de Telemetría (HUD)</span>
                     <span class="live-dot-pulse-mini" aria-hidden="true"></span>
                 </button>
-
-                <div class="menu-info-card">
-                    <div class="menu-info-row">
-                        <span class="menu-info-label">Memoria:</span>
-                        <span class="chat-pill-ram" id="model-ram" data-tooltip="Memoria RAM residente consumida">
-                            <span class="ram-led"></span><span>RAM —</span>
-                        </span>
-                    </div>
-                    <div class="menu-info-row">
-                        <span class="menu-info-label">Archivo:</span>
-                        <div id="model-meta-block" class="chat-model-meta" data-tooltip="Tamaño del archivo de pesos en disco">
-                            <span id="model-size" class="chat-pill-meta">471 MB</span>
-                            <span id="model-date" class="chat-pill-meta" hidden>—</span>
-                        </div>
-                    </div>
-                    <div id="model-load-bar" class="model-load chat-model-load" role="progressbar" aria-label="Cargando modelo" aria-valuemin="0" aria-valuemax="100" aria-valuetext="inactivo" hidden>
-                        <span class="model-load-track"><span class="model-load-fill"></span></span>
-                    </div>
-                    <div class="menu-info-badges">
-                        <span id="wasm-header-badge" class="status-indicator-pill wasm-indicator-pill" data-tooltip="Motor WebAssembly In-Browser Activo (Zero-Server)" style="display: none;">
-                            <span class="pulse-engine-dot wasm-pulse"></span>
-                            <span id="wasm-header-text">WASM</span>
-                        </span>
-
-                        <span id="gpu-header-badge" class="status-indicator-pill gpu-indicator-pill" data-tooltip="Aceleración GPU Vulkan/WebGL Activa" style="display: none;">
-                            <span class="pulse-engine-dot gpu-pulse"></span>
-                            <span id="gpu-header-text">GPU</span>
-                        </span>
-
-                        <span class="status-indicator-pill core-indicator-pill" data-tooltip="Núcleo GAJE SIMD activo">
-                            <span class="pulse-engine-dot"></span>
-                            <span>Core SIMD</span>
-                        </span>
-                    </div>
-                </div>
 
                 <div class="menu-divider"></div>
 

@@ -107,6 +107,7 @@ window.ChatTelemetryController = {
                     targetPane.classList.add('active');
                     targetPane.removeAttribute('hidden');
                 }
+                if (targetId === 'tab-model') this.updateModelTabStats();
                 if (targetId === 'tab-storage') this.updateStorageTabStats();
                 if (targetId === 'tab-island') this.updateEpochsTab();
             });
@@ -119,6 +120,7 @@ window.ChatTelemetryController = {
     async openModal(explicitModal) {
         const modal = explicitModal || await this.ensureModal();
         if (!modal) return;
+        this.updateModelTabStats();
         this.updateStorageTabStats();
         this.updateEpochsTab();
         if (typeof modal.showModal === 'function') {
@@ -126,6 +128,60 @@ window.ChatTelemetryController = {
         } else {
             modal.setAttribute('open', '');
         }
+    },
+
+    updateModelTabStats() {
+        const modelSelect = document.getElementById('model-select');
+        const selectedModel = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'gaje_pico_135m.flat');
+        const meta = window.GAJE_CONFIG?.getModelMeta(selectedModel) || {};
+
+        const nameEl = document.getElementById('modal-model-name-val');
+        const archEl = document.getElementById('modal-model-arch-val');
+        const blocksEl = document.getElementById('modal-model-blocks-val');
+        const dimEl = document.getElementById('modal-model-dim-val');
+        const headsEl = document.getElementById('modal-model-heads-val');
+        const badgeEl = document.getElementById('modal-model-badge');
+        const ramEl = document.getElementById('modal-model-ram-val');
+        const fileSizeEl = document.getElementById('modal-model-filesize-val');
+        const tpsEl = document.getElementById('modal-infer-tps-val');
+        const tokCountEl = document.getElementById('modal-infer-tokcount-val');
+        const decodeTimeEl = document.getElementById('modal-infer-decodetime-val');
+
+        if (nameEl) nameEl.innerText = selectedModel;
+        if (archEl) archEl.innerText = meta.arch || 'Qwen2.5 / SmolLM2 (Q4_0+FP32)';
+        if (badgeEl) badgeEl.innerText = meta.badge || 'Q4_0 Zero-Copy';
+        if (ramEl) ramEl.innerText = meta.ramMb ? `~${meta.ramMb} MB (RSS)` : (window.ChatState?.modelRam || '~220 MB');
+        if (fileSizeEl) fileSizeEl.innerText = meta.sizeMb ? `${meta.sizeMb} MB` : (window.ChatState?.modelSize || '471.4 MB');
+
+        if (selectedModel.includes('0_5b') || selectedModel.includes('0.5b')) {
+            if (blocksEl) blocksEl.innerText = '24 Bloques';
+            if (dimEl) dimEl.innerText = '896';
+            if (headsEl) headsEl.innerText = '14 Heads / 2 KV (GQA 7x)';
+        } else if (selectedModel.includes('1.5b') || selectedModel.includes('1_5b')) {
+            if (blocksEl) blocksEl.innerText = '28 Bloques';
+            if (dimEl) dimEl.innerText = '1536';
+            if (headsEl) headsEl.innerText = '12 Heads / 2 KV (GQA 6x)';
+        } else if (selectedModel.includes('3b') || selectedModel.includes('3B')) {
+            if (blocksEl) blocksEl.innerText = '36 Bloques';
+            if (dimEl) dimEl.innerText = '2048';
+            if (headsEl) headsEl.innerText = '16 Heads / 2 KV (GQA 8x)';
+        } else if (selectedModel.includes('7b') || selectedModel.includes('7B')) {
+            if (blocksEl) blocksEl.innerText = '28 Bloques';
+            if (dimEl) dimEl.innerText = '3584';
+            if (headsEl) headsEl.innerText = '28 Heads / 4 KV (GQA 7x)';
+        } else {
+            if (blocksEl) blocksEl.innerText = '30 Bloques';
+            if (dimEl) dimEl.innerText = '576';
+            if (headsEl) headsEl.innerText = '9 Heads / 3 KV (GQA 3x)';
+        }
+
+        const lastTps = window.ChatState?.lastTps;
+        const totalToks = window.ChatState?.totalTokensGenerated || 0;
+        const totalSecs = window.ChatState?.totalDecodeTime || 0;
+
+        if (tpsEl) tpsEl.innerText = lastTps ? `${lastTps.toFixed(1)} tok/s` : (window.ChatState?.engineMode === 'wasm' ? 'WASM Local' : 'Nativo Rust');
+        if (tokCountEl) tokCountEl.innerText = `${totalToks} tokens`;
+        if (decodeTimeEl) decodeTimeEl.innerText = `${totalSecs.toFixed(2)} s`;
     },
 
     closeModal(modal) {

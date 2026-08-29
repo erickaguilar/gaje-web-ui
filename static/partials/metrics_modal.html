@@ -22,12 +22,16 @@
 
         <!-- Apple HIG Segmented Control Bar -->
         <nav class="apple-segmented-bar" role="tablist" aria-label="Secciones de telemetría">
-            <button class="seg-tab active" role="tab" aria-selected="true" data-tab="tab-island">
+            <button class="seg-tab active" role="tab" aria-selected="true" data-tab="tab-model">
+                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg>
+                <span>Modelo & Recursos</span>
+            </button>
+            <button class="seg-tab" role="tab" aria-selected="false" data-tab="tab-island">
                 <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-island"/></svg>
                 <span>Island (.gmem)</span>
             </button>
             <button class="seg-tab" role="tab" aria-selected="false" data-tab="tab-dna">
-                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg>
+                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-cpu"/></svg>
                 <span>Secuencia ADN</span>
             </button>
             <button class="seg-tab" role="tab" aria-selected="false" data-tab="tab-hardware">
@@ -46,8 +50,66 @@
 
         <!-- Modal Content Panels -->
         <div class="modal-body-content">
-            <!-- Tab 1: Island Model -->
-            <section id="tab-island" class="tab-pane active" role="tabpanel">
+            <!-- Tab 1: Modelo & Recursos (.flat v2) -->
+            <section id="tab-model" class="tab-pane active" role="tabpanel">
+                <div class="modal-card-grid">
+                    <div class="hud-card">
+                        <div class="hud-card-head">
+                            <h4 class="hud-card-title">🧬 Organismo Genómico Activo</h4>
+                            <span class="y2k-sub-badge" id="modal-model-badge">Q4_0 Zero-Copy</span>
+                        </div>
+                        <div class="hud-stat-box">
+                            <div class="metric-row"><span>Identificador:</span> <span id="modal-model-name-val" class="metric-val" style="color: var(--neon-cyan)">gaje_pico_135m.flat</span></div>
+                            <div class="metric-row"><span>Arquitectura:</span> <span id="modal-model-arch-val" class="metric-val">SmolLM2-135M (Q4_0+FP32)</span></div>
+                            <div class="metric-row"><span>Bloques Transformer:</span> <span id="modal-model-blocks-val" class="metric-val">30 Bloques</span></div>
+                            <div class="metric-row"><span>Dimensión ($n_{embd}$):</span> <span id="modal-model-dim-val" class="metric-val">576</span></div>
+                            <div class="metric-row"><span>Atención (GQA):</span> <span id="modal-model-heads-val" class="metric-val">9 Heads / 3 KV</span></div>
+                            <div class="metric-row"><span>Tokenizador:</span> <span id="modal-model-tok-val" class="metric-val" style="color: #38bdf8">GTOK v1.0 Nativo Incrustado</span></div>
+                        </div>
+                    </div>
+
+                    <div class="hud-card">
+                        <div class="hud-card-head">
+                            <h4 class="hud-card-title">📦 Memoria, Archivo y Mmap Zero-Copy</h4>
+                            <span class="y2k-sub-badge" style="background: rgba(74, 222, 128, 0.15); color: #4ade80; border-color: rgba(74, 222, 128, 0.3);">Mmap Active</span>
+                        </div>
+                        <div class="hud-stat-box">
+                            <div class="metric-row"><span>Memoria Residente (RAM):</span> <span id="modal-model-ram-val" class="metric-val" style="color: #4ade80">~220 MB</span></div>
+                            <div class="metric-row"><span>Tamaño en Disco:</span> <span id="modal-model-filesize-val" class="metric-val">471.4 MB</span></div>
+                            <div class="metric-row"><span>Alineación de Páginas:</span> <span class="metric-val">4096 bytes (4 KB Zero-Copy)</span></div>
+                            <div class="metric-row"><span>Latencia de Carga:</span> <span id="modal-model-loadlat-val" class="metric-val">&lt; 2.0 ms</span></div>
+                            <div class="metric-row"><span>Cuantización Pesos:</span> <span class="metric-val">Q4_0 Nibbles + FP32 Centroids</span></div>
+                            <div class="metric-row"><span>Origen / CDN:</span> <span class="metric-val" style="color: var(--neon-cyan)">Hugging Face Hub (eaguilar/gaje-models)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-card-grid" style="margin-top: 1rem;">
+                    <div class="hud-card">
+                        <h4 class="hud-card-title">⚡ Telemetría de Inferencia y Throughput</h4>
+                        <div class="hud-stat-box">
+                            <div class="metric-row"><span>Throughput Último:</span> <span id="modal-infer-tps-val" class="metric-val" style="color: #4ade80">— tok/s</span></div>
+                            <div class="metric-row"><span>Tokens en Sesión:</span> <span id="modal-infer-tokcount-val" class="metric-val">0 tokens</span></div>
+                            <div class="metric-row"><span>Tiempo de Decodificación:</span> <span id="modal-infer-decodetime-val" class="metric-val">0.00 s</span></div>
+                            <div class="metric-row"><span>Diversidad Léxica ($d_1/d_2$):</span> <span id="modal-infer-diversity-val" class="metric-val">0.89 / 0.98</span></div>
+                            <div class="metric-row"><span>Tasa de Degeneración:</span> <span class="metric-val" style="color: #4ade80">0.0% (Sin bucles)</span></div>
+                        </div>
+                    </div>
+
+                    <div class="hud-card">
+                        <h4 class="hud-card-title">🧠 Capa Genómica & Inhibición K-WTA</h4>
+                        <div class="hud-stat-box">
+                            <div class="metric-row"><span>Inhibición Lateral:</span> <span class="metric-val" style="color: var(--neon-cyan)">K-WTA Top-K (Sparsity 85%)</span></div>
+                            <div class="metric-row"><span>Umbral de Anclas:</span> <span class="metric-val">0.10 (Zero-Drift)</span></div>
+                            <div class="metric-row"><span>Memoria Zero-Copy:</span> <span class="metric-val" style="color: #4ade80">Zero Allocations in Loop</span></div>
+                            <div class="metric-row"><span>Kernel Matemático:</span> <span class="metric-val">SIMD AVX2 + FMA / WASM SIMD128</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 2: Island Model -->
+            <section id="tab-island" class="tab-pane" role="tabpanel" hidden>
                 <div class="modal-card-grid">
                     <div class="hud-card">
                         <h4 class="hud-card-title">Módulos de Memoria Persistente (.gmem)</h4>
