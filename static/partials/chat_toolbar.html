@@ -13,15 +13,20 @@
         </div>
     </div>
 
-    <!-- Acciones Derecha (Menú Desplegable Unificado) -->
+    <!-- Acciones Derecha (Botón de Telemetría HUD + Menú Desplegable) -->
     <div class="chat-toolbar-actions">
+        <!-- Botón Directo de Telemetría HUD -->
+        <button id="y2k-open-monitor-btn" class="chat-header-icon-btn" data-tooltip="Dashboard de Telemetría (HUD)" data-tooltip-pos="left" aria-label="Abrir Dashboard de Telemetría">
+            <svg class="y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-monitor"/></svg>
+        </button>
+
         <!-- Menú Desplegable de Herramientas y Acciones (•••) -->
         <div class="chat-overflow-menu-container">
             <button id="chat-overflow-menu-btn" class="chat-header-icon-btn" aria-haspopup="true" aria-expanded="false" data-tooltip="Herramientas y Acciones" data-tooltip-pos="left" aria-label="Más opciones del chat">
                 <svg class="y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-dots"/></svg>
             </button>
 
-            <!-- Dropdown flotante Apple HIG / Scandinavian con Modelo, Telemetría & Info Integradas -->
+            <!-- Dropdown flotante Apple HIG / Scandinavian con Modelo, Motor, Historial & Memoria -->
             <div id="chat-actions-dropdown" class="chat-menu-dropdown" role="menu" hidden>
                 <!-- 1. Selector de Modelo Activo y Motor de Ejecución -->
                 <div class="menu-section-label">Organismo y Motor</div>
@@ -56,17 +61,7 @@
 
                 <div class="menu-divider"></div>
 
-                <!-- 2. Telemetría y Métricas -->
-                <div class="menu-section-label">Telemetría y Métricas</div>
-                <button id="y2k-open-monitor-btn" class="chat-menu-item highlight-item" role="menuitem" data-tooltip="Abrir Dashboard de Telemetría, Recursos del Modelo y Linaje">
-                    <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-monitor"/></svg>
-                    <span style="flex: 1;">Dashboard de Telemetría (HUD)</span>
-                    <span class="live-dot-pulse-mini" aria-hidden="true"></span>
-                </button>
-
-                <div class="menu-divider"></div>
-
-                <!-- 3. Conversación -->
+                <!-- 2. Conversación -->
                 <div class="menu-section-label">Conversación</div>
                 <button id="export-log-btn" class="chat-menu-item" role="menuitem" data-tooltip="Generar y descargar reporte de auditoría en Markdown (.md)">
                     <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-docs"/></svg>
@@ -80,7 +75,7 @@
 
                 <div class="menu-divider"></div>
 
-                <!-- 4. Gestión de Memoria y Pesos -->
+                <!-- 3. Gestión de Memoria y Pesos -->
                 <div class="menu-section-label">Gestión de Memoria</div>
                 <button id="load-local-flat-btn" class="chat-menu-item" role="menuitem">
                     <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-import"/></svg>
