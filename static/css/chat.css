@@ -1436,11 +1436,11 @@ main {
 /* ── CHAT WINDOW STREAM ── */
 .chat-window {
     flex: 1;
-    padding: 1.8rem 2.2rem 1.2rem;
+    padding: 1.1rem 1.6rem 0.8rem;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 1.4rem;
+    gap: 0.85rem;
     scrollbar-width: thin;
     scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
     max-width: 980px;
@@ -1574,9 +1574,9 @@ main {
 /* ── MENSAJES (APPLE HIG + Y2K) ── */
 .message {
     max-width: 86%;
-    padding: 1rem 1.35rem;
-    font-size: 0.93rem;
-    line-height: 1.65;
+    padding: 0.55rem 0.95rem;
+    font-size: 0.92rem;
+    line-height: 1.5;
     position: relative;
     animation: fadeInSlide 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -1592,23 +1592,23 @@ main {
     background: linear-gradient(135deg, rgba(10, 132, 255, 0.2) 0%, rgba(94, 92, 230, 0.14) 100%);
     border: 1px solid rgba(10, 132, 255, 0.35);
     border-right: 3.5px solid var(--accent, #0a84ff);
-    border-radius: 16px 16px 4px 16px;
+    border-radius: 14px 14px 4px 14px;
     color: #f1f5f9;
     backdrop-filter: blur(28px) saturate(180%);
     -webkit-backdrop-filter: blur(28px) saturate(180%);
-    box-shadow: 0 8px 30px rgba(10, 132, 255, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+    box-shadow: 0 4px 20px rgba(10, 132, 255, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.35);
     display: flex;
     flex-direction: column;
-    gap: 0.45rem;
-    padding: 0.85rem 1.25rem;
+    gap: 0.25rem;
+    padding: 0.45rem 0.85rem;
     transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .msg-avatar-icon.user-avatar,
 .user-avatar {
-    width: 20px;
-    height: 20px;
-    border-radius: 6px;
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
     background: linear-gradient(135deg, rgba(10, 132, 255, 0.3), rgba(0, 242, 254, 0.2));
     border: 1px solid rgba(10, 132, 255, 0.5);
     color: #60a5fa;
@@ -1620,8 +1620,8 @@ main {
 .msg-content p {
     color: inherit;
     margin: 0;
-    font-size: 0.93rem;
-    line-height: 1.65;
+    font-size: 0.92rem;
+    line-height: 1.5;
     white-space: pre-wrap;
     word-break: break-word;
 }
@@ -1632,8 +1632,8 @@ main {
     border-right: 4px solid #0a84ff !important;
     border-radius: 0px !important;
     color: var(--text) !important;
-    box-shadow: 0 4px 16px rgba(44, 53, 57, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
-    padding: 0.85rem 1.25rem;
+    box-shadow: 0 3px 12px rgba(44, 53, 57, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+    padding: 0.45rem 0.85rem;
 }
 
 [data-theme="light"] .msg-avatar-icon.user-avatar,
@@ -1685,8 +1685,8 @@ main {
 [data-theme="light"] .msg-user-content p,
 [data-theme="light"] .user-content p {
     color: #1e293b !important;
-    font-size: 0.93rem;
-    line-height: 1.65;
+    font-size: 0.92rem;
+    line-height: 1.5;
 }
 
 /* Burbuja del Asistente (Apple HIG Glassmorphism + Neon Accent) */
@@ -1695,13 +1695,14 @@ main {
     background: rgba(24, 26, 40, 0.72);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-left: 3.5px solid var(--accent-2);
-    border-radius: 18px 18px 18px 6px;
+    border-radius: 16px 16px 16px 5px;
     backdrop-filter: blur(32px) saturate(180%);
     -webkit-backdrop-filter: blur(32px) saturate(180%);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
+    gap: 0.35rem;
+    padding: 0.65rem 1rem;
 }
 
 /* Cabecera Semántica del Mensaje (Header Component) */
@@ -1710,9 +1711,9 @@ main {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-bottom: 0.45rem;
+    padding-bottom: 0.25rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.1rem;
 }
 
 .msg-author,
