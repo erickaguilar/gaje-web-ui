@@ -432,7 +432,7 @@ window.ChatToolbarController = {
         if (sendBtn) sendBtn.disabled = true;
 
         this.setModelLoading(true);
-        window.ChatComposerController?.addMessage(`🧬 Cargando organismo genómico [${modelName}] en el servidor... Por favor espera.`, 'system');
+        window.ChatUtils?.showToast(`Cargando organismo genómico [${modelName}]...`, 'info', 3000);
 
         try {
             const response = await fetch('/api/load_model', {
@@ -444,11 +444,11 @@ window.ChatToolbarController = {
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
             if (data.status === 'ok') {
-                window.ChatComposerController?.addMessage(`✅ Organismo [${modelName}] cargado y listo en memoria.`, 'system');
+                window.ChatUtils?.showToast(`Organismo [${modelName}] listo en memoria`, 'success', 3000);
                 this.updateModelToggleState(true);
                 await this.refreshModelMeta(modelName);
             } else {
-                window.ChatComposerController?.addMessage(`❌ Error cargando el modelo: ${data.error}`, 'system');
+                window.ChatUtils?.showToast(`Error cargando el modelo: ${data.error}`, 'error', 5000);
                 this.updateModelToggleState(false);
             }
         } catch (err) {
@@ -507,7 +507,7 @@ window.ChatToolbarController = {
             stopBtn.click();
         }
 
-        window.ChatComposerController?.addMessage('🛑 [KILL-SWITCH] Deteniendo inferencia y purgando TODOS los modelos GAJE de la sesión...', 'system');
+        window.ChatUtils?.showToast('Deteniendo inferencia y purgando modelos de la sesión', 'warning', 3000);
         await this.unloadModels();
         this.updateModelToggleState(false);
     },
@@ -515,21 +515,21 @@ window.ChatToolbarController = {
     async unloadModels() {
         const unloadModelBtn = document.getElementById('unload-model-btn');
         if (unloadModelBtn) unloadModelBtn.disabled = true;
-        window.ChatComposerController?.addMessage(`🧬 Purgando por completo todos los modelos y buffers de la memoria RAM...`, 'system');
+        window.ChatUtils?.showToast('Purgando modelos de la memoria RAM...', 'info', 2000);
         try {
             const response = await fetch('/api/unload_model', { method: 'POST' });
             const data = await response.json();
             if (data.status === 'ok') {
-                window.ChatComposerController?.addMessage(`✅ Memoria RAM del servidor liberada al 100%. Todos los modelos inactivos.`, 'system');
+                window.ChatUtils?.showToast('Memoria RAM liberada al 100%. Modelos inactivos.', 'success', 3000);
                 window.ChatState.modelsData.forEach(m => { m.ram_mb = 0.0; });
                 this.updateModelToggleState(false);
                 this.updateModelMeta();
                 this.loadEnvInfo();
             } else {
-                window.ChatComposerController?.addMessage(`❌ Error liberando los modelos: ${data.error}`, 'bot');
+                window.ChatUtils?.showToast(`Error liberando modelos: ${data.error}`, 'error', 4000);
             }
         } catch (err) {
-            window.ChatComposerController?.addMessage(`❌ Error de conexión al intentar liberar la memoria.`, 'bot');
+            window.ChatUtils?.showToast('Error de conexión al intentar liberar la memoria.', 'error', 4000);
             console.error(err);
         } finally {
             if (unloadModelBtn) unloadModelBtn.disabled = false;
@@ -546,21 +546,21 @@ window.ChatToolbarController = {
             if (wasmHeaderBadge) wasmHeaderBadge.style.display = 'inline-flex';
             if (gpuHeaderBadge) gpuHeaderBadge.style.display = 'none';
 
-            if (modelSelect && (modelSelect.value === 'qwen2_5_3b.flat' || modelSelect.value === 'deepseek_r1_1_5b.flat')) {
-                modelSelect.value = 'smollm2_135m.flat';
+            if (modelSelect && (modelSelect.value === 'qwen2_5_3b.flat' || modelSelect.value === 'gaje_coder_3b.flat')) {
+                modelSelect.value = 'gaje_pico_135m.flat';
                 this.updateModelMeta();
-                window.ChatComposerController?.addMessage('⚡ [WASM] Seleccionado SmolLM2 135M (optimizado para memoria del navegador).', 'system');
+                window.ChatUtils?.showToast('Seleccionado SmolLM 135M para WebAssembly', 'info', 3000);
             }
 
             window.ChatEngineController?.initWasmWorker();
-            window.ChatComposerController?.addMessage('Modo In-Browser WASM (Zero-Server) activado.', 'system');
+            window.ChatUtils?.showToast('Modo In-Browser WASM (Zero-Server) activado', 'info', 3000);
         } else {
             if (wasmHeaderBadge) wasmHeaderBadge.style.display = 'none';
             window.ChatEngineController?.stopAutonomicTick();
             if (window.ChatState.envData && window.ChatState.envData.gpu && gpuHeaderBadge) {
                 gpuHeaderBadge.style.display = 'inline-flex';
             }
-            window.ChatComposerController?.addMessage('Modo Servidor Nativo (AVX2/GPU) activado.', 'system');
+            window.ChatUtils?.showToast('Modo Servidor Nativo (AVX2/GPU) activado', 'info', 3000);
         }
     },
 

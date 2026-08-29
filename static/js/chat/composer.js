@@ -78,7 +78,7 @@ window.ChatComposerController = {
 
         if (!text) return;
         if (!modelValue || modelValue === 'none' || modelValue === '') {
-            this.addMessage('Por favor, selecciona un modelo válido.', 'bot');
+            window.ChatUtils?.showToast('Por favor, selecciona un modelo válido en el selector.', 'warning', 3500);
             return;
         }
 

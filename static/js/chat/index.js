@@ -12,9 +12,9 @@
         if (window.ChatTelemetryController) window.ChatTelemetryController.init();
         if (window.ChatStorage) await window.ChatStorage.renderHistory();
 
-        // Registrar inicio del sistema en la bitácora de auditoría sin ensuciar la ventana visual
-        const ver = window.GAJE_CONFIG?.version || '1.7.8';
-        window.ChatComposerController?.addMessage(`Núcleo GAJE v${ver} iniciado. Inferencia nativa mmap zero-copy activa.`, 'system');
+        // Registrar inicio del sistema en consola y estado sin ensuciar la ventana de conversación
+        const ver = window.GAJE_CONFIG?.version || '1.7.0-alpha';
+        console.log(`🧬 [GAJE-CORE] Núcleo GAJE v${ver} iniciado. Inferencia nativa mmap zero-copy activa.`);
     };
 
     if (document.readyState === 'loading') {

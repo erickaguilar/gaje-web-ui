@@ -22,12 +22,12 @@ window.ChatEngineController = {
                 this.startAutonomicTick();
                 window.ChatToolbarController?.setModelLoading(false);
                 if (modelRam) modelRam.innerHTML = `<span class="ram-led active"></span><span>WASM ${data.loadTimeMs}ms</span>`;
-                window.ChatComposerController?.addMessage(`Organismo [${data.modelName}] listo en Tronco Encefálico Local (${data.loadTimeMs} ms).`, 'system');
+                window.ChatUtils?.showToast(`Organismo [${data.modelName}] listo en Tronco Encefálico (${data.loadTimeMs} ms)`, 'success', 3000);
             } else if (data.status === 'error') {
                 console.error('🔥 [GAJE-CORE Error]:', data);
                 window.ChatToolbarController?.setModelLoading(false);
                 const code = data.code || 'GAJE-500';
-                window.ChatComposerController?.addMessage(`[${code}] ${data.error}`, 'system');
+                window.ChatUtils?.showToast(`[${code}] ${data.error}`, 'error', 5000);
             }
         };
         return window.ChatState.wasmWorker;
@@ -523,7 +523,7 @@ window.ChatEngineController = {
             if (!response.ok) {
                 const data = await response.json().catch(() => ({}));
                 botMsg.remove();
-                window.ChatComposerController?.addMessage(`Error: ${data.error || 'Fallo en el stream'}`, 'bot');
+                window.ChatUtils?.showToast(`Error del servidor: ${data.error || 'Fallo en la inferencia'}`, 'error', 5000);
                 finish(true);
                 return false;
             }
@@ -564,7 +564,7 @@ window.ChatEngineController = {
                         } catch (e) {
                             if (e.message) {
                                 botMsg.remove();
-                                window.ChatComposerController?.addMessage(`Error: ${e.message}`, 'bot');
+                                window.ChatUtils?.showToast(`Error en streaming: ${e.message}`, 'error', 5000);
                                 finish(true);
                                 return false;
                             }
@@ -580,7 +580,7 @@ window.ChatEngineController = {
                 return true;
             }
             botMsg.remove();
-            window.ChatComposerController?.addMessage('Error de conexión con el núcleo GAJE (streaming).', 'bot');
+            window.ChatUtils?.showToast('Error de conexión con el núcleo GAJE (streaming).', 'error', 5000);
             finish(true);
             return false;
         });
@@ -596,7 +596,7 @@ window.ChatEngineController = {
             });
             const data = await response.json();
             if (data.error) {
-                window.ChatComposerController?.addMessage(`Error: ${data.error}`, 'bot', null, null, modelName);
+                window.ChatUtils?.showToast(`Error del servidor: ${data.error}`, 'error', 5000);
             } else {
                 window.ChatComposerController?.addMessage(data.response, 'bot', data.metrics, null, modelName);
                 window.ChatStorage?.pushHistory({ role: 'assistant', content: data.response, model: modelName });
@@ -604,7 +604,7 @@ window.ChatEngineController = {
                 window.ChatComposerController?.updateDNA(data.dna);
             }
         } catch (err) {
-            window.ChatComposerController?.addMessage('Error de conexión con el núcleo GAJE.', 'bot', null, null, modelName);
+            window.ChatUtils?.showToast('Error de conexión con el núcleo GAJE.', 'error', 5000);
             console.error(err);
         }
     },
