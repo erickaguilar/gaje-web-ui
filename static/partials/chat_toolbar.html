@@ -23,8 +23,8 @@
 
             <!-- Dropdown flotante Apple HIG / Scandinavian con Modelo, Telemetría & Info Integradas -->
             <div id="chat-actions-dropdown" class="chat-menu-dropdown" role="menu" hidden>
-                <!-- 1. Selector de Modelo Activo con LED -->
-                <div class="menu-section-label">Organismo Genómico</div>
+                <!-- 1. Selector de Modelo Activo y Motor de Ejecución -->
+                <div class="menu-section-label">Organismo y Motor</div>
                 <div class="chat-menu-item model-select-menu-item">
                     <div class="model-select-wrapper" data-tooltip="Seleccionar modelo activo (.flat / .gaje)">
                         <label for="model-select" class="visually-hidden">Seleccionar Modelo</label>
@@ -41,6 +41,17 @@
                             <span id="model-toggle-text">Activo</span>
                         </button>
                     </div>
+                </div>
+
+                <div class="chat-menu-item engine-select-item" data-tooltip="Seleccionar motor de inferencia (WASM local o Servidor nativo)">
+                    <label for="engine-mode-select" class="menu-item-label">
+                        <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg>
+                        <span>Motor</span>
+                    </label>
+                    <select id="engine-mode-select" class="menu-inline-select" aria-label="Modo de Ejecución">
+                        <option value="wasm" selected>Navegador (WASM In-Browser / Offline)</option>
+                        <option value="native">Servidor (Nativo Rust AVX2 / Cloud)</option>
+                    </select>
                 </div>
 
                 <div class="menu-divider"></div>
@@ -106,19 +117,8 @@
 
                 <div class="menu-divider"></div>
 
-                <!-- 5. Motor y Memoria -->
-                <div class="menu-section-label">Motor y Memoria</div>
-                <div class="chat-menu-item engine-select-item">
-                    <label for="engine-mode-select" class="menu-item-label">
-                        <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg>
-                        <span>Motor</span>
-                    </label>
-                    <select id="engine-mode-select" class="menu-inline-select" aria-label="Modo de Ejecución">
-                        <option value="wasm" selected>Navegador (WASM In-Browser / Offline)</option>
-                        <option value="native">Servidor (Nativo Rust AVX2 / Cloud)</option>
-                    </select>
-                </div>
-
+                <!-- 5. Gestión de Memoria y Pesos -->
+                <div class="menu-section-label">Gestión de Memoria</div>
                 <button id="load-local-flat-btn" class="chat-menu-item" role="menuitem">
                     <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-import"/></svg>
                     <span>Cargar Modelo .flat Local...</span>
