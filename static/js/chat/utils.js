@@ -352,9 +352,17 @@ window.ChatUtils = {
                         if (b.includes('GAJE-')) observedStatusCodes.add(b);
                     });
 
+                    if (tokensThisTurn === 0 && bodyText && bodyText.length > 0 && !bodyText.includes('GAJE-204')) {
+                        tokensThisTurn = Math.max(1, Math.round(bodyText.trim().split(/\s+/).length * 1.3));
+                    }
+
                     if (tokensThisTurn > 0) totalTokensGenerated += tokensThisTurn;
                     if (speedThisTurn > 0) {
                         speedSum += speedThisTurn;
+                        speedCount++;
+                    } else if (latencyThisTurn > 0 && tokensThisTurn > 0) {
+                        const estSpeed = (tokensThisTurn / (latencyThisTurn / 1000));
+                        speedSum += estSpeed;
                         speedCount++;
                     }
                     if (latencyThisTurn > 0) {
