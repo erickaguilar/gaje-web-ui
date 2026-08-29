@@ -4,15 +4,48 @@
    ============================================================================= */
 
 window.ChatTelemetryController = {
-    init() {
-        const modal = document.getElementById('metrics-monitor-modal');
-        if (!modal) return;
+    _initialized: false,
 
+    async ensureModal() {
+        let modal = document.getElementById('metrics-monitor-modal');
+        if (modal) {
+            if (!this._initialized) this.bindModalListeners(modal);
+            return modal;
+        }
+
+        const url = window.GAJE_CONFIG ? window.GAJE_CONFIG.assetUrl('static/partials/metrics_modal.html') : 'static/partials/metrics_modal.html';
+        try {
+            const resp = await fetch(url);
+            if (resp.ok) {
+                const html = await resp.text();
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html.trim();
+                modal = tempDiv.firstElementChild;
+                if (modal) {
+                    document.body.appendChild(modal);
+                    this.bindModalListeners(modal);
+                    return modal;
+                }
+            }
+        } catch (err) {
+            console.warn('[Telemetry] No se pudo cargar metrics_modal.html:', err);
+        }
+        return document.getElementById('metrics-monitor-modal');
+    },
+
+    init() {
         const openHeaderBtn = document.getElementById('y2k-open-monitor-btn');
         const openSidebarBtn = document.getElementById('sidebar-open-monitor-btn');
 
-        if (openHeaderBtn) openHeaderBtn.addEventListener('click', () => this.openModal(modal));
-        if (openSidebarBtn) openSidebarBtn.addEventListener('click', () => this.openModal(modal));
+        if (openHeaderBtn) openHeaderBtn.addEventListener('click', () => this.openModal());
+        if (openSidebarBtn) openSidebarBtn.addEventListener('click', () => this.openModal());
+
+        window.addEventListener('gaje:db:changed', () => this.updateStorageTabStats());
+    },
+
+    bindModalListeners(modal) {
+        if (!modal || this._initialized) return;
+        this._initialized = true;
 
         if (!('closedBy' in HTMLDialogElement.prototype)) {
             modal.addEventListener('click', (event) => {
@@ -79,13 +112,13 @@ window.ChatTelemetryController = {
             });
         });
 
-        window.addEventListener('gaje:db:changed', () => this.updateStorageTabStats());
-
         this.bindStorageActions();
         this.bindEpochActions();
     },
 
-    openModal(modal) {
+    async openModal(explicitModal) {
+        const modal = explicitModal || await this.ensureModal();
+        if (!modal) return;
         this.updateStorageTabStats();
         this.updateEpochsTab();
         if (typeof modal.showModal === 'function') {
