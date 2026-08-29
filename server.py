@@ -4,6 +4,7 @@ Modular HTTP server for local LLM inference, embedding visualization,
 and Island Model context orchestration.
 """
 
+import codecs
 from datetime import datetime
 import http.server
 import json
@@ -61,7 +62,8 @@ GMEM_ACTIVE_PATH = os.environ.get(
 MAX_TOKENS = int(os.environ.get("GAJE_MAX_TOKENS", "512"))
 TEMPERATURE = float(os.environ.get("GAJE_TEMPERATURE", "0.6"))
 TOP_P = float(os.environ.get("GAJE_TOP_P", "0.9"))
-REP_PENALTY = float(os.environ.get("GAJE_REP_PENALTY", "1.15"))
+MIN_P = float(os.environ.get("GAJE_MIN_P", "0.05"))
+REP_PENALTY = float(os.environ.get("GAJE_REP_PENALTY", "1.05"))
 MAX_HISTORY_MESSAGES = int(
     os.environ.get("GAJE_MAX_HISTORY_MESSAGES", "12")
 )
@@ -628,6 +630,7 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             first_token_at = None
             last_token_at = None
             client_gone = False
+            decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
             stop_tokens_str = [
                 "<|im_end|>",
                 "<|im_start|>",
@@ -637,18 +640,25 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
             ]
             try:
                 for token in gen:
-                    if not isinstance(token, str):
-                        token = str(token)
+                    if isinstance(token, bytes):
+                        chunk = decoder.decode(token, final=False)
+                    elif isinstance(token, str):
+                        chunk = token
+                    else:
+                        chunk = str(token)
+
+                    if not chunk:
+                        continue
 
                     if first_token_at is None:
                         # El primer token marca el fin del prefill (TTFT)
                         first_token_at = time.time()
 
                     # Detener y filtrar tokens de parada especiales
-                    if token in stop_tokens_str or any(
-                        st in token for st in stop_tokens_str
+                    if chunk in stop_tokens_str or any(
+                        st in chunk for st in stop_tokens_str
                     ):
-                        token_clean = token
+                        token_clean = chunk
                         for st in stop_tokens_str:
                             token_clean = token_clean.replace(st, "")
                         if token_clean:
@@ -661,10 +671,10 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
                         break
 
                     generated_tokens_count += 1
-                    streamed_tokens.append(token)
+                    streamed_tokens.append(chunk)
                     last_token_at = time.time()
-                    token = token.replace("\n", "\u000A")
-                    self.wfile.write(f"data: {json.dumps(token)}\n\n".encode("utf-8"))
+                    chunk_out = chunk.replace("\n", "\u000A")
+                    self.wfile.write(f"data: {json.dumps(chunk_out)}\n\n".encode("utf-8"))
                     self.wfile.flush()
             except (BrokenPipeError, ConnectionResetError):
                 # El cliente abortó (refresh/stop/timeout): es un evento normal de

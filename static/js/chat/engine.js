@@ -349,7 +349,8 @@ window.ChatEngineController = {
                         prompt: text,
                         maxTokens: 128,
                         temperature: 0.65,
-                        repetitionPenalty: 1.15,
+                        minP: 0.05,
+                        repetitionPenalty: 1.05,
                         injectRag: true,
                         history: recentHistory
                     }
