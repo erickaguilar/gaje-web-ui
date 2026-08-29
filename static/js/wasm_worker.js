@@ -7,6 +7,7 @@ import init, { GajeWasmEngine } from '../wasm/_impl.js';
 
 let wasmEngine = null;
 let isInitialized = false;
+let currentModelName = '';
 
 self.onmessage = async (e) => {
     const { action, payload } = e.data;
@@ -37,6 +38,7 @@ self.onmessage = async (e) => {
                     wasmEngine = null;
                 }
                 wasmEngine = GajeWasmEngine.load_from_bytes(uint8Array);
+                currentModelName = (typeof modelName === 'string') ? modelName.toLowerCase() : '';
                 const loadTimeMs = (performance.now() - t0).toFixed(2);
                 const info = JSON.parse(wasmEngine.get_model_info());
 
@@ -67,6 +69,7 @@ self.onmessage = async (e) => {
             }
             try {
                 wasmEngine = GajeWasmEngine.load_from_bytes(uint8Array);
+                currentModelName = (typeof modelName === 'string') ? modelName.toLowerCase() : '';
                 const loadTimeMs = (performance.now() - t0).toFixed(2);
                 const info = JSON.parse(wasmEngine.get_model_info());
 
@@ -118,16 +121,37 @@ self.onmessage = async (e) => {
             const {
                 prompt,
                 maxTokens = 128,
-                temperature = 0.4,
+                temperature = 0.65,
                 repetitionPenalty = 1.15,
                 injectRag = true,
                 systemPrompt = 'Eres GAJE AI, un asistente genómico soberano, conciso y útil.',
                 history = []
             } = payload;
 
-            // Inyección automática de ChatML (<|im_start|> / <|im_end|>) si el prompt es texto plano
+            const isBaseModel = (typeof currentModelName === 'string') && (
+                currentModelName.includes('pico') ||
+                currentModelName.includes('base') ||
+                currentModelName.includes('raw') ||
+                (!currentModelName.includes('instruct') && !currentModelName.includes('chat') && !currentModelName.includes('r1'))
+            );
+
+            // Inyección automática de ChatML sólo si el modelo es Instruct y el prompt es texto plano
             let formattedPrompt = prompt;
-            if (typeof prompt === 'string' && !prompt.includes('<|im_start|>') && !prompt.includes('<|user|>')) {
+            if (isBaseModel) {
+                // Modelo base: Completado directo o formato natural
+                if (Array.isArray(history) && history.length > 0) {
+                    let contextBlock = '';
+                    for (const msg of history.slice(-4)) {
+                        if (msg && msg.content) {
+                            const role = msg.role === 'assistant' ? 'Assistant' : 'Human';
+                            contextBlock += `${role}: ${msg.content}\n\n`;
+                        }
+                    }
+                    formattedPrompt = `${contextBlock}Human: ${prompt}\n\nAssistant:`;
+                } else {
+                    formattedPrompt = prompt;
+                }
+            } else if (typeof prompt === 'string' && !prompt.includes('<|im_start|>') && !prompt.includes('<|user|>')) {
                 let contextBlock = '';
                 if (Array.isArray(history) && history.length > 0) {
                     for (const msg of history.slice(-4)) {
@@ -140,20 +164,32 @@ self.onmessage = async (e) => {
                 formattedPrompt = `<|im_start|>system\n${systemPrompt}<|im_end|>\n${contextBlock}<|im_start|>user\n${prompt}<|im_end|>\n<|im_start|>assistant\n`;
             }
 
+            const effectiveTemp = isBaseModel ? Math.max(temperature, 0.65) : temperature;
             const t0 = performance.now();
-            let rawResponse = wasmEngine.chat_with_memory(formattedPrompt, maxTokens, temperature, repetitionPenalty, injectRag);
+            let rawResponse = wasmEngine.chat_with_memory(formattedPrompt, maxTokens, effectiveTemp, repetitionPenalty, injectRag);
             const genTimeMs = (performance.now() - t0).toFixed(2);
             const memoryStats = JSON.parse(wasmEngine.get_memory_stats());
 
             // Limpieza de delimitadores ChatML en la salida
-            let cleanResponse = rawResponse;
-            if (typeof cleanResponse === 'string') {
-                cleanResponse = cleanResponse
+            let cleanResponse = (typeof rawResponse === 'string') ? rawResponse
+                .replace(/<\|im_end\|>[\s\S]*$/gi, '')
+                .replace(/<\|im_start\|>[\s\S]*$/gi, '')
+                .replace(/<\|endoftext\|>[\s\S]*$/gi, '')
+                .replace(/<\|end\|>[\s\S]*$/gi, '')
+                .trim() : '';
+
+            // Auto-fallback resiliente: si el formateo colapsó a EOS vacío en paso 0, reintentar con prompt crudo directo
+            if ((!cleanResponse || cleanResponse.length === 0) && formattedPrompt !== prompt) {
+                const fallbackRaw = wasmEngine.chat_with_memory(prompt, maxTokens, Math.max(temperature, 0.7), repetitionPenalty, false);
+                const fallbackClean = (typeof fallbackRaw === 'string') ? fallbackRaw
                     .replace(/<\|im_end\|>[\s\S]*$/gi, '')
                     .replace(/<\|im_start\|>[\s\S]*$/gi, '')
                     .replace(/<\|endoftext\|>[\s\S]*$/gi, '')
                     .replace(/<\|end\|>[\s\S]*$/gi, '')
-                    .trim();
+                    .trim() : '';
+                if (fallbackClean && fallbackClean.length > 0) {
+                    cleanResponse = fallbackClean;
+                }
             }
 
             self.postMessage({

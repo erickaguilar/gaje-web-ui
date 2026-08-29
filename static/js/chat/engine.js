@@ -348,7 +348,7 @@ window.ChatEngineController = {
                     payload: {
                         prompt: text,
                         maxTokens: 128,
-                        temperature: 0.4,
+                        temperature: 0.65,
                         repetitionPenalty: 1.15,
                         injectRag: true,
                         history: recentHistory

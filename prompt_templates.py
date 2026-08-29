@@ -34,8 +34,21 @@ def format_prompt(
     # Inyección de memoria de largo plazo Island Model (.gmem)
     mem_suffix = f"\n\n{island_context}" if island_context else ""
 
+    # === Arquitectura 0: Modelos Base / Completado Directo (Pico / Base / Raw) ===
+    if "pico" in model_name_lower or "base" in model_name_lower or "raw" in model_name_lower:
+        if not valid_history:
+            return message
+        parts = []
+        if island_context:
+            parts.append(f"Context: {island_context}")
+        for turn in valid_history:
+            r = "Human" if turn["role"] == "user" else "Assistant"
+            parts.append(f"{r}: {turn['content']}")
+        parts.append(f"Human: {message}\nAssistant:")
+        return "\n\n".join(parts)
+
     # === Arquitectura 1: DeepSeek-R1 (CoT ChatML + <think> trigger) ===
-    if "max" in model_name_lower or "deepseek" in model_name_lower or "r1" in model_name_lower:
+    elif "max" in model_name_lower or "deepseek" in model_name_lower or "r1" in model_name_lower:
         base_sys = system_prompt or "Eres un asistente experto y preciso que responde en español."
         sys_msg = f"{base_sys}{mem_suffix}"
         parts = [f"<|im_start|>system\n{sys_msg}<|im_end|>"]
