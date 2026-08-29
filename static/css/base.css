@@ -785,11 +785,11 @@ h1, h2, h3, h4, h5, h6 {
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s, transform 0.6s; }
 .reveal.visible { opacity: 1; transform: none; }
 
-/* ── FOOTER ── */
-footer { border-top: 1px solid var(--border); padding: 32px 0; margin-top: 40px; position: relative; z-index: 1; }
-footer .wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+/* ── FOOTER (Legacy fallback) ── */
+footer:not(.y2k-footer) { border-top: 1px solid var(--border); padding: 32px 0; margin-top: 40px; position: relative; z-index: 1; }
+footer:not(.y2k-footer) .wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
 .fnote { color: var(--muted); font-size: 0.82rem; }
-footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(--mono); font-size: 0.8rem; }
+footer:not(.y2k-footer) .mono { color: var(--accent-2); text-decoration: none; font-family: var(--mono); font-size: 0.8rem; }
 
 /* ── Responsive base ── */
 @media (max-width: 640px) {
@@ -1368,22 +1368,27 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
 }
 
 .y2k-footer {
-  padding: 0.6rem 2rem;
+  padding: 0.65rem 2rem;
   font-size: 0.72rem;
   color: var(--footer-text);
   border-top: 1px solid var(--border-color);
   background:
-    radial-gradient(90% 160% at 0% 50%, rgba(34, 211, 238, 0.14) 0%, transparent 45%),
-    radial-gradient(80% 150% at 100% 40%, rgba(167, 139, 250, 0.13) 0%, transparent 50%),
-    radial-gradient(50% 120% at 55% 100%, rgba(244, 114, 182, 0.11) 0%, transparent 55%),
-    linear-gradient(180deg, rgba(9, 11, 20, 0.92) 0%, rgba(5, 7, 12, 0.92) 100%);
+    radial-gradient(90% 160% at 0% 50%, rgba(34, 211, 238, 0.12) 0%, transparent 45%),
+    radial-gradient(80% 150% at 100% 40%, rgba(167, 139, 250, 0.12) 0%, transparent 50%),
+    radial-gradient(50% 120% at 55% 100%, rgba(244, 114, 182, 0.10) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(9, 11, 20, 0.96) 0%, rgba(4, 6, 10, 0.98) 100%);
   backdrop-filter: var(--backdrop-blur);
   -webkit-backdrop-filter: var(--backdrop-blur);
   font-family: var(--mono);
   position: relative;
   box-shadow: 0 -4px 20px var(--shadow-color);
   z-index: 10;
+  transition: background 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .y2k-footer::before {
   content: "";
   position: absolute;
@@ -1403,7 +1408,9 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
       rgba(255, 255, 255, 0.06) 55%,
       transparent 70%
     );
+  transition: opacity 0.3s ease;
 }
+
 .y2k-footer-grid {
   position: relative;
   z-index: 2;
@@ -1425,7 +1432,7 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
 .brand-col {
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.1rem;
+  gap: 0.15rem;
 }
 
 .footer-brand {
@@ -1433,26 +1440,46 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
   align-items: center;
   gap: 6px;
   color: var(--text-color);
+  transition: color 0.3s ease;
 }
 
 .footer-brand .y2k-icon {
   width: 14px;
   height: 14px;
+  color: var(--accent);
+}
+
+.footer-brand .brand-underscore {
+  animation: y2kBlink 1s steps(1) infinite;
+  stroke: var(--accent);
 }
 
 .footer-tagline {
   font-size: 0.65rem;
   color: var(--text-muted);
+  transition: color 0.3s ease;
+}
+
+.gaje-version-full {
+  color: #22d3ee;
+  font-weight: 600;
+  transition: color 0.3s ease;
 }
 
 .links-col {
   gap: 0.5rem;
 }
 
+.y2k-footer-divider {
+  color: rgba(255, 255, 255, 0.2);
+  user-select: none;
+  font-size: 0.65rem;
+}
+
 .footer-nav-link {
   color: var(--text-color);
   text-decoration: none;
-  transition: color 0.2s;
+  transition: color 0.2s ease;
 }
 
 .footer-nav-link:hover {
@@ -1466,15 +1493,16 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
 .meta-row-item {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .footer-badge {
-  padding: 0.15rem 0.4rem;
+  padding: 0.15rem 0.45rem;
   border-radius: 4px;
   font-size: 0.65rem;
   font-weight: bold;
   letter-spacing: 0.5px;
+  transition: all 0.3s ease;
 }
 
 .agpl-badge {
@@ -1493,7 +1521,7 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
 }
 
 .y2k-footer-link:hover {
-  color: var(--accent);
+  color: #5ac8fa;
 }
 
 .y2k-footer-link .y2k-icon {
@@ -1501,15 +1529,16 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
   height: 14px;
 }
 
-/* Light mode overrides for footer — y2k-light = 'SCANDINAVIAN-DESIGN' */
+/* ── Light Mode Overrides for Footer (y2k-light = 'SCANDINAVIAN-DESIGN') ── */
 [data-theme="light"] .y2k-footer {
-  background:
-    radial-gradient(90% 160% at 0% 50%, rgba(44, 82, 52, 0.06) 0%, transparent 45%),
-    radial-gradient(80% 150% at 100% 40%, rgba(44, 53, 57, 0.05) 0%, transparent 50%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(246, 245, 243, 0.96) 100%);
-  border-top-color: var(--border-color);
-  color: var(--muted);
-  box-shadow: 0 -4px 16px var(--shadow-color);
+  background: #f6f5f3;
+  background-image:
+    radial-gradient(rgba(44, 82, 52, 0.06) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, #edebe9 100%);
+  background-size: 24px 24px, 100% 100%;
+  border-top-color: rgba(44, 82, 52, 0.18);
+  color: #5e5a54;
+  box-shadow: 0 -3px 14px rgba(0, 0, 0, 0.04);
 }
 
 [data-theme="light"] .y2k-footer::before {
@@ -1530,38 +1559,62 @@ footer .mono { color: var(--accent-2); text-decoration: none; font-family: var(-
 }
 
 [data-theme="light"] .footer-brand {
-  color: var(--text);
+  color: #2c3539;
 }
 
 [data-theme="light"] .footer-brand .y2k-brand-text {
-  color: var(--text);
+  color: #2c3539;
+}
+
+[data-theme="light"] .footer-brand .y2k-icon {
+  color: #2c5234;
+}
+
+[data-theme="light"] .footer-brand .brand-underscore {
+  stroke: #2c5234;
 }
 
 [data-theme="light"] .footer-tagline {
-  color: var(--muted);
+  color: #736e65;
+}
+
+[data-theme="light"] .gaje-version-full {
+  color: #2c5234;
+}
+
+[data-theme="light"] .y2k-footer-divider {
+  color: rgba(44, 82, 52, 0.3);
 }
 
 [data-theme="light"] .footer-nav-link {
-  color: var(--text);
+  color: #2c3539;
 }
 
 [data-theme="light"] .footer-nav-link:hover {
-  color: var(--accent);
+  color: #2c5234;
+}
+
+[data-theme="light"] .footer-badge {
+  border-radius: 0px !important;
 }
 
 [data-theme="light"] .agpl-badge {
   background: rgba(185, 28, 28, 0.06);
-  border: 1px solid rgba(185, 28, 28, 0.2);
-  color: var(--red);
+  border: 1px solid rgba(185, 28, 28, 0.25);
+  color: #b91c1c;
 }
 
 [data-theme="light"] .y2k-footer-link {
-  color: var(--accent);
+  color: #2c5234;
   font-weight: 600;
 }
 
 [data-theme="light"] .y2k-footer-link:hover {
   color: #1a301f;
+}
+
+[data-theme="light"] .y2k-footer-link .y2k-icon {
+  color: #2c5234;
 }
 
 @media (max-width: 900px) {
