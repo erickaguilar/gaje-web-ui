@@ -425,3 +425,106 @@
     border-color: #7a8c85 !important;
     color: #ffffff !important;
 }
+
+/* 8. Configuración de Organismo & Motor (Zen Mode) */
+[data-theme="zen"] .menu-config-card {
+    background: #181717 !important;
+    border: 1px solid #2d2c2c !important;
+    border-radius: 4px !important;
+}
+
+[data-theme="zen"] .config-stacked-label {
+    color: #c9c6bd !important;
+}
+
+[data-theme="zen"] .config-stacked-label svg {
+    color: #7a8c85 !important;
+}
+
+[data-theme="zen"] .menu-stacked-select {
+    background: #201f1f !important;
+    border: 1px solid #2d2c2c !important;
+    color: #e5e2e1 !important;
+    border-radius: 4px !important;
+}
+
+[data-theme="zen"] .menu-stacked-select:hover {
+    border-color: #7a8c85 !important;
+    background: #2b2a29 !important;
+}
+
+[data-theme="zen"] .menu-stacked-select:focus {
+    border-color: #7a8c85 !important;
+    box-shadow: 0 0 0 2px rgba(122, 140, 133, 0.25) !important;
+}
+
+/* 9. Y2K Shared Footer (Zen Mode / E-Ink Minimalist) */
+[data-theme="zen"] .y2k-footer {
+    background: #141313 !important;
+    background-image: linear-gradient(180deg, #181717 0%, #141313 100%) !important;
+    border-top: 1px solid #2d2c2c !important;
+    color: #c9c6bd !important;
+    box-shadow: none !important;
+}
+
+[data-theme="zen"] .y2k-footer::before {
+    display: none !important;
+}
+
+[data-theme="zen"] .footer-brand {
+    color: #e5e2e1 !important;
+}
+
+[data-theme="zen"] .footer-brand .y2k-brand-text {
+    color: #e5e2e1 !important;
+}
+
+[data-theme="zen"] .footer-brand .y2k-icon {
+    color: #7a8c85 !important;
+}
+
+[data-theme="zen"] .footer-brand .brand-underscore {
+    stroke: #7a8c85 !important;
+}
+
+[data-theme="zen"] .footer-tagline {
+    color: #8c887b !important;
+}
+
+[data-theme="zen"] .gaje-version-full {
+    color: #7a8c85 !important;
+}
+
+[data-theme="zen"] .y2k-footer-divider {
+    color: #2d2c2c !important;
+}
+
+[data-theme="zen"] .footer-nav-link {
+    color: #c9c6bd !important;
+}
+
+[data-theme="zen"] .footer-nav-link:hover {
+    color: #e5e2e1 !important;
+}
+
+[data-theme="zen"] .footer-badge {
+    border-radius: 3px !important;
+}
+
+[data-theme="zen"] .agpl-badge {
+    background: rgba(239, 68, 68, 0.08) !important;
+    border: 1px solid rgba(239, 68, 68, 0.25) !important;
+    color: #f87171 !important;
+}
+
+[data-theme="zen"] .y2k-footer-link {
+    color: #7a8c85 !important;
+}
+
+[data-theme="zen"] .y2k-footer-link:hover {
+    color: #9cb1a8 !important;
+}
+
+[data-theme="zen"] .y2k-footer-link .y2k-icon {
+    color: #7a8c85 !important;
+}

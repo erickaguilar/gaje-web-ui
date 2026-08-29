@@ -1617,6 +1617,78 @@ footer:not(.y2k-footer) .mono { color: var(--accent-2); text-decoration: none; f
   color: #2c5234;
 }
 
+/* ── Zen Mode Overrides for Footer (data-theme="zen" = E-Ink Minimalist) ── */
+[data-theme="zen"] .y2k-footer {
+  background: #141313;
+  background-image: linear-gradient(180deg, #181717 0%, #141313 100%);
+  border-top-color: #2d2c2c;
+  color: #c9c6bd;
+  box-shadow: none;
+}
+
+[data-theme="zen"] .y2k-footer::before {
+  display: none;
+}
+
+[data-theme="zen"] .footer-brand {
+  color: #e5e2e1;
+}
+
+[data-theme="zen"] .footer-brand .y2k-brand-text {
+  color: #e5e2e1;
+}
+
+[data-theme="zen"] .footer-brand .y2k-icon {
+  color: #7a8c85;
+}
+
+[data-theme="zen"] .footer-brand .brand-underscore {
+  stroke: #7a8c85;
+}
+
+[data-theme="zen"] .footer-tagline {
+  color: #8c887b;
+}
+
+[data-theme="zen"] .gaje-version-full {
+  color: #7a8c85;
+}
+
+[data-theme="zen"] .y2k-footer-divider {
+  color: #2d2c2c;
+}
+
+[data-theme="zen"] .footer-nav-link {
+  color: #c9c6bd;
+}
+
+[data-theme="zen"] .footer-nav-link:hover {
+  color: #e5e2e1;
+}
+
+[data-theme="zen"] .footer-badge {
+  border-radius: 3px !important;
+}
+
+[data-theme="zen"] .agpl-badge {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #f87171;
+}
+
+[data-theme="zen"] .y2k-footer-link {
+  color: #7a8c85;
+  font-weight: 500;
+}
+
+[data-theme="zen"] .y2k-footer-link:hover {
+  color: #9cb1a8;
+}
+
+[data-theme="zen"] .y2k-footer-link .y2k-icon {
+  color: #7a8c85;
+}
+
 @media (max-width: 900px) {
   .y2k-footer-grid {
     flex-direction: column;
