@@ -1,12 +1,14 @@
 /* ============================================================
    GAJE — chat.css  (Arquitectura Modular de Estilos)
-   Estructura base del chat + importación de temas duales:
+   Estructura base del chat + importación de tres temas:
    - y2k-dark.css  ('HIG-APPLE')
    - y2k-light.css ('SCANDINAVIAN-DESIGN')
+   - y2k-zen.css   ('E-INK TECHNICAL MINIMALIST')
    ============================================================ */
 
 @import url('y2k-dark.css');
 @import url('y2k-light.css');
+@import url('y2k-zen.css');
 
 html {
     height: 100%;

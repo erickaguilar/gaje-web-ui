@@ -1,0 +1,427 @@
+/* =============================================================================
+   🧬 GAJE — y2k-zen.css (E-INK TECHNICAL MINIMALIST — DARK MODE)
+   Design System: Paper-Digital Hybrid Minimalism (Dark Mode)
+   Filosofía: Optimizado para lectura de largo aliento, documentación técnica densa
+   y ambientes de baja luminosidad inspirados en pantallas de tinta electrónica premium.
+   - Canvas Mate: #141313 (Primary Ink Surface)
+   - Contraste de Tinta: #e5e2e1 / #F5F1ED (Paper Ink)
+   - Capas Tonales & Bordes Hairline: 1px #2d2c2c / #484740 (sin reflejos ni blurs)
+   - Acentos Pragmáticos: Desaturated Sage (#7A8C85) y Muted Slate (#64748B)
+   - Tipografía: Space Grotesk (Titulares) + Plus Jakarta Sans (Cuerpo con leading 1.75x)
+   ============================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+[data-theme="zen"] {
+    /* ── PALETA DE COLORES E-INK DARK ── */
+    --theme-name: 'E-INK TECHNICAL MINIMALIST';
+
+    /* Canvas & Surfaces */
+    --bg: #141313;
+    --bg-primary: #141313;
+    --bg-soft: #1c1b1b;
+    --panel: #201f1f;
+    --background: #141313;
+
+    /* Surface Hierarchy (Tonal Layering) */
+    --surface: #141313;
+    --surface-dim: #141313;
+    --surface-bright: #3a3938;
+    --surface-container-lowest: #0e0e0e;
+    --surface-container-low: #1c1b1b;
+    --surface-container: #201f1f;
+    --surface-container-high: #2b2a29;
+    --surface-container-highest: #363434;
+    --surface-variant: #363434;
+
+    /* Text & Ink Tones */
+    --text: #e5e2e1;
+    --text-color: #e5e2e1;
+    --on-surface: #e5e2e1;
+    --on-surface-variant: #c9c6bd;
+    --on-background: #e5e2e1;
+    --muted: #c9c6bd;
+    --text-muted: #c9c6bd;
+    --inverse-surface: #e5e2e1;
+    --inverse-on-surface: #313030;
+
+    /* Hairline Borders & Structural Outlines */
+    --border: #2d2c2c;
+    --border-color: #2d2c2c;
+    --border-subtle: #2d2c2c;
+    --border-medium: #484740;
+    --border-highlight: #939189;
+    --outline: #939189;
+    --outline-variant: #484740;
+    --surface-tint: #c9c6c2;
+
+    /* Pragmatic Accents (Desaturated Sage & Muted Slate) */
+    --primary: #ffffff;
+    --on-primary: #31302e;
+    --primary-container: #e6e2de;
+    --on-primary-container: #666461;
+    --inverse-primary: #605e5b;
+
+    --secondary: #c8c6c5;
+    --on-secondary: #313030;
+    --secondary-container: #474746;
+    --on-secondary-container: #b7b5b4;
+
+    --tertiary: #ffffff;
+    --on-tertiary: #323031;
+    --tertiary-container: #e7e1e3;
+    --on-tertiary-container: #676365;
+
+    --accent: #7a8c85;
+    --accent-2: #64748b;
+    --accent-color: #7a8c85;
+    --accent-glow: rgba(122, 140, 133, 0.15);
+    --accent-gradient: linear-gradient(135deg, #7a8c85, #64748b);
+    --green: #7a8c85;
+    --amber: #c9c6bd;
+    --red: #ffb4ab;
+    --purple: #cac5c7;
+
+    /* Error Status */
+    --error: #ffb4ab;
+    --on-error: #690005;
+    --error-container: #93000a;
+    --on-error-container: #ffdad6;
+
+    /* Fixed Tones */
+    --primary-fixed: #e6e2de;
+    --primary-fixed-dim: #c9c6c2;
+    --on-primary-fixed: #1c1c19;
+    --on-primary-fixed-variant: #484744;
+
+    /* DNA Nitrogenous Bases (E-Ink Technical Tone) */
+    --dna-a: #ffb4ab;
+    --dna-c: #64748b;
+    --dna-g: #7a8c85;
+    --dna-t: #e6e2de;
+
+    /* Typography & Spacing */
+    --sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+    --font-heading: "Space Grotesk", sans-serif;
+    --font-brand: "Space Grotesk", sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    /* Chat / SPA Container Tokens */
+    --bg-gradient: radial-gradient(circle at 50% 0%, #1c1b1b 0%, #141313 100%);
+    --card-bg: #1c1b1b;
+    --card-hover-border: #7a8c85;
+    --system-msg: #c9c6bd;
+    --header-bg: #141313;
+    --sidebar-bg: #1c1b1b;
+    --scrollbar-thumb: #363434;
+    --scrollbar-track: transparent;
+    --input-bg: #201f1f;
+    --message-bot-bg: #1c1b1b;
+    --badge-bg: #2b2a29;
+    --badge-border: #484740;
+    --badge-text: #e5e2e1;
+    --shadow-color: rgba(0, 0, 0, 0.25);
+    --footer-text: #c9c6bd;
+    --backdrop-blur: none;
+
+    /* Radii Tokens */
+    --radius-sm: 0.125rem;
+    --radius-base: 0.25rem;
+    --radius-md: 0.375rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-full: 9999px;
+}
+
+/* ── Desactivar Efectos Retro/Scanlines en Modo Zen ── */
+[data-theme="zen"] body::before,
+[data-theme="zen"] body::after,
+[data-theme="zen"] .y2k-header::before,
+[data-theme="zen"] .y2k-header::after {
+    display: none !important;
+}
+
+/* ── COMPONENTES ESPECÍFICOS E-INK TECHNICAL MINIMALIST ── */
+
+/* 1. Header & Navigation */
+[data-theme="zen"] .y2k-header {
+    background: #141313 !important;
+    border-bottom: 1px solid #2d2c2c !important;
+    box-shadow: none !important;
+}
+
+[data-theme="zen"] .y2k-brand-text {
+    font-family: "Space Grotesk", sans-serif !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.04em !important;
+    color: #e5e2e1 !important;
+}
+
+[data-theme="zen"] .y2k-brand-icon {
+    filter: grayscale(100%) brightness(1.2) !important;
+}
+
+[data-theme="zen"] .y2k-nav a {
+    font-family: "Plus Jakarta Sans", sans-serif !important;
+    color: #c9c6bd !important;
+    letter-spacing: 0.01em !important;
+}
+
+[data-theme="zen"] .y2k-nav a:hover {
+    color: #ffffff !important;
+}
+
+[data-theme="zen"] .y2k-nav a.active {
+    color: #ffffff !important;
+    background: #2b2a29 !important;
+    border: 1px solid #484740 !important;
+    border-radius: 4px !important;
+}
+
+[data-theme="zen"] .y2k-theme-toggle-direct {
+    background: #1c1b1b !important;
+    border: 1px solid #2d2c2c !important;
+    color: #7a8c85 !important;
+    border-radius: 4px !important;
+}
+
+[data-theme="zen"] .y2k-menu-btn,
+[data-theme="zen"] .y2k-github-icon-btn {
+    background: #1c1b1b !important;
+    border: 1px solid #2d2c2c !important;
+    color: #e5e2e1 !important;
+    border-radius: 4px !important;
+}
+
+[data-theme="zen"] .y2k-menu-btn:hover,
+[data-theme="zen"] .y2k-github-icon-btn:hover {
+    background: #2b2a29 !important;
+    border-color: #7a8c85 !important;
+    color: #ffffff !important;
+}
+
+/* 2. Chat Toolbar & Model Dropdown */
+[data-theme="zen"] .app-container {
+    background: #141313 !important;
+    border: 1px solid #2d2c2c !important;
+    box-shadow: none !important;
+    border-radius: 8px !important;
+}
+
+[data-theme="zen"] .chat-toolbar {
+    background: #141313 !important;
+    border-bottom: 1px solid #2d2c2c !important;
+    box-shadow: none !important;
+}
+
+[data-theme="zen"] .header-model-dropdown {
+    background: #1c1b1b !important;
+    border: 1px solid #2d2c2c !important;
+    color: #e5e2e1 !important;
+    font-family: "Plus Jakarta Sans", sans-serif !important;
+    font-size: 14px !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+}
+
+[data-theme="zen"] .header-model-dropdown option {
+    background: #1c1b1b !important;
+    color: #e5e2e1 !important;
+}
+
+[data-theme="zen"] .header-model-dropdown:hover,
+[data-theme="zen"] .header-model-dropdown:focus {
+    border-color: #7a8c85 !important;
+    background: #201f1f !important;
+}
+
+[data-theme="zen"] .chat-pill-ram {
+    background: #1c1b1b !important;
+    border: 1px solid #2d2c2c !important;
+    color: #7a8c85 !important;
+    border-radius: 4px !important;
+}
+
+[data-theme="zen"] .ram-led.active {
+    background: #7a8c85 !important;
+    box-shadow: none !important;
+}
+
+/* 3. Mensajería (E-Ink Tonal Layering) */
+[data-theme="zen"] .message.user {
+    background: #2b2a29 !important;
+    border: 1px solid #484740 !important;
+    border-right: 3px solid #7a8c85 !important;
+    color: #e5e2e1 !important;
+    border-radius: 4px !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    font-family: "Plus Jakarta Sans", sans-serif !important;
+    line-height: 1.75 !important;
+}
+
+[data-theme="zen"] .message.bot {
+    background: #1c1b1b !important;
+    border: 1px solid #2d2c2c !important;
+    border-left: 3px solid #64748b !important;
+    color: #e5e2e1 !important;
+    border-radius: 4px !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    font-family: "Plus Jakarta Sans", sans-serif !important;
+}
+
+[data-theme="zen"] .message.bot .response-body {
+    color: #e5e2e1 !important;
+    font-family: "Plus Jakarta Sans", sans-serif !important;
+    font-size: 16px !important;
+    line-height: 1.75 !important;
+    letter-spacing: 0.01em !important;
+}
+
+[data-theme="zen"] .message.system {
+    background: #201f1f !important;
+    border: 1px solid #484740 !important;
+    color: #c9c6bd !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+}
+
+/* 4. Thought Box / Laboratory Disclosure */
+[data-theme="zen"] .apple-thought-box {
+    background: #141313 !important;
+    border: 1px solid #2d2c2c !important;
+    border-radius: 4px !important;
+}
+
+[data-theme="zen"] .apple-thought-box[open] {
+    background: #181717 !important;
+    border-color: #484740 !important;
+    box-shadow: none !important;
+}
+
+[data-theme="zen"] .thought-header {
+    color: #c9c6bd !important;
+    font-family: "Space Grotesk", sans-serif !important;
+    font-size: 13px !important;
+    letter-spacing: 0.03em !important;
+}
+
+/* 5. Input Area & Composer */
+[data-theme="zen"] .input-area {
+    background: #201f1f !important;
+    border: 1px solid #2d2c2c !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+}
+
+[data-theme="zen"] .input-area:focus-within {
+    border-color: #7a8c85 !important;
+    box-shadow: 0 0 0 1.5px rgba(122, 140, 133, 0.35) !important;
+}
+
+[data-theme="zen"] .composer-main-row textarea {
+    background: transparent !important;
+    border: none !important;
+    color: #e5e2e1 !important;
+    font-family: "Plus Jakarta Sans", sans-serif !important;
+    font-size: 15px !important;
+    line-height: 1.6 !important;
+}
+
+[data-theme="zen"] .composer-main-row textarea::placeholder {
+    color: #939189 !important;
+}
+
+[data-theme="zen"] button#send-btn,
+[data-theme="zen"] .send-btn {
+    background: #e5e2e1 !important;
+    color: #141313 !important;
+    border: 1px solid #e5e2e1 !important;
+    border-radius: 4px !important;
+    font-family: "Space Grotesk", sans-serif !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+[data-theme="zen"] button#send-btn:hover,
+[data-theme="zen"] .send-btn:hover {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border-color: #ffffff !important;
+}
+
+/* 6. Bloques de Código & Tarjetas Starter */
+[data-theme="zen"] pre,
+[data-theme="zen"] code {
+    background: #0e0e0e !important;
+    border: 1px solid #2d2c2c !important;
+    color: #e5e2e1 !important;
+    border-radius: 4px !important;
+    font-family: var(--mono) !important;
+}
+
+[data-theme="zen"] .starter-card {
+    background: #1c1b1b !important;
+    border: 1px solid #2d2c2c !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+}
+
+[data-theme="zen"] .starter-card:hover {
+    border-color: #7a8c85 !important;
+    background: #201f1f !important;
+}
+
+[data-theme="zen"] .starter-card h4 {
+    font-family: "Space Grotesk", sans-serif !important;
+    color: #e5e2e1 !important;
+}
+
+[data-theme="zen"] .starter-card p {
+    color: #c9c6bd !important;
+    font-family: "Plus Jakarta Sans", sans-serif !important;
+}
+
+/* 7. Dropdowns & Modales */
+[data-theme="zen"] .chat-menu-dropdown {
+    background: #1c1b1b !important;
+    border: 1px solid #2d2c2c !important;
+    border-radius: 4px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+}
+
+[data-theme="zen"] .chat-menu-item {
+    color: #e5e2e1 !important;
+    font-family: "Plus Jakarta Sans", sans-serif !important;
+}
+
+[data-theme="zen"] .chat-menu-item:hover {
+    background: #2b2a29 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="zen"] .menu-divider {
+    background: #2d2c2c !important;
+}
+
+[data-theme="zen"] .y2k-theme-opt-btn {
+    border: 1px solid #2d2c2c !important;
+    border-radius: 4px !important;
+    color: #c9c6bd !important;
+    background: #1c1b1b !important;
+}
+
+[data-theme="zen"] .y2k-theme-opt-btn:hover {
+    border-color: #7a8c85 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="zen"] .y2k-theme-opt-btn.active {
+    background: #2b2a29 !important;
+    border-color: #7a8c85 !important;
+    color: #ffffff !important;
+}
