@@ -78,15 +78,50 @@ self.onmessage = async (e) => {
                 return;
             }
 
-            const { prompt, maxTokens = 64, temperature = 0.7, repetitionPenalty = 1.1, injectRag = true } = payload;
+            const {
+                prompt,
+                maxTokens = 128,
+                temperature = 0.4,
+                repetitionPenalty = 1.15,
+                injectRag = true,
+                systemPrompt = 'Eres GAJE AI, un asistente genómico soberano, conciso y útil.',
+                history = []
+            } = payload;
+
+            // Inyección automática de ChatML (<|im_start|> / <|im_end|>) si el prompt es texto plano
+            let formattedPrompt = prompt;
+            if (typeof prompt === 'string' && !prompt.includes('<|im_start|>') && !prompt.includes('<|user|>')) {
+                let contextBlock = '';
+                if (Array.isArray(history) && history.length > 0) {
+                    for (const msg of history.slice(-4)) {
+                        if (msg && msg.content) {
+                            const role = msg.role === 'assistant' ? 'assistant' : 'user';
+                            contextBlock += `<|im_start|>${role}\n${msg.content}<|im_end|>\n`;
+                        }
+                    }
+                }
+                formattedPrompt = `<|im_start|>system\n${systemPrompt}<|im_end|>\n${contextBlock}<|im_start|>user\n${prompt}<|im_end|>\n<|im_start|>assistant\n`;
+            }
+
             const t0 = performance.now();
-            const response = wasmEngine.chat_with_memory(prompt, maxTokens, temperature, repetitionPenalty, injectRag);
+            let rawResponse = wasmEngine.chat_with_memory(formattedPrompt, maxTokens, temperature, repetitionPenalty, injectRag);
             const genTimeMs = (performance.now() - t0).toFixed(2);
             const memoryStats = JSON.parse(wasmEngine.get_memory_stats());
 
+            // Limpieza de delimitadores ChatML en la salida
+            let cleanResponse = rawResponse;
+            if (typeof cleanResponse === 'string') {
+                cleanResponse = cleanResponse
+                    .replace(/<\|im_end\|>[\s\S]*$/gi, '')
+                    .replace(/<\|im_start\|>[\s\S]*$/gi, '')
+                    .replace(/<\|endoftext\|>[\s\S]*$/gi, '')
+                    .replace(/<\|end\|>[\s\S]*$/gi, '')
+                    .trim();
+            }
+
             self.postMessage({
                 status: 'chat_response',
-                response,
+                response: cleanResponse,
                 genTimeMs,
                 memoryStats
             });

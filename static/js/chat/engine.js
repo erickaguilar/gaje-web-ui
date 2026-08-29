@@ -329,14 +329,16 @@ window.ChatEngineController = {
                     }
                 };
                 worker.addEventListener('message', handler);
+                const recentHistory = await (window.ChatStorage?.getRecentHistory(4) || []);
                 worker.postMessage({
                     action: 'chat',
                     payload: {
                         prompt: text,
                         maxTokens: 128,
-                        temperature: 0.7,
-                        repetitionPenalty: 1.1,
-                        injectRag: true
+                        temperature: 0.4,
+                        repetitionPenalty: 1.15,
+                        injectRag: true,
+                        history: recentHistory
                     }
                 });
             });
