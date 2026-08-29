@@ -28,38 +28,47 @@
 
             <!-- Dropdown flotante Apple HIG / Scandinavian con Modelo, Motor, Historial & Memoria -->
             <div id="chat-actions-dropdown" class="chat-menu-dropdown" role="menu" hidden>
-                <!-- 1. Selector de Modelo Activo y Motor de Ejecución -->
+                <!-- 1. Selector de Modelo Activo y Motor de Ejecución (Layout Vertical Apilado) -->
                 <div class="menu-section-label">Organismo y Motor</div>
-                <div class="chat-menu-item config-row-item model-select-menu-item" data-tooltip="Seleccionar organismo genómico activo (.flat / .gaje)">
-                    <div class="config-row-label">
-                        <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg>
-                        <span>Modelo</span>
+                <div class="menu-config-card">
+                    <!-- Bloque Modelo -->
+                    <div class="config-stacked-block">
+                        <div class="config-stacked-header">
+                            <label for="model-select" class="config-stacked-label">
+                                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg>
+                                <span>Organismo / Modelo</span>
+                            </label>
+                            <button type="button" id="model-toggle-btn" class="model-status-btn active" data-tooltip="Alternar estado (Activo / En pausa)" aria-label="Alternar Estado del Modelo">
+                                <span class="status-dot-led"></span>
+                                <span id="model-toggle-text">Activo</span>
+                            </button>
+                        </div>
+                        <div class="config-stacked-control">
+                            <select id="model-select" class="menu-stacked-select header-model-dropdown" aria-label="Seleccionar Modelo">
+                                <option value="gaje_pico_135m.flat" selected>GAJE Pico 135M · [Móvil 470MB]</option>
+                                <option value="gaje_nano_0_5b.flat">GAJE Nano 0.5B · [WASM Fluido 1.2GB]</option>
+                                <option value="gaje_nano_1.5b.flat">GAJE Nano 1.5B · [WASM Prime 1.2GB]</option>
+                                <option value="gaje_coder_3b.flat">GAJE Coder 3B · [Código 2.2GB]</option>
+                                <option value="gaje_prime_3b.flat">GAJE Prime 3B · [Desktop 2.2GB]</option>
+                                <option value="gaje_ultra_7b.flat">GAJE Ultra 7B · [Cloud 4.9GB]</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="config-row-controls">
-                        <select id="model-select" class="menu-unified-select header-model-dropdown" aria-label="Seleccionar Modelo">
-                            <option value="gaje_pico_135m.flat" selected>GAJE Pico 135M · [Móvil 470MB]</option>
-                            <option value="gaje_nano_0_5b.flat">GAJE Nano 0.5B · [WASM Fluido 1.2GB]</option>
-                            <option value="gaje_nano_1.5b.flat">GAJE Nano 1.5B · [WASM Prime 1.2GB]</option>
-                            <option value="gaje_coder_3b.flat">GAJE Coder 3B · [Código 2.2GB]</option>
-                            <option value="gaje_prime_3b.flat">GAJE Prime 3B · [Desktop 2.2GB]</option>
-                            <option value="gaje_ultra_7b.flat">GAJE Ultra 7B · [Cloud 4.9GB]</option>
-                        </select>
-                        <button type="button" id="model-toggle-btn" class="model-status-btn active" data-tooltip="Alternar estado del modelo (Activo / Desactivado)" aria-label="Alternar Estado del Modelo">
-                            <span class="status-dot-led"></span>
-                        </button>
-                    </div>
-                </div>
 
-                <div class="chat-menu-item config-row-item engine-select-item" data-tooltip="Seleccionar motor de inferencia (WASM In-Browser o Servidor Nativo)">
-                    <div class="config-row-label">
-                        <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg>
-                        <span>Motor</span>
-                    </div>
-                    <div class="config-row-controls">
-                        <select id="engine-mode-select" class="menu-unified-select" aria-label="Modo de Ejecución">
-                            <option value="wasm" selected>Navegador (WASM In-Browser / Offline)</option>
-                            <option value="native">Servidor (Nativo Rust AVX2 / Cloud)</option>
-                        </select>
+                    <!-- Bloque Motor -->
+                    <div class="config-stacked-block">
+                        <div class="config-stacked-header">
+                            <label for="engine-mode-select" class="config-stacked-label">
+                                <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg>
+                                <span>Motor de Inferencia</span>
+                            </label>
+                        </div>
+                        <div class="config-stacked-control">
+                            <select id="engine-mode-select" class="menu-stacked-select" aria-label="Modo de Ejecución">
+                                <option value="wasm" selected>Navegador (WASM In-Browser / Offline)</option>
+                                <option value="native">Servidor (Nativo Rust AVX2 / Cloud)</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
