@@ -1282,36 +1282,86 @@ main {
     color: var(--accent);
 }
 
-/* Selector de Modelo embebido en el Dropdown de Acciones */
-.model-select-menu-item {
-    padding: 4px 6px;
+/* ── Filas Unificadas de Configuración (Modelo & Motor) en Dropdown ── */
+.config-row-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 5px 8px;
     cursor: default;
     background: transparent !important;
 }
 
-.model-select-menu-item .model-select-wrapper {
-    width: 100%;
-    max-width: 100%;
-    display: flex;
+.config-row-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--sans);
+    font-size: 0.73rem;
+    font-weight: 600;
+    color: var(--text-color);
+    flex-shrink: 0;
+    min-width: 65px;
+}
+
+.config-row-label svg {
+    width: 14px;
+    height: 14px;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.config-row-controls {
+    display: inline-flex;
     align-items: center;
     gap: 6px;
-}
-
-.model-select-menu-item .header-model-dropdown {
     flex: 1;
-    font-size: 0.72rem;
-    padding: 4px 8px;
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 8px;
-    color: var(--text-color);
+    justify-content: flex-end;
+    min-width: 0;
 }
 
-[data-theme="light"] .model-select-menu-item .header-model-dropdown {
+.menu-unified-select {
+    font-family: var(--sans);
+    font-size: 0.71rem;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(0, 0, 0, 0.45);
+    color: var(--text-color);
+    cursor: pointer;
+    outline: none;
+    max-width: 175px;
+    width: 100%;
+    text-overflow: ellipsis;
+    transition: all 0.18s ease;
+}
+
+.menu-unified-select:hover {
+    border-color: rgba(255, 255, 255, 0.28);
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.menu-unified-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.25);
+}
+
+[data-theme="light"] .config-row-label {
+    color: var(--text);
+}
+
+[data-theme="light"] .menu-unified-select {
     background: #ffffff;
-    border-color: rgba(44, 82, 52, 0.22);
+    border-color: rgba(44, 82, 52, 0.25);
     color: var(--text);
     border-radius: 0px !important;
+}
+
+[data-theme="light"] .menu-unified-select:hover {
+    border-color: var(--accent);
+    background: #fcfbf9;
 }
 
 /* Título de Marca en el Toolbar */
@@ -1433,6 +1483,67 @@ main {
 
 [data-theme="light"] [data-tooltip]::before {
     border-color: transparent transparent rgba(0, 0, 0, 0.12) transparent;
+}
+
+/* ── Tooltips dentro del Menú Desplegable (Flotan limpios a la izquierda del menú) ── */
+.chat-menu-dropdown [data-tooltip]::after,
+.chat-menu-dropdown .chat-menu-item[data-tooltip]::after,
+.chat-menu-dropdown .config-row-item[data-tooltip]::after {
+    top: 50%;
+    bottom: auto;
+    left: auto;
+    right: calc(100% + 14px);
+    transform: translateY(-50%) translateX(6px) scale(0.96);
+    white-space: normal;
+    width: max-content;
+    max-width: 220px;
+    line-height: 1.35;
+    text-align: left;
+    pointer-events: none;
+    z-index: 500;
+}
+
+.chat-menu-dropdown [data-tooltip]::before,
+.chat-menu-dropdown .chat-menu-item[data-tooltip]::before,
+.chat-menu-dropdown .config-row-item[data-tooltip]::before {
+    top: 50%;
+    bottom: auto;
+    left: auto;
+    right: calc(100% + 6px);
+    transform: translateY(-50%) translateX(6px);
+    border-width: 5px 0 5px 6px;
+    border-style: solid;
+    border-color: transparent transparent transparent rgba(255, 255, 255, 0.18);
+    pointer-events: none;
+    z-index: 500;
+}
+
+.chat-menu-dropdown [data-tooltip]:hover::after,
+.chat-menu-dropdown [data-tooltip]:focus-visible::after,
+.chat-menu-dropdown .chat-menu-item[data-tooltip]:hover::after,
+.chat-menu-dropdown .chat-menu-item[data-tooltip]:focus-visible::after,
+.chat-menu-dropdown .config-row-item[data-tooltip]:hover::after,
+.chat-menu-dropdown .config-row-item[data-tooltip]:focus-visible::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) translateX(0) scale(1);
+}
+
+.chat-menu-dropdown [data-tooltip]:hover::before,
+.chat-menu-dropdown [data-tooltip]:focus-visible::before,
+.chat-menu-dropdown .chat-menu-item[data-tooltip]:hover::before,
+.chat-menu-dropdown .chat-menu-item[data-tooltip]:focus-visible::before,
+.chat-menu-dropdown .config-row-item[data-tooltip]:hover::before,
+.chat-menu-dropdown .config-row-item[data-tooltip]:focus-visible::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) translateX(0);
+}
+
+[data-theme="light"] .chat-menu-dropdown [data-tooltip]::before,
+[data-theme="light"] .chat-menu-dropdown .chat-menu-item[data-tooltip]::before,
+[data-theme="light"] .chat-menu-dropdown .config-row-item[data-tooltip]::before {
+    border-color: transparent transparent transparent rgba(0, 0, 0, 0.15);
 }
 
 /* ── CHAT WINDOW STREAM ── */

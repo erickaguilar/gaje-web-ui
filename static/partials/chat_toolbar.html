@@ -30,10 +30,13 @@
             <div id="chat-actions-dropdown" class="chat-menu-dropdown" role="menu" hidden>
                 <!-- 1. Selector de Modelo Activo y Motor de Ejecución -->
                 <div class="menu-section-label">Organismo y Motor</div>
-                <div class="chat-menu-item model-select-menu-item">
-                    <div class="model-select-wrapper" data-tooltip="Seleccionar modelo activo (.flat / .gaje)">
-                        <label for="model-select" class="visually-hidden">Seleccionar Modelo</label>
-                        <select id="model-select" class="header-model-dropdown" aria-label="Seleccionar Modelo">
+                <div class="chat-menu-item config-row-item model-select-menu-item" data-tooltip="Seleccionar organismo genómico activo (.flat / .gaje)">
+                    <div class="config-row-label">
+                        <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg>
+                        <span>Modelo</span>
+                    </div>
+                    <div class="config-row-controls">
+                        <select id="model-select" class="menu-unified-select header-model-dropdown" aria-label="Seleccionar Modelo">
                             <option value="gaje_pico_135m.flat" selected>GAJE Pico 135M · [Móvil 470MB]</option>
                             <option value="gaje_nano_0_5b.flat">GAJE Nano 0.5B · [WASM Fluido 1.2GB]</option>
                             <option value="gaje_nano_1.5b.flat">GAJE Nano 1.5B · [WASM Prime 1.2GB]</option>
@@ -43,20 +46,21 @@
                         </select>
                         <button type="button" id="model-toggle-btn" class="model-status-btn active" data-tooltip="Alternar estado del modelo (Activo / Desactivado)" aria-label="Alternar Estado del Modelo">
                             <span class="status-dot-led"></span>
-                            <span id="model-toggle-text">Activo</span>
                         </button>
                     </div>
                 </div>
 
-                <div class="chat-menu-item engine-select-item" data-tooltip="Seleccionar motor de inferencia (WASM local o Servidor nativo)">
-                    <label for="engine-mode-select" class="menu-item-label">
+                <div class="chat-menu-item config-row-item engine-select-item" data-tooltip="Seleccionar motor de inferencia (WASM In-Browser o Servidor Nativo)">
+                    <div class="config-row-label">
                         <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg>
                         <span>Motor</span>
-                    </label>
-                    <select id="engine-mode-select" class="menu-inline-select" aria-label="Modo de Ejecución">
-                        <option value="wasm" selected>Navegador (WASM In-Browser / Offline)</option>
-                        <option value="native">Servidor (Nativo Rust AVX2 / Cloud)</option>
-                    </select>
+                    </div>
+                    <div class="config-row-controls">
+                        <select id="engine-mode-select" class="menu-unified-select" aria-label="Modo de Ejecución">
+                            <option value="wasm" selected>Navegador (WASM In-Browser / Offline)</option>
+                            <option value="native">Servidor (Nativo Rust AVX2 / Cloud)</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="menu-divider"></div>
