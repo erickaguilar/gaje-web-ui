@@ -923,11 +923,16 @@ window.ChatEngineController = {
 
         const modelMap = {
             'pico': ['gaje_pico_135m.flat', 'eaguilar/gaje-models'],
+            'nano_0_5b': ['gaje_nano_0_5b.flat', 'eaguilar/gaje-models'],
+            '0.5b': ['gaje_nano_0_5b.flat', 'eaguilar/gaje-models'],
             'nano': ['gaje_nano_1.5b.flat', 'eaguilar/gaje-models'],
+            'coder': ['gaje_coder_3b.flat', 'eaguilar/gaje-models'],
             'prime': ['gaje_prime_3b.flat', 'eaguilar/gaje-models'],
             'ultra': ['gaje_ultra_7b.flat', 'eaguilar/gaje-models'],
             'gaje_pico_135m.flat': ['gaje_pico_135m.flat', 'eaguilar/gaje-models'],
+            'gaje_nano_0_5b.flat': ['gaje_nano_0_5b.flat', 'eaguilar/gaje-models'],
             'gaje_nano_1.5b.flat': ['gaje_nano_1.5b.flat', 'eaguilar/gaje-models'],
+            'gaje_coder_3b.flat': ['gaje_coder_3b.flat', 'eaguilar/gaje-models'],
             'gaje_prime_3b.flat': ['gaje_prime_3b.flat', 'eaguilar/gaje-models'],
             'gaje_ultra_7b.flat': ['gaje_ultra_7b.flat', 'eaguilar/gaje-models'],
             'SmolLM2-135M-Instruct.flat': ['SmolLM2-135M-Instruct.flat', 'eaguilar/gaje-models'],

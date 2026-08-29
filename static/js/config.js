@@ -35,15 +35,37 @@
         arch: 'SmolLM2-135M (Q4_0+FP32)'
       },
       {
+        id: 'gaje_nano_0_5b.flat',
+        name: 'gaje_nano_0_5b.flat',
+        title: 'GAJE Nano 0.5B',
+        badge: 'WASM Fluido 1.2GB',
+        size_bytes: 1324845056,
+        sizeMb: 1264.8,
+        ramMb: 1300,
+        mobileOptimized: true,
+        arch: 'Qwen2.5-0.5B (Q4_0+FP32)'
+      },
+      {
         id: 'gaje_nano_1.5b.flat',
         name: 'gaje_nano_1.5b.flat',
         title: 'GAJE Nano 1.5B',
-        badge: 'WASM 1.2GB',
+        badge: 'WASM Prime 1.2GB',
         size_bytes: 1324845056,
         sizeMb: 1263.5,
         ramMb: 1400,
         mobileOptimized: false,
         arch: 'Qwen2.5-1.5B (Q4_0+FP32)'
+      },
+      {
+        id: 'gaje_coder_3b.flat',
+        name: 'gaje_coder_3b.flat',
+        title: 'GAJE Coder 3B',
+        badge: 'Especialista Código 2.2GB',
+        size_bytes: 2409550059,
+        sizeMb: 2297.9,
+        ramMb: 2600,
+        mobileOptimized: false,
+        arch: 'Qwen2.5-Coder-3B (Q4_0+FP32)'
       },
       {
         id: 'gaje_prime_3b.flat',
