@@ -19,6 +19,43 @@ self.onmessage = async (e) => {
                 isInitialized = true;
             }
             self.postMessage({ status: 'ready' });
+        } else if (action === 'load_model_opfs') {
+            const { modelName } = payload;
+            try {
+                if (!navigator.storage || !navigator.storage.getDirectory) {
+                    throw new Error('OPFS (Origin Private File System) no está disponible en este entorno.');
+                }
+                const root = await navigator.storage.getDirectory();
+                const fileHandle = await root.getFileHandle(modelName);
+                const file = await fileHandle.getFile();
+                const buffer = await file.arrayBuffer();
+                const uint8Array = new Uint8Array(buffer);
+
+                const t0 = performance.now();
+                if (wasmEngine) {
+                    try { wasmEngine.free(); } catch (_) {}
+                    wasmEngine = null;
+                }
+                wasmEngine = GajeWasmEngine.load_from_bytes(uint8Array);
+                const loadTimeMs = (performance.now() - t0).toFixed(2);
+                const info = JSON.parse(wasmEngine.get_model_info());
+
+                self.postMessage({
+                    status: 'model_loaded',
+                    modelName,
+                    loadTimeMs,
+                    source: 'OPFS',
+                    info
+                });
+            } catch (err) {
+                self.postMessage({
+                    status: 'error',
+                    code: 'GAJE-404',
+                    name: 'OPFS_NOT_FOUND',
+                    error: `No se pudo cargar [${modelName}] desde OPFS: ${err.message}`,
+                    recommendation: 'Descarga el modelo nuevamente o selecciona modo servidor.'
+                });
+            }
         } else if (action === 'load_model') {
             const { buffer, modelName } = payload;
             const uint8Array = new Uint8Array(buffer);

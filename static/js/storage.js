@@ -475,9 +475,26 @@
         }
 
         /**
-         * Obtiene un modelo binario .flat almacenado en caché local IndexedDB
+         * Obtiene un modelo binario .flat almacenado en caché local (OPFS con fallback a IndexedDB)
          */
         async getCachedModel(name) {
+            // 1. Intentar OPFS primero (alto rendimiento, sin límite de clonado estructurado)
+            if (navigator.storage && navigator.storage.getDirectory) {
+                try {
+                    const root = await navigator.storage.getDirectory();
+                    const fileHandle = await root.getFileHandle(name, { create: false });
+                    const file = await fileHandle.getFile();
+                    if (file.size >= 4096) {
+                        const buffer = await file.arrayBuffer();
+                        console.log(`⚡ [GajeStorage] Modelo ${name} recuperado desde OPFS (${(buffer.byteLength / 1048576).toFixed(1)} MB).`);
+                        return buffer;
+                    }
+                } catch (e) {
+                    // Fallback transparente a IndexedDB
+                }
+            }
+
+            // 2. Fallback a IndexedDB
             await this.readyPromise;
             if (!this.db || !this.db.objectStoreNames.contains('model_cache')) return null;
             return new Promise((resolve) => {
@@ -494,31 +511,57 @@
         }
 
         /**
-         * Guarda un modelo binario .flat en la caché local IndexedDB para acceso offline instantáneo
+         * Guarda un modelo binario .flat en la caché local (OPFS + IndexedDB) para acceso offline instantáneo
          */
         async saveCachedModel(name, buffer) {
+            let opfsSaved = false;
+
+            // 1. Guardar en OPFS si está disponible
+            if (navigator.storage && navigator.storage.getDirectory) {
+                try {
+                    const root = await navigator.storage.getDirectory();
+                    const fileHandle = await root.getFileHandle(name, { create: true });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(buffer);
+                    await writable.close();
+                    opfsSaved = true;
+                    console.log(`📦 [GajeStorage] Modelo ${name} guardado en OPFS (${(buffer.byteLength / 1048576).toFixed(1)} MB).`);
+                } catch (e) {
+                    console.warn('[GajeStorage] No se pudo guardar en OPFS, usando IndexedDB:', e);
+                }
+            }
+
+            // 2. Guardar en IndexedDB como redundancia
             await this.readyPromise;
-            if (!this.db || !this.db.objectStoreNames.contains('model_cache')) return false;
+            if (!this.db || !this.db.objectStoreNames.contains('model_cache')) return opfsSaved;
             return new Promise((resolve) => {
                 try {
                     const tx = this.db.transaction('model_cache', 'readwrite');
                     const store = tx.objectStore('model_cache');
                     const req = store.put({ name, buffer, updatedAt: Date.now() });
                     req.onsuccess = () => {
-                        console.log(`📦 [GajeStorage] Modelo ${name} guardado en caché IndexedDB.`);
+                        console.log(`📦 [GajeStorage] Modelo ${name} sincronizado en IndexedDB.`);
                         resolve(true);
                     };
-                    req.onerror = () => resolve(false);
+                    req.onerror = () => resolve(opfsSaved);
                 } catch (e) {
-                    resolve(false);
+                    resolve(opfsSaved);
                 }
             });
         }
 
         /**
-         * Elimina un modelo específico de la caché IndexedDB
+         * Elimina un modelo específico de la caché OPFS e IndexedDB
          */
         async deleteCachedModel(name) {
+            if (navigator.storage && navigator.storage.getDirectory) {
+                try {
+                    const root = await navigator.storage.getDirectory();
+                    await root.removeEntry(name);
+                    console.log(`🗑️ [GajeStorage] Modelo ${name} purgado de OPFS.`);
+                } catch (e) {}
+            }
+
             await this.readyPromise;
             if (!this.db || !this.db.objectStoreNames.contains('model_cache')) return false;
             return new Promise((resolve) => {
@@ -527,7 +570,7 @@
                     const store = tx.objectStore('model_cache');
                     const req = store.delete(name);
                     req.onsuccess = () => {
-                        console.log(`🗑️ [GajeStorage] Modelo ${name} purgado de la caché IndexedDB.`);
+                        console.log(`🗑️ [GajeStorage] Modelo ${name} purgado de IndexedDB.`);
                         resolve(true);
                     };
                     req.onerror = () => resolve(false);
@@ -538,9 +581,21 @@
         }
 
         /**
-         * Limpia todos los modelos almacenados en caché
+         * Limpia todos los modelos almacenados en caché OPFS e IndexedDB
          */
         async clearModelCache() {
+            if (navigator.storage && navigator.storage.getDirectory) {
+                try {
+                    const root = await navigator.storage.getDirectory();
+                    for await (const [key] of root.entries()) {
+                        if (key.endsWith('.flat') || key.endsWith('.gaje')) {
+                            await root.removeEntry(key);
+                        }
+                    }
+                    console.log(`🗑️ [GajeStorage] Modelos purgados de OPFS.`);
+                } catch (e) {}
+            }
+
             await this.readyPromise;
             if (!this.db || !this.db.objectStoreNames.contains('model_cache')) return false;
             return new Promise((resolve) => {
@@ -549,7 +604,7 @@
                     const store = tx.objectStore('model_cache');
                     const req = store.clear();
                     req.onsuccess = () => {
-                        console.log(`🗑️ [GajeStorage] Caché de modelos vaciada completamente.`);
+                        console.log(`🗑️ [GajeStorage] Caché de modelos vaciada completamente en IndexedDB.`);
                         resolve(true);
                     };
                     req.onerror = () => resolve(false);
