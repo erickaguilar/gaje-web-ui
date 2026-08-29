@@ -143,6 +143,15 @@ window.ChatEngineController = {
         const started = Date.now();
         window.ChatToolbarController?.setModelLoading(true);
 
+        const timerDisplay = botMsg.querySelector('.timer-display');
+        let timerInterval = null;
+        if (timerDisplay) {
+            timerInterval = setInterval(() => {
+                const sec = ((Date.now() - started) / 1000).toFixed(1);
+                timerDisplay.textContent = `${sec}s`;
+            }, 80);
+        }
+
         const stopBtn = document.getElementById('stop-btn');
         if (stopBtn) stopBtn.hidden = false;
         const msgStopBtn = botMsg.querySelector('.msg-stop-btn, .msg-header-stop-btn, .stop-btn-action');
@@ -152,6 +161,10 @@ window.ChatEngineController = {
         const handleWasmStop = () => {
             if (wasmAborted) return;
             wasmAborted = true;
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
             try { wasmDlAbortController.abort(); } catch (e) {}
             if (worker) worker.postMessage({ action: 'abort' });
             window.ChatToolbarController?.setModelLoading(false);
@@ -343,9 +356,15 @@ window.ChatEngineController = {
                 });
             });
 
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
             window.ChatToolbarController?.setModelLoading(false);
             if (stopBtn) stopBtn.hidden = true;
             msgStopBtn?.remove();
+            const streamingFooter = botMsg.querySelector('.msg-footer-streaming');
+            if (streamingFooter) streamingFooter.remove();
             botMsg.classList.remove('streaming');
             statusAnchor.remove();
 
@@ -396,9 +415,15 @@ window.ChatEngineController = {
             chatWindow.scrollTop = chatWindow.scrollHeight;
             return true;
         } catch (err) {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
             window.ChatToolbarController?.setModelLoading(false);
             if (stopBtn) stopBtn.hidden = true;
             msgStopBtn?.remove();
+            const streamingFooter = botMsg.querySelector('.msg-footer-streaming');
+            if (streamingFooter) streamingFooter.remove();
             botMsg.classList.remove('streaming');
             statusAnchor.remove();
             if (!wasmAborted) {
@@ -466,9 +491,22 @@ window.ChatEngineController = {
         let done = false;
         let latestMetrics = null;
 
+        const timerDisplay = botMsg.querySelector('.timer-display');
+        let timerInterval = null;
+        if (timerDisplay) {
+            timerInterval = setInterval(() => {
+                const sec = ((Date.now() - started) / 1000).toFixed(1);
+                timerDisplay.textContent = `${sec}s`;
+            }, 80);
+        }
+
         const finish = (aborted) => {
             if (done) return;
             done = true;
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
             window.ChatState.abortController = null;
             if (stopBtn) stopBtn.hidden = true;
             msgStopBtn?.remove();

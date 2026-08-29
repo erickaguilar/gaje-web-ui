@@ -150,7 +150,14 @@ window.ChatComposerController = {
             <section class="msg-content"></section>
             <footer class="msg-footer msg-footer-streaming">
                 <div class="msg-telemetry">
-                    <span class="telemetry-pill pill-streaming"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg> <span>Generando...</span></span>
+                    <span class="telemetry-pill pill-timer live" data-tooltip="Segundero de inferencia en tiempo real">
+                        <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-clock"/></svg>
+                        <span class="timer-display">0.0s</span>
+                    </span>
+                    <span class="telemetry-pill pill-streaming">
+                        <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg>
+                        <span>Sintetizando...</span>
+                    </span>
                 </div>
                 <div class="msg-actions">
                     <button type="button" class="msg-action-btn msg-stop-btn" title="Detener generación" aria-label="Detener generación">
@@ -284,10 +291,18 @@ window.ChatComposerController = {
     renderTelemetryFooterHtml(meta, mName, fullText, latencyOverride = null) {
         let pillsHtml = '';
         const latencyMs = (meta && meta.latency_ms) ? meta.latency_ms : null;
-        const latencyStr = latencyOverride || window.ChatUtils.formatLatency(latencyMs);
+        let formattedSec = null;
+        if (typeof latencyMs === 'number' && latencyMs > 0) {
+            formattedSec = (latencyMs / 1000).toFixed(2) + 's';
+        } else if (latencyOverride) {
+            formattedSec = latencyOverride;
+        } else {
+            formattedSec = '0.00s';
+        }
+        const clockFormatted = window.ChatUtils.formatLatency(latencyMs);
 
-        // 1. Latencia de Inferencia (Linux Monotonic Clock)
-        pillsHtml += `<span class="telemetry-pill pill-latency" data-tooltip="Latencia de Inferencia (Linux Clock: HH:MM:SS::MS)"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-clock"/></svg> <span>${latencyStr}</span></span>`;
+        // 1. Segundero de Inferencia (Tiempo total)
+        pillsHtml += `<span class="telemetry-pill pill-timer pill-latency" data-tooltip="Tiempo de Inferencia: ${clockFormatted}"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-clock"/></svg> <span class="timer-display">${formattedSec}</span></span>`;
 
         if (meta) {
             // 2. Velocidad de Generación (tok/s)

@@ -1943,10 +1943,52 @@ h4.md-heading { font-size: 0.92rem; color: var(--text-muted); }
     transform: translateY(-1px);
 }
 
-.telemetry-pill.pill-latency {
+.telemetry-pill.pill-latency,
+.telemetry-pill.pill-timer {
     border-color: rgba(56, 189, 248, 0.25);
     color: #93c5fd;
     background: rgba(56, 189, 248, 0.06);
+    font-feature-settings: "tnum" 1, "zero" 1;
+}
+
+.telemetry-pill.pill-timer.live {
+    border-color: rgba(10, 132, 255, 0.55);
+    background: linear-gradient(135deg, rgba(10, 132, 255, 0.16), rgba(94, 92, 230, 0.12));
+    color: #60a5fa;
+    animation: livePulseGlow 1.4s ease-in-out infinite;
+}
+
+.telemetry-pill.pill-timer.live svg {
+    animation: liveClockTick 1s steps(1) infinite;
+}
+
+@keyframes livePulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(10, 132, 255, 0);
+        border-color: rgba(10, 132, 255, 0.35);
+    }
+    50% {
+        box-shadow: 0 0 8px 1px rgba(10, 132, 255, 0.3);
+        border-color: rgba(10, 132, 255, 0.75);
+    }
+}
+
+@keyframes liveClockTick {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.75; transform: scale(0.92); }
+}
+
+[data-theme="light"] .telemetry-pill.pill-timer.live {
+    background: #edf7ef !important;
+    border-color: #2c5234 !important;
+    color: #2c5234 !important;
+    box-shadow: 0 0 6px rgba(44, 82, 52, 0.18) !important;
+}
+
+.telemetry-pill .timer-display {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.3px;
+    font-weight: 600;
 }
 
 .telemetry-pill.pill-speed {
