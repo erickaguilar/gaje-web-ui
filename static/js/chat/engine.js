@@ -313,6 +313,7 @@ window.ChatEngineController = {
                 });
             }
 
+            const recentHistory = await (window.ChatStorage?.getRecentHistory(4) || []);
             contentEl.textContent = 'Calculando resonancia semántica en núcleo local...';
             const result = await new Promise((resolve, reject) => {
                 const handler = (ev) => {
@@ -329,7 +330,6 @@ window.ChatEngineController = {
                     }
                 };
                 worker.addEventListener('message', handler);
-                const recentHistory = await (window.ChatStorage?.getRecentHistory(4) || []);
                 worker.postMessage({
                     action: 'chat',
                     payload: {
