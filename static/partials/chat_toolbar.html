@@ -77,18 +77,18 @@
 
                 <!-- 3. Gestión de Memoria y Pesos -->
                 <div class="menu-section-label">Gestión de Memoria</div>
-                <button id="load-local-flat-btn" class="chat-menu-item" role="menuitem">
+                <button id="load-local-flat-btn" class="chat-menu-item" role="menuitem" data-tooltip="Cargar e inferir un archivo binario .flat o .gaje desde tu disco local">
                     <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-import"/></svg>
                     <span>Cargar Modelo .flat Local...</span>
                 </button>
                 <input type="file" id="local-flat-file-input" accept=".flat" style="display: none;">
 
-                <button id="unload-model-btn" class="chat-menu-item warning" role="menuitem">
+                <button id="unload-model-btn" class="chat-menu-item warning" role="menuitem" data-tooltip="Desasignar tensores y reducir el consumo de RAM a 0 MB (reposo)">
                     <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-unload"/></svg>
                     <span>Liberar Memoria RAM</span>
                 </button>
 
-                <button id="stop-all-models-btn" class="chat-menu-item danger" role="menuitem" data-tooltip="Detener inferencia activa y purgar todos los modelos de la sesión">
+                <button id="stop-all-models-btn" class="chat-menu-item danger" role="menuitem" data-tooltip="Parada de emergencia: Abortar inferencia activa, apagar workers y purgar la memoria RAM">
                     <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
                     <span>Detener Todos los Modelos</span>
                 </button>
