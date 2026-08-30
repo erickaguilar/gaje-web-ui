@@ -34,8 +34,16 @@ def format_prompt(
     # Inyección de memoria de largo plazo Island Model (.gmem)
     mem_suffix = f"\n\n{island_context}" if island_context else ""
 
+    # === Arquitectura Born: Organismos Nacidos (.gaje / max.gaje) ===
+    if model_name_lower.endswith(".gaje") or "born" in model_name_lower or model_name_lower == "max.gaje":
+        parts = []
+        for turn in valid_history:
+            parts.append(f"<|im_start|>{turn['role']}\n{turn['content']}<|im_end|>")
+        parts.append(f"<|im_start|>user\n{message}<|im_end|>\n<|im_start|>assistant\n")
+        return "\n".join(parts)
+
     # === Arquitectura 0: Modelos Base / Completado Directo (Pico / Base / Raw) ===
-    if "pico" in model_name_lower or "base" in model_name_lower or "raw" in model_name_lower:
+    elif "pico" in model_name_lower or "base" in model_name_lower or "raw" in model_name_lower:
         if not valid_history:
             return message
         parts = []
@@ -48,7 +56,7 @@ def format_prompt(
         return "\n\n".join(parts)
 
     # === Arquitectura 1: DeepSeek-R1 (CoT ChatML + <think> trigger) ===
-    elif "max" in model_name_lower or "deepseek" in model_name_lower or "r1" in model_name_lower:
+    elif "deepseek" in model_name_lower or "r1" in model_name_lower:
         base_sys = system_prompt or "Eres un asistente experto y preciso que responde en español."
         sys_msg = f"{base_sys}{mem_suffix}"
         parts = [f"<|im_start|>system\n{sys_msg}<|im_end|>"]
