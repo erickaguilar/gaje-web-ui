@@ -23,6 +23,34 @@
         (function() {
             const theme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', theme);
+
+            // 🧬 Consola Móvil DevTools GAJE para Android
+            window.gajeDevLogs = [];
+            const pushEntry = (type, args) => {
+                const text = Array.from(args).map(a => {
+                    if (a instanceof Error) return `${a.name}: ${a.message}\n${a.stack || ''}`;
+                    if (typeof a === 'object') {
+                        try { return JSON.stringify(a, null, 2); } catch (_) { return String(a); }
+                    }
+                    return String(a);
+                }).join(' ');
+                window.gajeDevLogs.push({ type, time: new Date().toLocaleTimeString(), text });
+                if (window.gajeDevLogs.length > 300) window.gajeDevLogs.shift();
+                if (window.renderDevLogs) window.renderDevLogs();
+            };
+
+            const _log = console.log, _warn = console.warn, _err = console.error;
+            console.log = function(...a) { pushEntry('info', a); _log.apply(console, a); };
+            console.warn = function(...a) { pushEntry('warn', a); _warn.apply(console, a); };
+            console.error = function(...a) { pushEntry('error', a); _err.apply(console, a); };
+
+            window.onerror = function(msg, url, line, col, err) {
+                const src = url ? url.split('/').pop() : 'inline';
+                pushEntry('error', [`[CRASH ${src}:${line}:${col}] ${msg}`]);
+            };
+            window.addEventListener('unhandledrejection', function(e) {
+                pushEntry('error', [`[PROMISE ERROR] ${e.reason}`]);
+            });
         })();
     </script>
 </head>
@@ -108,5 +136,82 @@
     <script src="static/js/chat/composer.js?v=1.7.2"></script>
     <script src="static/js/chat/telemetry.js?v=1.7.2"></script>
     <script src="static/js/chat/index.js?v=1.7.2"></script>
+
+    <!-- Consola Móvil DevTools Integrada para Android -->
+    <button id="mobile-devtools-fab" onclick="window.toggleDevConsole()" style="position: fixed; bottom: 16px; left: 16px; z-index: 99999; background: #1c1c1e; color: #22d3ee; border: 1px solid #3a3a3c; border-radius: 20px; padding: 6px 14px; font-size: 11px; font-family: monospace; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 6px;" aria-label="Abrir Consola Móvil">
+        <span>🛠️ Consola</span>
+        <span id="mobile-err-badge" style="display:none; background:#ff453a; color:#fff; border-radius:10px; padding:1px 6px; font-size:10px;">0</span>
+    </button>
+
+    <div id="mobile-devtools-modal" style="display: none; position: fixed; inset: 0; z-index: 100000; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); flex-direction: column; font-family: monospace; padding: 12px; box-sizing: border-box;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #333;">
+            <div style="color: #22d3ee; font-weight: bold; font-size: 13px;">🧬 GAJE Helix — Consola Móvil Android</div>
+            <div style="display: flex; gap: 8px;">
+                <button onclick="window.copyDevLogs()" style="background:#2c2c2e; color:#fff; border:1px solid #444; padding:4px 8px; font-size:11px; border-radius:4px; cursor:pointer;">📋 Copiar</button>
+                <button onclick="window.clearDevLogs()" style="background:#2c2c2e; color:#fff; border:1px solid #444; padding:4px 8px; font-size:11px; border-radius:4px; cursor:pointer;">🧹 Limpiar</button>
+                <button onclick="window.injectEruda()" style="background:#0a84ff; color:#fff; border:none; padding:4px 8px; font-size:11px; border-radius:4px; cursor:pointer;">🚀 Eruda</button>
+                <button onclick="window.toggleDevConsole()" style="background:#ff453a; color:#fff; border:none; padding:4px 10px; font-size:11px; border-radius:4px; cursor:pointer; font-weight:bold;">✕</button>
+            </div>
+        </div>
+        <div id="mobile-devtools-body" style="flex: 1; overflow-y: auto; padding: 10px 0; font-size: 11px; line-height: 1.4; display: flex; flex-direction: column; gap: 4px;"></div>
+    </div>
+
+    <script>
+        window.toggleDevConsole = function() {
+            const m = document.getElementById('mobile-devtools-modal');
+            if (!m) return;
+            const isHidden = m.style.display === 'none';
+            m.style.display = isHidden ? 'flex' : 'none';
+            if (isHidden) window.renderDevLogs();
+        };
+
+        window.renderDevLogs = function() {
+            const body = document.getElementById('mobile-devtools-body');
+            const badge = document.getElementById('mobile-err-badge');
+            if (!body) return;
+            const logs = window.gajeDevLogs || [];
+            let errCount = 0;
+            body.innerHTML = logs.map(l => {
+                if (l.type === 'error') errCount++;
+                const color = l.type === 'error' ? '#ff453a' : (l.type === 'warn' ? '#ffd60a' : '#a1a1aa');
+                const icon = l.type === 'error' ? '❌' : (l.type === 'warn' ? '⚠️' : 'ℹ️');
+                return `<div style="color: ${color}; word-break: break-all; border-bottom: 1px solid #1f1f22; padding: 2px 0;">
+                    <span style="opacity: 0.5;">[${l.time}]</span> ${icon} ${l.text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                </div>`;
+            }).join('');
+            body.scrollTop = body.scrollHeight;
+            if (badge) {
+                badge.textContent = errCount;
+                badge.style.display = errCount > 0 ? 'inline-block' : 'none';
+            }
+        };
+
+        window.copyDevLogs = function() {
+            const text = (window.gajeDevLogs || []).map(l => `[${l.time}] [${l.type.toUpperCase()}] ${l.text}`).join('\n');
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text);
+                alert('Logs copiados al portapapeles.');
+            }
+        };
+
+        window.clearDevLogs = function() {
+            window.gajeDevLogs = [];
+            window.renderDevLogs();
+        };
+
+        window.injectEruda = function() {
+            if (window.eruda) {
+                window.eruda.show();
+                return;
+            }
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/eruda';
+            s.onload = function() {
+                window.eruda.init();
+                window.eruda.show();
+            };
+            document.body.appendChild(s);
+        };
+    </script>
 </body>
 </html>
