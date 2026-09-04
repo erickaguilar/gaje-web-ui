@@ -348,7 +348,7 @@ window.ChatEngineController = {
                     payload: {
                         prompt: text,
                         maxTokens: 128,
-                        temperature: 0.65,
+                        temperature: window.ChatState.temperature ?? 0.3,
                         minP: 0.05,
                         repetitionPenalty: 1.05,
                         injectRag: true,
@@ -556,7 +556,12 @@ window.ChatEngineController = {
         return fetch('/api/chat/stream', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: message, model: modelName, history: recentHistory }),
+            body: JSON.stringify({
+                message: message,
+                model: modelName,
+                history: recentHistory,
+                temperature: window.ChatState.temperature ?? 0.3
+            }),
             signal: window.ChatState.abortController.signal
         }).then(async (response) => {
             if (!response.ok) {
@@ -631,7 +636,12 @@ window.ChatEngineController = {
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text, model: modelName, history: recentHistory })
+                body: JSON.stringify({
+                    message: text,
+                    model: modelName,
+                    history: recentHistory,
+                    temperature: window.ChatState.temperature ?? 0.3
+                })
             });
             const data = await response.json();
             if (data.error) {

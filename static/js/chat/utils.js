@@ -216,9 +216,11 @@ window.ChatUtils = {
         const chatWindow = document.getElementById('chat-window');
 
         const selectedModelName = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'gaje_pico_135m.flat');
-        const modelDateText = modelDate ? modelDate.innerText.trim() : '—';
-        const modelSizeText = modelSize ? modelSize.innerText.trim() : '471 MB';
-        const modelRamText = modelRam ? modelRam.innerText.trim() : 'WASM In-Browser';
+        const activeModelObj = window.ChatState?.modelsData?.find(m => m.name === selectedModelName);
+        const modelDateText = modelDate ? modelDate.innerText.trim() : (activeModelObj?.date || '—');
+        const modelSizeText = (modelSize && modelSize.innerText.trim() && modelSize.innerText.trim() !== '—') ? modelSize.innerText.trim() : (activeModelObj?.size_bytes ? this.formatBytes(activeModelObj.size_bytes) : '1.5 GB');
+        const engineMode = window.ChatState?.engineMode || (window.ChatState?.isWasmModelLoaded ? 'wasm' : 'native');
+        const modelRamText = (modelRam && modelRam.innerText.trim() && modelRam.innerText.trim() !== '—') ? modelRam.innerText.trim() : (engineMode === 'native' ? 'Servidor Nativo Mmap' : 'WASM In-Browser');
 
         const envData = window.ChatState?.envData;
         const clientHw = this.detectClientHardware();
@@ -468,7 +470,7 @@ avg_throughput_tok_s: ${avgSpeed.toFixed(2)}
 | Hiperparámetro | Valor de Configuración |
 | :--- | :--- |
 | **Sampling Mode** | \`Lagrangian Minimal Action / Greedy Hybrid\` |
-| **Temperatura Base** | \`0.7\` (o \`0.0\` en modo determinista) |
+| **Temperatura Base** | \`${(window.ChatState?.temperature ?? 0.3).toFixed(2)}\` |
 | **Top-P / Min-P** | \`0.90\` / \`0.05\` |
 | **Repetition Penalty** | \`1.15\` |
 | **Límite de Contexto Activo** | \`2048 tokens\` |

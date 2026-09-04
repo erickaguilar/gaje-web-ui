@@ -105,6 +105,20 @@ window.ChatToolbarController = {
             engineModeSelect.addEventListener('change', (e) => this.onEngineModeChange(e.target.value));
         }
 
+        const tempSlider = document.getElementById('temperature-slider');
+        const tempVal = document.getElementById('temperature-val');
+        if (tempSlider) {
+            const currentTemp = window.ChatState.temperature ?? 0.3;
+            tempSlider.value = currentTemp;
+            if (tempVal) tempVal.innerText = currentTemp.toFixed(2);
+            tempSlider.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                window.ChatState.temperature = val;
+                if (tempVal) tempVal.innerText = val.toFixed(2);
+                localStorage.setItem('gaje_temperature', val);
+            });
+        }
+
         const btnLoadLocalFlat = document.getElementById('load-local-flat-btn');
         const inputLocalFlat = document.getElementById('local-flat-file-input');
         if (btnLoadLocalFlat && inputLocalFlat) {

@@ -6,6 +6,7 @@
 window.ChatState = {
     activeModel: 'qwen2_5_3b.flat',
     engineMode: 'native', // 'native' | 'wasm'
+    temperature: parseFloat(localStorage.getItem('gaje_temperature')) || 0.3,
     isGenerating: false,
     abortController: null,
     modelsData: [
