@@ -8,7 +8,7 @@ window.ChatToolbarController = {
         const host = document.getElementById('chat-toolbar');
         if (host && !host.children.length) {
             try {
-                const res = await fetch('static/partials/chat_toolbar.html?v=1.7.0');
+                const res = await fetch('static/partials/chat_toolbar.html?v=1.7.1-fix');
                 if (res.ok) {
                     const html = await res.text();
                     host.innerHTML = html;

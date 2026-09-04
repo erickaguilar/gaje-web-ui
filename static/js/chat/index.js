@@ -7,12 +7,35 @@
     'use strict';
 
     const bootChat = async () => {
-        if (window.ChatToolbarController) await window.ChatToolbarController.init();
-        if (window.ChatComposerController) window.ChatComposerController.init();
-        if (window.ChatTelemetryController) window.ChatTelemetryController.init();
-        if (window.ChatStorage) await window.ChatStorage.renderHistory();
+        // 1. Inicializar el Composer prioritariamente para activar el botón enviar, textarea y starter cards
+        try {
+            if (window.ChatComposerController) window.ChatComposerController.init();
+        } catch (err) {
+            console.error('🔥 [GAJE-UI] Error inicializando ChatComposerController:', err);
+        }
 
-        // Registrar inicio del sistema en consola y estado sin ensuciar la ventana de conversación
+        // 2. Inicializar la barra de herramientas y carga de metadatos del modelo
+        try {
+            if (window.ChatToolbarController) await window.ChatToolbarController.init();
+        } catch (err) {
+            console.error('🔥 [GAJE-UI] Error inicializando ChatToolbarController:', err);
+        }
+
+        // 3. Inicializar telemetría HUD
+        try {
+            if (window.ChatTelemetryController) window.ChatTelemetryController.init();
+        } catch (err) {
+            console.error('🔥 [GAJE-UI] Error inicializando ChatTelemetryController:', err);
+        }
+
+        // 4. Renderizar historial previo si existe
+        try {
+            if (window.ChatStorage) await window.ChatStorage.renderHistory();
+        } catch (err) {
+            console.error('🔥 [GAJE-UI] Error renderizando historial:', err);
+        }
+
+        // Registrar inicio del sistema en consola
         const ver = window.GAJE_CONFIG?.version || '1.7.0-alpha';
         console.log(`🧬 [GAJE-CORE] Núcleo GAJE v${ver} iniciado. Inferencia nativa mmap zero-copy activa.`);
     };

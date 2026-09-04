@@ -42,9 +42,12 @@ window.ChatComposerController = {
     },
 
     initStarters() {
-        const starterCards = document.querySelectorAll('.starter-card');
-        starterCards.forEach(card => {
-            card.addEventListener('click', () => {
+        const startersContainer = document.getElementById('chat-starters');
+        if (startersContainer) {
+            startersContainer.addEventListener('click', (e) => {
+                const card = e.target.closest('.starter-card');
+                if (!card) return;
+                e.preventDefault();
                 const prompt = card.getAttribute('data-prompt');
                 const userInput = document.getElementById('user-input');
                 if (userInput && prompt) {
@@ -53,7 +56,7 @@ window.ChatComposerController = {
                     this.sendMessage();
                 }
             });
-        });
+        }
     },
 
     hideStarters() {
@@ -73,13 +76,12 @@ window.ChatComposerController = {
 
         if (!userInput) return;
         const text = userInput.value.trim();
-        const modelValue = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'qwen2_5_3b.flat');
-        const engineMode = engineModeSelect ? engineModeSelect.value : (window.ChatState?.engineMode || 'native');
+        let modelValue = (modelSelect && modelSelect.value && modelSelect.value !== 'none') ? modelSelect.value : (window.ChatState?.envData?.active_model || window.ChatState?.activeModel || 'qwen2_5_0_5b.gaje');
+        const engineMode = (engineModeSelect && engineModeSelect.value) ? engineModeSelect.value : (window.ChatState?.engineMode || 'native');
 
         if (!text) return;
-        if (!modelValue || modelValue === 'none' || modelValue === '') {
-            window.ChatUtils?.showToast('Por favor, selecciona un modelo válido en el selector.', 'warning', 3500);
-            return;
+        if (!modelValue) {
+            modelValue = 'qwen2_5_0_5b.gaje';
         }
 
         // Ocultar starters al primer turno
