@@ -224,7 +224,6 @@ window.ChatUtils = {
 
         const envData = window.ChatState?.envData;
         const clientHw = this.detectClientHardware();
-        const engineMode = window.ChatState?.engineMode || (window.ChatState?.isWasmModelLoaded ? 'wasm' : 'native');
         const engineModeLabel = engineMode === 'wasm' ? 'WebAssembly In-Browser (Zero-Server / Offline)' : 'Servidor Nativo Rust (AVX2 / Mmap Zero-Copy)';
 
         const islandMem = (envData && envData.island && envData.island.memory_type) || '.gmem (IndexedDB GajeHelixDB Zero-Server)';
