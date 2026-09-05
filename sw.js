@@ -75,8 +75,8 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // No interceptar peticiones de modelos binarios (.flat) ni endpoints /api/
-  if (url.pathname.endsWith('.flat') || url.pathname.startsWith('/api/') || url.hostname.includes('huggingface.co')) {
+  // No interceptar peticiones de modelos binarios (.flat, /models/) ni endpoints /api/
+  if (url.pathname.endsWith('.flat') || url.pathname.startsWith('/models/') || url.pathname.startsWith('/api/') || url.hostname.includes('huggingface.co')) {
     return;
   }
 

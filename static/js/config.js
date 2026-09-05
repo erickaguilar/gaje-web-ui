@@ -56,6 +56,28 @@
         }
       }
       return null;
+    },
+
+    /**
+     * Evalúa el perfil de hardware del cliente (RAM, concurrencia, soporte SIMD128)
+     */
+    getHardwareProfile: function () {
+      var memGb = (typeof navigator !== 'undefined' && navigator.deviceMemory) ? navigator.deviceMemory : null;
+      var cores = (typeof navigator !== 'undefined' && navigator.hardwareConcurrency) ? navigator.hardwareConcurrency : 2;
+      var hasSimd = false;
+      try {
+        hasSimd = typeof WebAssembly !== 'undefined' && WebAssembly.validate(
+          new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 1, 5, 1, 96, 0, 1, 123, 3, 2, 1, 0, 10, 10, 1, 8, 0, 65, 0, 253, 15, 26, 11])
+        );
+      } catch (e) {
+        hasSimd = false;
+      }
+      return {
+        deviceMemoryGb: memGb,
+        hardwareConcurrency: cores,
+        hasSimd: hasSimd,
+        isLowMemory: memGb !== null && memGb < 4
+      };
     }
   };
 

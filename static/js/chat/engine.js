@@ -306,9 +306,14 @@ window.ChatEngineController = {
                     if (titleEl) titleEl.innerHTML = `<svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-check"/></svg> Descarga completada en ${dlTotalSec}s (${avgSpeedMb} MB/s - ${channels}x streams)`;
                     if (badgeEl) badgeEl.textContent = 'IndexedDB Listo';
 
-                    // Guardar en caché IndexedDB para que en futuros inicios la carga sea instantánea (0s descarga)
+                    // Guardar en caché OPFS / IndexedDB para que en futuros inicios la carga sea instantánea (0s descarga)
                     if (buffer && buffer.byteLength >= 4096 && window.GajeDB && typeof window.GajeDB.saveCachedModel === 'function') {
-                        window.GajeDB.saveCachedModel(modelName, buffer.slice(0));
+                        try {
+                            contentEl.textContent = `Persistiendo ${modelName} en almacenamiento local seguro...`;
+                            await window.GajeDB.saveCachedModel(modelName, buffer);
+                        } catch (cacheErr) {
+                            console.warn('[GAJE-Storage] Error no fatal al persistir caché:', cacheErr);
+                        }
                     }
 
                     // Auto-remover banner de descarga tras completarse exitosamente con desvanecimiento

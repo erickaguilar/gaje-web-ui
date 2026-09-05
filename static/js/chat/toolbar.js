@@ -417,6 +417,16 @@ window.ChatToolbarController = {
             if (sendBtn) sendBtn.disabled = false;
             this.updateModelToggleState(true);
 
+            // Verificación preventiva de perfil de hardware
+            if (window.GAJE_CONFIG && typeof window.GAJE_CONFIG.getHardwareProfile === 'function') {
+                const hw = window.GAJE_CONFIG.getHardwareProfile();
+                if (!hw.hasSimd) {
+                    window.ChatUtils?.showToast('⚠️ Tu navegador no reporta soporte WebAssembly SIMD128. La inferencia local puede ser más lenta.', 'warning', 4500);
+                } else if (hw.isLowMemory) {
+                    window.ChatUtils?.showToast(`ℹ️ Memoria del dispositivo: ~${hw.deviceMemoryGb}GB. Se recomienda usar modelos optimizados en modo local.`, 'info', 4000);
+                }
+            }
+
             if (window.GajeDB && !window.ChatState.isWasmModelLoaded) {
                 window.GajeDB.getCachedModel(modelName).then(cachedBuf => {
                     if (cachedBuf && cachedBuf.byteLength >= 4096) {
@@ -593,9 +603,9 @@ window.ChatToolbarController = {
             const buffer = await file.arrayBuffer();
             const modelName = file.name;
 
-            // 1. Guardar en IndexedDB local para persistencia instantánea
+            // 1. Guardar en almacenamiento local (OPFS / IndexedDB) para persistencia instantánea
             if (window.GajeDB && typeof window.GajeDB.saveCachedModel === 'function') {
-                await window.GajeDB.saveCachedModel(modelName, buffer.slice(0));
+                await window.GajeDB.saveCachedModel(modelName, buffer);
             }
 
             await new Promise((resolve, reject) => {

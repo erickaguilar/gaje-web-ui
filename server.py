@@ -213,6 +213,100 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
                 return
         logger.debug(format, *args)
 
+    def do_OPTIONS(self):
+        """Maneja preflight CORS para peticiones con cabeceras personalizadas (Range, Authorization)."""
+        self.send_response(204)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, HEAD, OPTIONS")
+        self.send_header(
+            "Access-Control-Allow-Headers",
+            "Range, Content-Type, Authorization, Accept, Origin, X-Requested-With",
+        )
+        self.send_header(
+            "Access-Control-Expose-Headers",
+            "Content-Range, Content-Length, Accept-Ranges",
+        )
+        self.send_header("Access-Control-Max-Age", "86400")
+        self.end_headers()
+
+    def do_HEAD(self):
+        """Maneja peticiones HEAD para consultar metadatos de modelos sin transferir el cuerpo."""
+        if self.path.startswith("/models/"):
+            self._handle_serve_model(is_head=True)
+        else:
+            super().do_HEAD()
+
+    def _handle_serve_model(self, is_head=False):
+        """Sirve modelos binarios (.flat) con soporte completo de HTTP Range (206 Partial Content)."""
+        rel_path = self.path[len("/models/") :].split("?")[0]
+        target_path = find_model_path(MODELS_ROOT, rel_path)
+        if not target_path or not os.path.exists(target_path):
+            self.send_error(404, f"Modelo {rel_path} no encontrado")
+            return
+
+        try:
+            file_size = os.path.getsize(target_path)
+            range_header = self.headers.get("Range")
+
+            if range_header and range_header.startswith("bytes="):
+                # Formato: bytes=start-end o bytes=start-
+                range_str = range_header[len("bytes=") :].strip()
+                parts = range_str.split("-")
+                start = int(parts[0]) if parts[0] else 0
+                end = int(parts[1]) if len(parts) > 1 and parts[1] else file_size - 1
+
+                if start >= file_size or end >= file_size or start > end:
+                    self.send_response(416)  # Range Not Satisfiable
+                    self.send_header("Content-Range", f"bytes */{file_size}")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    return
+
+                length = end - start + 1
+                self.send_response(206)
+                self.send_header("Content-Type", "application/octet-stream")
+                self.send_header("Content-Range", f"bytes {start}-{end}/{file_size}")
+                self.send_header("Content-Length", str(length))
+                self.send_header("Accept-Ranges", "bytes")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.send_header(
+                    "Access-Control-Expose-Headers",
+                    "Content-Range, Content-Length, Accept-Ranges",
+                )
+                self.end_headers()
+
+                if not is_head:
+                    with open(target_path, "rb") as f:
+                        f.seek(start)
+                        remaining = length
+                        while remaining > 0:
+                            chunk_to_read = min(remaining, 4 * 1024 * 1024)
+                            chunk = f.read(chunk_to_read)
+                            if not chunk:
+                                break
+                            self.wfile.write(chunk)
+                            remaining -= len(chunk)
+                return
+
+            # Sin Range header: servir 200 completo pero informando soporte de Range
+            self.send_response(200)
+            self.send_header("Content-Type", "application/octet-stream")
+            self.send_header("Content-Length", str(file_size))
+            self.send_header("Accept-Ranges", "bytes")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header(
+                "Access-Control-Expose-Headers",
+                "Content-Range, Content-Length, Accept-Ranges",
+            )
+            self.end_headers()
+
+            if not is_head:
+                with open(target_path, "rb") as f:
+                    while chunk := f.read(4 * 1024 * 1024):
+                        self.wfile.write(chunk)
+        except Exception as e:
+            logger.error("Error sirviendo modelo binario %s: %s", target_path, e)
+
     def do_GET(self):
         if self.path == "/api/models":
             models = list_available_models(MODELS_ROOT)
@@ -223,26 +317,7 @@ class GajeHandler(http.server.SimpleHTTPRequestHandler):
         elif self.path.startswith("/api/memory/epochs"):
             self._handle_get_epochs()
         elif self.path.startswith("/models/"):
-            rel_path = self.path[len("/models/") :].split("?")[0]
-            target_path = find_model_path(MODELS_ROOT, rel_path)
-            if target_path and os.path.exists(target_path):
-                try:
-                    file_size = os.path.getsize(target_path)
-                    self.send_response(200)
-                    self.send_header("Content-Type", "application/octet-stream")
-                    self.send_header("Content-Length", str(file_size))
-                    self.send_header("Access-Control-Allow-Origin", "*")
-                    self.end_headers()
-                    with open(target_path, "rb") as f:
-                        while chunk := f.read(4 * 1024 * 1024):
-                            self.wfile.write(chunk)
-                    return
-                except Exception as e:
-                    logger.error(
-                        "Error sirviendo modelo binario %s: %s", target_path, e
-                    )
-                    return
-            self.send_error(404, f"Modelo {rel_path} no encontrado")
+            self._handle_serve_model(is_head=False)
         else:
             super().do_GET()
 

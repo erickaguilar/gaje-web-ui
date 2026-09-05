@@ -551,7 +551,12 @@
                 }
             }
 
-            // 2. Guardar en IndexedDB como redundancia
+            // 2. Guardar en IndexedDB como redundancia solo si el modelo no es gigante (>300 MB)
+            // Si OPFS ya persistió un modelo pesado, evitamos clonar cientos de MB en IndexedDB
+            if (opfsSaved && buffer.byteLength > 300 * 1024 * 1024) {
+                return true;
+            }
+
             await this.readyPromise;
             if (!this.db || !this.db.objectStoreNames.contains('model_cache')) return opfsSaved;
             return new Promise((resolve) => {

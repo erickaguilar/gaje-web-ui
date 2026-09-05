@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "es2022",
+    "target": "es2022",
+    "moduleResolution": "node",
+    "checkJs": true,
+    "allowJs": true,
+    "strict": false,
+    "noEmit": true,
+    "lib": ["es2022", "dom", "webworker"]
+  },
+  "include": [
+    "static/js/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "static/wasm/_impl.js"
+  ]
+}
