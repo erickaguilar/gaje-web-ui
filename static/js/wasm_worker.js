@@ -145,19 +145,10 @@ self.onmessage = async (e) => {
             // Inyección automática de ChatML según la ontogenia del organismo
             let formattedPrompt = prompt;
             if (isBornModel) {
-                // Organismos Nacidos (Born / .gaje / max): ChatML puro sin prefijo system
-                if (typeof prompt === 'string' && !prompt.includes('<|im_start|>') && !prompt.includes('<|user|>')) {
-                    let contextBlock = '';
-                    if (Array.isArray(history) && history.length > 0) {
-                        for (const msg of history.slice(-4)) {
-                            if (msg && msg.content) {
-                                const role = msg.role === 'assistant' ? 'assistant' : 'user';
-                                contextBlock += `<|im_start|>${role}\n${msg.content}<|im_end|>\n`;
-                            }
-                        }
-                    }
-                    formattedPrompt = `${contextBlock}<|im_start|>user\n${prompt}<|im_end|>\n<|im_start|>assistant\n`;
-                }
+                // En modelos nacidos (.gaje / max), chat_with_memory() en el núcleo Rust WASM
+                // ya formatea internamente con <|im_start|>user\n{}<|im_end|>\n<|im_start|>assistant\n
+                // por lo que pasamos el prompt limpio directamente para evitar doble envoltura.
+                formattedPrompt = prompt;
             } else if (isBaseModel) {
                 // Modelo base: Completado directo o formato natural
                 if (Array.isArray(history) && history.length > 0) {
