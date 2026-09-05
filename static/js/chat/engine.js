@@ -26,8 +26,11 @@ window.ChatEngineController = {
             } else if (data.status === 'error') {
                 console.error('🔥 [GAJE-CORE Error]:', data);
                 window.ChatToolbarController?.setModelLoading(false);
-                const code = data.code || 'GAJE-500';
-                window.ChatUtils?.showToast(`[${code}] ${data.error}`, 'error', 5000);
+                // Si la acción activa es interactiva (wasmChat), el controlador muestra su propio card y toast
+                if (!window.ChatState.isWasmActionInProgress) {
+                    const code = data.code || 'GAJE-500';
+                    window.ChatUtils?.showToast(`[${code}] ${data.error}`, 'error', 5000);
+                }
             }
         };
         return window.ChatState.wasmWorker;
@@ -158,9 +161,13 @@ window.ChatEngineController = {
 
         let wasmAborted = false;
         const wasmDlAbortController = new AbortController();
+        let dataAlert = null;
+        window.ChatState.isWasmActionInProgress = true;
+
         const handleWasmStop = () => {
             if (wasmAborted) return;
             wasmAborted = true;
+            window.ChatState.isWasmActionInProgress = false;
             if (timerInterval) {
                 clearInterval(timerInterval);
                 timerInterval = null;
@@ -174,6 +181,11 @@ window.ChatEngineController = {
             const streamingFooter = botMsg.querySelector('.msg-footer-streaming');
             if (streamingFooter) streamingFooter.remove();
             if (stopBtn) stopBtn.hidden = true;
+            if (dataAlert && dataAlert.parentNode) {
+                dataAlert.remove();
+                dataAlert = null;
+            }
+            contentSection.querySelectorAll('.data-usage-alert').forEach(el => el.remove());
             contentEl.innerHTML = '<span style="color: var(--text-muted); display: inline-flex; align-items: center; gap: 4px;"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg> Inferencia detenida por el usuario.</span>';
             window.ChatComposerController?.addMetaTo(botMsg, Date.now() - started, 'detenido', 'Inferencia detenida.', modelName);
         };
@@ -236,7 +248,7 @@ window.ChatEngineController = {
 
                 // 2. Si no hay backend local (ej. Vercel/PWA), descargar usando descarga concurrente de 4 canales
                 if (!buffer) {
-                    const dataAlert = document.createElement('div');
+                    dataAlert = document.createElement('div');
                     dataAlert.className = 'data-usage-alert';
                     dataAlert.setAttribute('role', 'alert');
                     dataAlert.innerHTML = `
@@ -298,6 +310,20 @@ window.ChatEngineController = {
                     if (buffer && buffer.byteLength >= 4096 && window.GajeDB && typeof window.GajeDB.saveCachedModel === 'function') {
                         window.GajeDB.saveCachedModel(modelName, buffer.slice(0));
                     }
+
+                    // Auto-remover banner de descarga tras completarse exitosamente con desvanecimiento
+                    const alertToFade = dataAlert;
+                    setTimeout(() => {
+                        if (alertToFade && alertToFade.parentNode) {
+                            alertToFade.classList.add('fade-out');
+                            setTimeout(() => {
+                                if (alertToFade && alertToFade.parentNode) {
+                                    alertToFade.remove();
+                                    if (dataAlert === alertToFade) dataAlert = null;
+                                }
+                            }, 450);
+                        }
+                    }, 2200);
                 }
 
                 if (!buffer || buffer.byteLength < 4096) {
@@ -413,9 +439,11 @@ window.ChatEngineController = {
                 }
             );
 
+            window.ChatState.isWasmActionInProgress = false;
             chatWindow.scrollTop = chatWindow.scrollHeight;
             return true;
         } catch (err) {
+            window.ChatState.isWasmActionInProgress = false;
             if (timerInterval) {
                 clearInterval(timerInterval);
                 timerInterval = null;
@@ -427,6 +455,14 @@ window.ChatEngineController = {
             if (streamingFooter) streamingFooter.remove();
             botMsg.classList.remove('streaming');
             statusAnchor.remove();
+
+            // Limpiar inmediatamente cualquier alerta de descarga atascada o pendiente
+            if (dataAlert && dataAlert.parentNode) {
+                dataAlert.remove();
+                dataAlert = null;
+            }
+            contentSection.querySelectorAll('.data-usage-alert').forEach(el => el.remove());
+
             if (!wasmAborted) {
                 const code = err.code || 'GAJE-500';
                 const name = err.name || 'KERNEL_PANIC';
@@ -646,15 +682,18 @@ window.ChatEngineController = {
             const data = await response.json();
             if (data.error) {
                 window.ChatUtils?.showToast(`Error del servidor: ${data.error}`, 'error', 5000);
+                return false;
             } else {
                 window.ChatComposerController?.addMessage(data.response, 'bot', data.metrics, null, modelName);
                 window.ChatStorage?.pushHistory({ role: 'assistant', content: data.response, model: modelName });
                 window.ChatComposerController?.updateMetrics(data.metrics);
                 window.ChatComposerController?.updateDNA(data.dna);
+                return true;
             }
         } catch (err) {
             window.ChatUtils?.showToast('Error de conexión con el núcleo GAJE.', 'error', 5000);
             console.error(err);
+            return false;
         }
     },
 

@@ -2398,6 +2398,19 @@ h4.md-heading { font-size: 0.9rem; color: var(--text-muted); }
     box-shadow: 0 4px 16px rgba(48, 209, 88, 0.08);
 }
 
+.data-usage-alert.fade-out {
+    opacity: 0;
+    transform: translateY(-6px);
+    max-height: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.4s ease, max-height 0.45s ease, padding 0.45s ease, margin 0.45s ease;
+}
+
 .data-alert-icon {
     width: 26px;
     height: 26px;

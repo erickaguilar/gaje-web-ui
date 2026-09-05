@@ -541,7 +541,28 @@ ${transcriptMd.trim()}
         });
     },
 
+    _recentToasts: new Map(),
+
     showToast(message, type = 'info', duration = 6000, meta = null) {
+        if (!message) return null;
+
+        // Evitar avalancha o duplicación de errores: deduplicar toasts idénticos en 2500ms
+        const now = Date.now();
+        const toastKey = `${type}:${message}:${meta?.code || ''}`;
+        const lastShown = this._recentToasts?.get(toastKey);
+        if (lastShown && (now - lastShown) < 2500) {
+            return null;
+        }
+        if (!this._recentToasts) this._recentToasts = new Map();
+        this._recentToasts.set(toastKey, now);
+
+        // Limpiar mapa viejo periódicamente
+        if (this._recentToasts.size > 20) {
+            for (const [k, time] of this._recentToasts.entries()) {
+                if (now - time > 10000) this._recentToasts.delete(k);
+            }
+        }
+
         let container = document.getElementById('y2k-toast-container');
         if (!container) {
             container = document.createElement('div');
@@ -549,6 +570,12 @@ ${transcriptMd.trim()}
             container.className = 'y2k-toast-container';
             container.setAttribute('aria-live', 'polite');
             document.body.appendChild(container);
+        }
+
+        // Limitar máximo de toasts visibles simultáneamente a 2 para evitar saturación visual
+        while (container.children.length >= 2) {
+            const oldest = container.firstElementChild;
+            if (oldest) oldest.remove();
         }
 
         const iconMap = {

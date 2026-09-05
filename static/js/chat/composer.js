@@ -154,11 +154,9 @@ window.ChatComposerController = {
             } else {
                 const ok = await window.ChatEngineController?.streamChat(text, modelValue);
                 if (!ok) {
-                    const fallbackOk = await window.ChatEngineController?.fallbackChat(text, modelValue);
-                    if (!fallbackOk) {
-                        console.warn('[GAJE] Backend server no responde, ejecutando en modo WebAssembly en el navegador...');
-                        await window.ChatEngineController?.wasmChat(text, modelValue);
-                    }
+                    console.warn('[GAJE] Servidor no respondió, conmutando a Tronco Encefálico WebAssembly...');
+                    window.ChatUtils?.showToast('Servidor no disponible. Conmutando a Tronco Encefálico WebAssembly...', 'info', 3000);
+                    await window.ChatEngineController?.wasmChat(text, modelValue);
                 }
             }
         } finally {
