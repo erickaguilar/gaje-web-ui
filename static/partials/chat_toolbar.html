@@ -20,6 +20,12 @@
             <svg class="y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-monitor"/></svg>
         </button>
 
+        <!-- Botón Directo de Consola Terminal Y2K -->
+        <button type="button" id="y2k-open-console-btn" class="chat-header-icon-btn y2k-console-toggle-btn" onclick="if(window.toggleDevConsole) window.toggleDevConsole();" data-tooltip="Consola de Sistema y Logs" data-tooltip-pos="left" aria-label="Abrir Consola Terminal">
+            <svg class="y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-terminal"/></svg>
+            <span id="mobile-err-badge" class="y2k-console-badge" style="display:none;">0</span>
+        </button>
+
         <!-- Menú Desplegable de Herramientas y Acciones (•••) -->
         <div class="chat-overflow-menu-container">
             <button id="chat-overflow-menu-btn" class="chat-header-icon-btn" aria-haspopup="true" aria-expanded="false" data-tooltip="Herramientas y Acciones" data-tooltip-pos="left" aria-label="Más opciones del chat">
@@ -120,7 +126,8 @@
                 <div class="menu-section-label">Diagnóstico</div>
                 <button type="button" id="chat-devconsole-btn" class="chat-menu-item" role="menuitem" onclick="if(window.toggleDevConsole) window.toggleDevConsole();" data-tooltip="Abrir consola de logs y depuración para dispositivos móviles">
                     <svg class="y2k-icon" style="color: #22d3ee;"><use href="static/icons/y2k/sprite.svg#i-terminal"/></svg>
-                    <span>Consola Móvil (Logs)</span>
+                    <span>Consola del Sistema (Logs)</span>
+                    <span id="mobile-err-badge-menu" class="y2k-console-badge-inline" style="display:none;">0</span>
                 </button>
             </div>
         </div>

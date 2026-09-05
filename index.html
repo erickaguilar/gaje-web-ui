@@ -143,20 +143,54 @@
 
     <!-- Consola Móvil DevTools Modal (Activada desde el menú del chat) -->
 
-    <div id="mobile-devtools-modal" style="display: none; position: fixed; inset: 0; z-index: 100000; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); flex-direction: column; font-family: monospace; padding: 12px; box-sizing: border-box;">
-        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #333;">
-            <div style="color: #22d3ee; font-weight: bold; font-size: 13px;">🧬 GAJE Helix — Consola Móvil Android</div>
-            <div style="display: flex; gap: 8px;">
-                <button onclick="window.copyDevLogs()" style="background:#2c2c2e; color:#fff; border:1px solid #444; padding:4px 8px; font-size:11px; border-radius:4px; cursor:pointer;">📋 Copiar</button>
-                <button onclick="window.clearDevLogs()" style="background:#2c2c2e; color:#fff; border:1px solid #444; padding:4px 8px; font-size:11px; border-radius:4px; cursor:pointer;">🧹 Limpiar</button>
-                <button onclick="window.injectEruda()" style="background:#0a84ff; color:#fff; border:none; padding:4px 8px; font-size:11px; border-radius:4px; cursor:pointer;">🚀 Eruda</button>
-                <button onclick="window.toggleDevConsole()" style="background:#ff453a; color:#fff; border:none; padding:4px 10px; font-size:11px; border-radius:4px; cursor:pointer; font-weight:bold;">✕</button>
+    <!-- Consola Móvil DevTools Modal Y2K (Activada desde toolbar o menú) -->
+    <div id="mobile-devtools-modal" class="y2k-console-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-label="Consola de Sistema y Diagnóstico" onclick="if(event.target===this) window.toggleDevConsole();">
+        <div class="y2k-console-window">
+            <div class="y2k-console-header">
+                <div class="y2k-console-title-group">
+                    <div class="y2k-console-traffic-dots">
+                        <span class="console-dot dot-red" onclick="window.toggleDevConsole()" title="Cerrar consola"></span>
+                        <span class="console-dot dot-yellow" onclick="window.clearDevLogs()" title="Limpiar logs"></span>
+                        <span class="console-dot dot-green" onclick="window.copyDevLogs()" title="Copiar logs"></span>
+                    </div>
+                    <div class="y2k-console-title">
+                        <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-terminal"/></svg>
+                        <span>GAJE_CONSOLE // SYSTEM_DIAGNOSTICS</span>
+                        <span class="brand-underscore">_</span>
+                    </div>
+                </div>
+                <div class="y2k-console-actions">
+                    <button type="button" class="y2k-bevel-btn" onclick="window.copyDevLogs()" title="Copiar logs al portapapeles">
+                        <svg class="y2k-icon-micro"><use href="static/icons/y2k/sprite.svg#i-docs"/></svg>
+                        <span>Copiar</span>
+                    </button>
+                    <button type="button" class="y2k-bevel-btn" onclick="window.clearDevLogs()" title="Limpiar todos los logs">
+                        <svg class="y2k-icon-micro"><use href="static/icons/y2k/sprite.svg#i-trash"/></svg>
+                        <span>Limpiar</span>
+                    </button>
+                    <button type="button" class="y2k-bevel-btn y2k-btn-cyan" onclick="window.injectEruda()" title="Inyectar consola Eruda completa">
+                        <svg class="y2k-icon-micro"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg>
+                        <span>Eruda</span>
+                    </button>
+                    <button type="button" class="y2k-bevel-btn y2k-btn-close" onclick="window.toggleDevConsole()" title="Cerrar">✕</button>
+                </div>
             </div>
+            <!-- Barra de Filtros Y2K -->
+            <div class="y2k-console-filter-bar">
+                <span class="filter-prompt">&gt; FILTRAR:</span>
+                <button type="button" class="console-filter-chip active" onclick="window.setConsoleFilter('all', this)">[TODOS]</button>
+                <button type="button" class="console-filter-chip chip-err" onclick="window.setConsoleFilter('error', this)">[ERRORES]</button>
+                <button type="button" class="console-filter-chip chip-warn" onclick="window.setConsoleFilter('warn', this)">[WARN]</button>
+                <button type="button" class="console-filter-chip chip-info" onclick="window.setConsoleFilter('info', this)">[INFO]</button>
+            </div>
+            <!-- Cuerpo de la consola CRT -->
+            <div id="mobile-devtools-body" class="y2k-console-body"></div>
         </div>
-        <div id="mobile-devtools-body" style="flex: 1; overflow-y: auto; padding: 10px 0; font-size: 11px; line-height: 1.4; display: flex; flex-direction: column; gap: 4px;"></div>
     </div>
 
     <script>
+        window.currentConsoleFilter = 'all';
+
         window.toggleDevConsole = function() {
             const m = document.getElementById('mobile-devtools-modal');
             if (!m) return;
@@ -169,24 +203,51 @@
             }
         };
 
+        window.setConsoleFilter = function(filterType, btn) {
+            window.currentConsoleFilter = filterType;
+            const parent = btn.parentElement;
+            if (parent) {
+                parent.querySelectorAll('.console-filter-chip').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+            }
+            window.renderDevLogs();
+        };
+
         window.renderDevLogs = function() {
             const body = document.getElementById('mobile-devtools-body');
-            const badge = document.getElementById('mobile-err-badge');
+            const badgeToolbar = document.getElementById('mobile-err-badge');
+            const badgeMenu = document.getElementById('mobile-err-badge-menu');
             if (!body) return;
+
             const logs = window.gajeDevLogs || [];
             let errCount = 0;
-            body.innerHTML = logs.map(l => {
+            const filter = window.currentConsoleFilter || 'all';
+
+            const filteredLogs = logs.filter(l => {
                 if (l.type === 'error') errCount++;
-                const color = l.type === 'error' ? '#ff453a' : (l.type === 'warn' ? '#ffd60a' : '#a1a1aa');
+                if (filter === 'all') return true;
+                return l.type === filter;
+            });
+
+            body.innerHTML = filteredLogs.map(l => {
+                const rowClass = l.type === 'error' ? 'log-error' : (l.type === 'warn' ? 'log-warn' : 'log-info');
                 const icon = l.type === 'error' ? '❌' : (l.type === 'warn' ? '⚠️' : 'ℹ️');
-                return `<div style="color: ${color}; word-break: break-all; border-bottom: 1px solid #1f1f22; padding: 2px 0;">
-                    <span style="opacity: 0.5;">[${l.time}]</span> ${icon} ${l.text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                return `<div class="console-log-row ${rowClass}">
+                    <span class="console-log-time">[${l.time}]</span> ${icon} ${l.text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
                 </div>`;
             }).join('');
+
             body.scrollTop = body.scrollHeight;
-            if (badge) {
-                badge.textContent = errCount;
-                badge.style.display = errCount > 0 ? 'inline-block' : 'none';
+
+            const errStr = String(errCount);
+            const showErr = errCount > 0;
+            if (badgeToolbar) {
+                badgeToolbar.textContent = errStr;
+                badgeToolbar.style.display = showErr ? 'inline-flex' : 'none';
+            }
+            if (badgeMenu) {
+                badgeMenu.textContent = errStr;
+                badgeMenu.style.display = showErr ? 'inline-flex' : 'none';
             }
         };
 
@@ -194,13 +255,16 @@
             const text = (window.gajeDevLogs || []).map(l => `[${l.time}] [${l.type.toUpperCase()}] ${l.text}`).join('\n');
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(text);
-                alert('Logs copiados al portapapeles.');
+                window.ChatUtils?.showToast ? window.ChatUtils.showToast('📋 Logs copiados al portapapeles', 'success', 2500) : alert('Logs copiados.');
             }
         };
 
         window.clearDevLogs = function() {
             window.gajeDevLogs = [];
             window.renderDevLogs();
+            if (window.ChatUtils?.showToast) {
+                window.ChatUtils.showToast('🧹 Consola de logs reiniciada', 'info', 2000);
+            }
         };
 
         window.injectEruda = function() {
