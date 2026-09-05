@@ -130,6 +130,46 @@ dialog.y2k-apple-modal[open]::backdrop {
     box-shadow: 0 0 6px #30d158;
 }
 
+/* Botón de cierre táctil para móviles */
+.modal-touch-close-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-color, #e4e4e7);
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    touch-action: manipulation;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+}
+
+.modal-touch-close-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.modal-touch-close-btn:active {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+/* Etiquetas responsivas de las pestañas */
+.tab-label-short {
+    display: none;
+}
+
+.tab-label-full {
+    display: inline;
+}
+
 /* ── Apple HIG Segmented Bar (Tabs) ── */
 .apple-segmented-bar {
     display: flex;
@@ -422,6 +462,23 @@ dialog.y2k-apple-modal[open]::backdrop {
     color: #ffffff;
 }
 
+[data-theme="light"] .modal-touch-close-btn {
+    border-radius: 0px !important;
+    border-color: rgba(0, 0, 0, 0.18);
+    background: #f0eee9;
+    color: #1a1a1a;
+}
+
+[data-theme="light"] .modal-touch-close-btn:hover {
+    background: #e4e1db;
+}
+
+[data-theme="light"] .modal-touch-close-btn:active {
+    background: #fee2e2;
+    border-color: #dc2626;
+    color: #dc2626;
+}
+
 /* ── Tema Zen (E-Ink Minimalist) ── */
 [data-theme="zen"] .modal-window {
     background: #141313;
@@ -457,6 +514,29 @@ dialog.y2k-apple-modal[open]::backdrop {
 [data-theme="zen"] .hud-card-title {
     color: #7A8C85;
 }
+
+[data-theme="zen"] .modal-touch-close-btn {
+    border-radius: 2px !important;
+    border: 1px solid #2d2c2c;
+    background: #1c1b1b;
+    color: #e5e2e1;
+}
+
+[data-theme="zen"] .modal-touch-close-btn:hover {
+    background: #252424;
+}
+
+[data-theme="zen"] .modal-touch-close-btn:active {
+    background: #2a2222;
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+/* ── Secuencia ADN & Bases Genómicas ── */
+.strand-display .base.a, .strand-display .dna-char-A { color: var(--dna-a, #ff453a); font-weight: 700; }
+.strand-display .base.c, .strand-display .dna-char-C { color: var(--dna-c, #0a84ff); font-weight: 700; }
+.strand-display .base.g, .strand-display .dna-char-G { color: var(--dna-g, #30d158); font-weight: 700; }
+.strand-display .base.t, .strand-display .dna-char-T { color: var(--dna-t, #ffd60a); font-weight: 700; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    RESPONSIVE: MOBILE-FIRST ADAPTATIONS (< 768px)
@@ -505,5 +585,23 @@ dialog.y2k-apple-modal[open]::backdrop {
 
     .modal-mac-title .modal-title-text {
         font-size: 0.75rem;
+    }
+
+    .modal-touch-close-btn {
+        display: inline-flex;
+    }
+}
+
+@media (max-width: 680px) {
+    .tab-label-full {
+        display: none;
+    }
+
+    .tab-label-short {
+        display: inline;
+    }
+
+    .seg-tab {
+        flex: 0 0 auto;
     }
 }

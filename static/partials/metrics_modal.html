@@ -17,41 +17,48 @@
             </div>
             <div class="modal-mac-status">
                 <span class="status-live-badge"><span class="live-dot"></span> EN VIVO</span>
+                <button type="button" id="modal-mobile-close-btn" class="modal-touch-close-btn" aria-label="Cerrar modal" title="Cerrar (Esc)">✕</button>
             </div>
         </header>
 
-        <!-- Apple HIG Segmented Control Bar -->
+        <!-- Apple HIG Segmented Control Bar (Tags / Pestañas de Telemetría) -->
         <nav class="apple-segmented-bar" role="tablist" aria-label="Secciones de telemetría">
-            <button class="seg-tab active" role="tab" aria-selected="true" data-tab="tab-model">
+            <button id="seg-tab-model" class="seg-tab active" role="tab" aria-selected="true" aria-controls="tab-model" data-tab="tab-model">
                 <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg>
-                <span>Modelo & Recursos</span>
+                <span class="tab-label-full">Modelo & Recursos</span>
+                <span class="tab-label-short">Modelo</span>
             </button>
-            <button class="seg-tab" role="tab" aria-selected="false" data-tab="tab-island">
+            <button id="seg-tab-island" class="seg-tab" role="tab" aria-selected="false" aria-controls="tab-island" data-tab="tab-island">
                 <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-island"/></svg>
-                <span>Island (.gmem)</span>
+                <span class="tab-label-full">Island (.gmem)</span>
+                <span class="tab-label-short">Memoria</span>
             </button>
-            <button class="seg-tab" role="tab" aria-selected="false" data-tab="tab-dna">
+            <button id="seg-tab-dna" class="seg-tab" role="tab" aria-selected="false" aria-controls="tab-dna" data-tab="tab-dna">
                 <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-cpu"/></svg>
-                <span>Secuencia ADN</span>
+                <span class="tab-label-full">Secuencia ADN</span>
+                <span class="tab-label-short">ADN</span>
             </button>
-            <button class="seg-tab" role="tab" aria-selected="false" data-tab="tab-hardware">
+            <button id="seg-tab-hardware" class="seg-tab" role="tab" aria-selected="false" aria-controls="tab-hardware" data-tab="tab-hardware">
                 <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-search"/></svg>
-                <span>Hardware & SIMD</span>
+                <span class="tab-label-full">Hardware & SIMD</span>
+                <span class="tab-label-short">Hardware</span>
             </button>
-            <button class="seg-tab" role="tab" aria-selected="false" data-tab="tab-alerts">
+            <button id="seg-tab-alerts" class="seg-tab" role="tab" aria-selected="false" aria-controls="tab-alerts" data-tab="tab-alerts">
                 <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg>
-                <span>Audit Logs</span>
+                <span class="tab-label-full">Audit Logs</span>
+                <span class="tab-label-short">Logs</span>
             </button>
-            <button class="seg-tab" role="tab" aria-selected="false" data-tab="tab-storage">
+            <button id="seg-tab-storage" class="seg-tab" role="tab" aria-selected="false" aria-controls="tab-storage" data-tab="tab-storage">
                 <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-cube"/></svg>
-                <span>IndexedDB</span>
+                <span class="tab-label-full">IndexedDB / OPFS</span>
+                <span class="tab-label-short">Storage</span>
             </button>
         </nav>
 
         <!-- Modal Content Panels -->
         <div class="modal-body-content">
             <!-- Tab 1: Modelo & Recursos (.flat v2) -->
-            <section id="tab-model" class="tab-pane active" role="tabpanel">
+            <section id="tab-model" class="tab-pane active" role="tabpanel" aria-labelledby="seg-tab-model">
                 <div class="modal-card-grid">
                     <div class="hud-card">
                         <div class="hud-card-head">
@@ -109,7 +116,7 @@
             </section>
 
             <!-- Tab 2: Island Model -->
-            <section id="tab-island" class="tab-pane" role="tabpanel" hidden>
+            <section id="tab-island" class="tab-pane" role="tabpanel" aria-labelledby="seg-tab-island" hidden>
                 <div class="modal-card-grid">
                     <div class="hud-card">
                         <h4 class="hud-card-title">Módulos de Memoria Persistente (.gmem)</h4>
@@ -170,8 +177,8 @@
                 </div>
             </section>
 
-            <!-- Tab 2: DNA Sequence & Compression -->
-            <section id="tab-dna" class="tab-pane" role="tabpanel" hidden>
+            <!-- Tab 3: DNA Sequence & Compression -->
+            <section id="tab-dna" class="tab-pane" role="tabpanel" aria-labelledby="seg-tab-dna" hidden>
                 <div class="hud-card">
                     <div class="hud-card-head">
                         <h4 class="hud-card-title">Secuencia Genómica de 4-bit (Q4_0 / SIMD AVX2)</h4>
@@ -186,8 +193,8 @@
                 </div>
             </section>
 
-            <!-- Tab 3: Hardware & Environment -->
-            <section id="tab-hardware" class="tab-pane" role="tabpanel" hidden>
+            <!-- Tab 4: Hardware & Environment -->
+            <section id="tab-hardware" class="tab-pane" role="tabpanel" aria-labelledby="seg-tab-hardware" hidden>
                 <div class="modal-card-grid">
                     <div class="hud-card">
                         <h4 class="hud-card-title">Entorno de Ejecución</h4>
@@ -211,8 +218,8 @@
                 </div>
             </section>
 
-            <!-- Tab 4: Audit Logs & Alerts -->
-            <section id="tab-alerts" class="tab-pane" role="tabpanel" hidden>
+            <!-- Tab 5: Audit Logs & Alerts -->
+            <section id="tab-alerts" class="tab-pane" role="tabpanel" aria-labelledby="seg-tab-alerts" hidden>
                 <div class="hud-card">
                     <div class="hud-card-head">
                         <h4 class="hud-card-title">Registro y Alertas del Sistema (Audit Log)</h4>
@@ -223,8 +230,8 @@
                 </div>
             </section>
 
-            <!-- Tab 5: Sovereign Storage (IndexedDB) -->
-            <section id="tab-storage" class="tab-pane" role="tabpanel" hidden>
+            <!-- Tab 6: Sovereign Storage (IndexedDB) -->
+            <section id="tab-storage" class="tab-pane" role="tabpanel" aria-labelledby="seg-tab-storage" hidden>
                 <div class="modal-card-grid">
                     <div class="hud-card">
                         <h4 class="hud-card-title">Inspector GajeHelixDB (IndexedDB v1)</h4>

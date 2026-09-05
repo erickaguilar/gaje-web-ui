@@ -403,14 +403,20 @@ window.ChatComposerController = {
     },
 
     updateDNA(strand) {
-        const dnaStrand = document.getElementById('dna-strand');
-        if (!dnaStrand || !strand) return;
-        dnaStrand.innerHTML = '';
-        strand.split('').forEach(base => {
-            const span = document.createElement('span');
-            span.className = `base ${base.toLowerCase()}`;
-            span.innerText = base;
-            dnaStrand.appendChild(span);
+        if (!strand) return;
+        const targets = [
+            document.getElementById('dna-strand'),
+            document.getElementById('modal-dna-strand')
+        ];
+        targets.forEach(container => {
+            if (!container) return;
+            container.innerHTML = '';
+            strand.split('').forEach(base => {
+                const span = document.createElement('span');
+                span.className = `base ${base.toLowerCase()}`;
+                span.innerText = base;
+                container.appendChild(span);
+            });
         });
     }
 };

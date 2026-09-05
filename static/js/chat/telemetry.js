@@ -73,8 +73,10 @@ window.ChatTelemetryController = {
 
         const closeDot = document.getElementById('modal-close-dot');
         const closeBtn = document.getElementById('modal-close-btn');
+        const touchCloseBtn = document.getElementById('modal-mobile-close-btn');
         if (closeDot) closeDot.addEventListener('click', () => this.closeModal(modal));
         if (closeBtn) closeBtn.addEventListener('click', () => this.closeModal(modal));
+        if (touchCloseBtn) touchCloseBtn.addEventListener('click', () => this.closeModal(modal));
 
         const minDot = document.getElementById('modal-min-dot');
         const maxDot = document.getElementById('modal-max-dot');
@@ -118,8 +120,11 @@ window.ChatTelemetryController = {
                     targetPane.removeAttribute('hidden');
                 }
                 if (targetId === 'tab-model') this.updateModelTabStats();
-                if (targetId === 'tab-storage') this.updateStorageTabStats();
                 if (targetId === 'tab-island') this.updateEpochsTab();
+                if (targetId === 'tab-dna') this.updateDnaTab();
+                if (targetId === 'tab-hardware') this.updateHardwareTab();
+                if (targetId === 'tab-alerts') this.updateAlertsTab();
+                if (targetId === 'tab-storage') this.updateStorageTabStats();
             });
         });
 
@@ -133,6 +138,9 @@ window.ChatTelemetryController = {
         this.updateModelTabStats();
         this.updateStorageTabStats();
         this.updateEpochsTab();
+        this.updateDnaTab();
+        this.updateHardwareTab();
+        this.updateAlertsTab();
         if (typeof modal.showModal === 'function') {
             modal.showModal();
         } else {
@@ -195,11 +203,80 @@ window.ChatTelemetryController = {
     },
 
     closeModal(modal) {
-        if (typeof modal.close === 'function') {
-            modal.close();
+        const target = modal || document.getElementById('metrics-monitor-modal');
+        if (!target) return;
+        if (typeof target.close === 'function') {
+            target.close();
         } else {
-            modal.removeAttribute('open');
+            target.removeAttribute('open');
         }
+    },
+
+    updateDnaTab() {
+        const modalDna = document.getElementById('modal-dna-strand');
+        const mainDna = document.getElementById('dna-strand');
+        if (modalDna && mainDna && mainDna.childNodes.length > 0 && modalDna.innerText.trim() === '--------------------------------') {
+            modalDna.innerHTML = mainDna.innerHTML;
+        }
+    },
+
+    async updateHardwareTab() {
+        const sfEl = document.getElementById('modal-sf-val');
+        const hdEl = document.getElementById('modal-hd-val');
+        const archEl = document.getElementById('modal-arch-val');
+        const simdEl = document.getElementById('modal-simd-val');
+        const coresEl = document.getElementById('modal-cores-val');
+        const gpuEl = document.getElementById('modal-gpu-val');
+
+        const profile = window.GAJE_CONFIG ? window.GAJE_CONFIG.getHardwareProfile() : {};
+        if (coresEl && profile.hardwareConcurrency) {
+            coresEl.innerText = `${profile.hardwareConcurrency} Cores`;
+        }
+
+        const isWasm = window.ChatState?.engineMode === 'wasm';
+        if (!isWasm && !window.ChatToolbarController?.isStaticEnvironment()) {
+            try {
+                const res = await fetch('/api/info');
+                if (res.ok) {
+                    const info = await res.json();
+                    if (sfEl && info.runtime) sfEl.innerText = info.runtime;
+                    if (hdEl && info.cpu_model) hdEl.innerText = info.cpu_model;
+                    if (archEl && info.architecture) archEl.innerText = info.architecture;
+                    if (simdEl && info.simd_support) simdEl.innerText = info.simd_support;
+                    if (coresEl && info.logical_cores) coresEl.innerText = `${info.logical_cores} Cores`;
+                    if (gpuEl && info.gpu_device) gpuEl.innerText = info.gpu_device;
+                    return;
+                }
+            } catch (e) {
+                // Fallback dinámico del cliente
+            }
+        }
+
+        if (sfEl) sfEl.innerText = isWasm ? 'WASM SIMD128 + Web Worker' : 'Rust Nativo (CLI / mmap)';
+        if (archEl) {
+            const ua = navigator.userAgent || '';
+            let arch = 'Desconocida';
+            if (ua.includes('x86_64') || ua.includes('x64') || ua.includes('Win64') || ua.includes('WOW64')) arch = 'x86_64';
+            else if (ua.includes('aarch64') || ua.includes('arm64') || ua.includes('ARM')) arch = 'AArch64 / ARM64';
+            archEl.innerText = arch;
+        }
+        if (simdEl) simdEl.innerText = profile.hasSimd ? 'WASM SIMD128 (Activo)' : 'Escalar (Sin SIMD)';
+        if (hdEl) hdEl.innerText = profile.deviceMemoryGb ? `${profile.deviceMemoryGb} GB RAM Detectada` : 'Dispositivo Local';
+    },
+
+    updateAlertsTab() {
+        const container = document.getElementById('modal-system-alerts-container');
+        if (!container) return;
+        const logs = window.gajeDevLogs || [];
+        if (logs.length === 0) {
+            container.innerHTML = '<div class="system-alert-item">[00:00:00] Núcleo GAJE iniciado. Listo para compresión semántica.</div>';
+            return;
+        }
+        container.innerHTML = logs.slice(-20).map(l => {
+            const icon = l.type === 'error' ? '❌' : (l.type === 'warn' ? '⚠️' : 'ℹ️');
+            return `<div class="system-alert-item"><span style="opacity:0.7">[${l.time}]</span> ${icon} ${l.text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
+        }).join('');
+        container.scrollTop = container.scrollHeight;
     },
 
     async updateStorageTabStats() {
