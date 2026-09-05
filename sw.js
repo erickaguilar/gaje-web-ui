@@ -20,6 +20,7 @@ const STATIC_ASSETS = [
   '/manifest.json',
   `/static/css/base.css?v=${VERSION}`,
   `/static/css/chat.css?v=${VERSION}`,
+  `/static/css/dashboard.css?v=${VERSION}`,
   `/static/css/docs.css?v=${VERSION}`,
   `/static/css/architecture.css?v=${VERSION}`,
   `/static/css/y2k-dark.css?v=${VERSION}`,

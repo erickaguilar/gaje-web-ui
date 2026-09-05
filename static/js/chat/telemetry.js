@@ -6,7 +6,17 @@
 window.ChatTelemetryController = {
     _initialized: false,
 
+    ensureStylesheet() {
+        if (document.getElementById('gaje-dashboard-css')) return;
+        const link = document.createElement('link');
+        link.id = 'gaje-dashboard-css';
+        link.rel = 'stylesheet';
+        link.href = window.GAJE_CONFIG ? window.GAJE_CONFIG.assetUrl('static/css/dashboard.css') : 'static/css/dashboard.css';
+        document.head.appendChild(link);
+    },
+
     async ensureModal() {
+        this.ensureStylesheet();
         let modal = document.getElementById('metrics-monitor-modal');
         if (modal) {
             if (!this._initialized) this.bindModalListeners(modal);
