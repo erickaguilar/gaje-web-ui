@@ -6,8 +6,8 @@
 (function (scope) {
   'use strict';
 
-  var VERSION = '1.7.0-alpha';
-  var BUILD_DATE = '2026-08-27';
+  var VERSION = '1.7.4';
+  var BUILD_DATE = '2026-09-05';
 
   var CONFIG = {
     version: VERSION,

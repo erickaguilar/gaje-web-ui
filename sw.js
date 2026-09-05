@@ -9,7 +9,7 @@ try {
   console.warn('[GAJE-SW] No se pudo cargar config.js de forma síncrona, usando fallback:', e);
 }
 
-const VERSION = (self.GAJE_CONFIG && self.GAJE_CONFIG.version) ? self.GAJE_CONFIG.version : '1.7.0-alpha';
+const VERSION = (self.GAJE_CONFIG && self.GAJE_CONFIG.version) ? self.GAJE_CONFIG.version : '1.7.4';
 const CACHE_NAME = `gaje-helix-pwa-v${VERSION}`;
 
 const STATIC_ASSETS = [
@@ -39,7 +39,7 @@ const STATIC_ASSETS = [
   `/static/js/chat/composer.js?v=${VERSION}`,
   `/static/js/chat/telemetry.js?v=${VERSION}`,
   `/static/js/chat/index.js?v=${VERSION}`,
-  '/static/js/wasm_worker.js',
+  `/static/js/wasm_worker.js?v=${VERSION}`,
   `/static/partials/chat_toolbar.html?v=${VERSION}`,
   `/static/partials/header.html?v=${VERSION}`,
   `/static/partials/footer.html?v=${VERSION}`

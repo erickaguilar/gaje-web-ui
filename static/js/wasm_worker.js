@@ -190,17 +190,18 @@ self.onmessage = async (e) => {
                 .replace(/<\|end\|>[\s\S]*$/gi, '')
                 .trim() : '';
 
-            // Auto-fallback resiliente: si el formateo colapsó a EOS vacío en paso 0, reintentar con prompt crudo directo
-            if ((!cleanResponse || cleanResponse.length === 0) && formattedPrompt !== prompt) {
-                const fallbackRaw = wasmEngine.chat_with_memory(prompt, maxTokens, Math.max(temperature, 0.7), repetitionPenalty, false);
-                const fallbackClean = (typeof fallbackRaw === 'string') ? fallbackRaw
+            // Auto-fallback resiliente: si la respuesta colapsó a EOS vacío o a un solo carácter (ej. '¡'),
+            // reintentar con inferencia directa a temperatura 0.45 para superar el atractor prematuro de fin de secuencia
+            if (!cleanResponse || cleanResponse.length <= 2) {
+                const retryRaw = wasmEngine.chat(prompt, maxTokens, 0.45, repetitionPenalty);
+                const retryClean = (typeof retryRaw === 'string') ? retryRaw
                     .replace(/<\|im_end\|>[\s\S]*$/gi, '')
                     .replace(/<\|im_start\|>[\s\S]*$/gi, '')
                     .replace(/<\|endoftext\|>[\s\S]*$/gi, '')
                     .replace(/<\|end\|>[\s\S]*$/gi, '')
                     .trim() : '';
-                if (fallbackClean && fallbackClean.length > 0) {
-                    cleanResponse = fallbackClean;
+                if (retryClean && retryClean.length > (cleanResponse ? cleanResponse.length : 0)) {
+                    cleanResponse = retryClean;
                 }
             }
 
