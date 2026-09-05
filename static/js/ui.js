@@ -253,7 +253,7 @@
         swRegistration = reg;
         
         if (reg.waiting) {
-          showUpdateButtons();
+          reg.waiting.postMessage({ action: 'skipWaiting' });
         }
 
         reg.addEventListener('updatefound', function () {
@@ -261,8 +261,8 @@
           if (!newWorker) return;
           newWorker.addEventListener('statechange', function () {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              console.log('⚡ [GAJE-PWA] Nueva versión lista para activar.');
-              showUpdateButtons();
+              console.log('⚡ [GAJE-PWA] Nueva versión detectada. Activando automáticamente...');
+              newWorker.postMessage({ action: 'skipWaiting' });
             }
           });
         });

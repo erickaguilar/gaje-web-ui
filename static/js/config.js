@@ -8,6 +8,7 @@
 
   var VERSION = '1.7.4';
   var BUILD_DATE = '2026-09-05';
+  var BUILD_HASH = 'd0a0ebb';
 
   var CONFIG = {
     version: VERSION,
