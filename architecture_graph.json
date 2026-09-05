@@ -40,7 +40,7 @@
       "id": "ui_web",
       "layer": "ui",
       "label": "Web UI",
-      "fullname": "examples/ui/web_ui/index.html + static/js/chat.js + static/css/chat.css",
+      "fullname": "examples/ui/web_ui/index.html + static/js/chat/ + static/css/chat.css",
       "kind": "frontend",
       "description": "SPA de chat genómico. Renderiza métricas de compresión, secuencia DNA coloreada (A/C/G/T), Island Model .gmem y entorno de ejecución. Persiste tema en localStorage."
     },

@@ -22,6 +22,9 @@ const STATIC_ASSETS = [
   `/static/css/chat.css?v=${VERSION}`,
   `/static/css/docs.css?v=${VERSION}`,
   `/static/css/architecture.css?v=${VERSION}`,
+  `/static/css/y2k-dark.css?v=${VERSION}`,
+  `/static/css/y2k-light.css?v=${VERSION}`,
+  `/static/css/y2k-zen.css?v=${VERSION}`,
   '/static/icons/gaje-icon.svg',
   '/static/icons/y2k/sprite.svg',
   '/static/js/config.js',
@@ -38,7 +41,8 @@ const STATIC_ASSETS = [
   `/static/js/chat/index.js?v=${VERSION}`,
   '/static/js/wasm_worker.js',
   `/static/partials/chat_toolbar.html?v=${VERSION}`,
-  `/static/partials/header.html?v=${VERSION}`
+  `/static/partials/header.html?v=${VERSION}`,
+  `/static/partials/footer.html?v=${VERSION}`
 ];
 
 self.addEventListener('message', (event) => {
