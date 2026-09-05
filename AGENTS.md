@@ -29,6 +29,11 @@ Dentro:
    - `y2k-dark = 'HIG-APPLE'`: Tema oscuro por defecto. Estética Apple Human Interface Guidelines (HIG) Dark Materials, fondos negros profundos (`#000000`), efecto glassmorphism/blur (20px), scanlines CRT y acentos neón Y2K.
    - `y2k-light = 'SCANDINAVIAN-DESIGN'`: Tema claro activado con `[data-theme="light"]`. Basado en principios nórdicos (funcionalismo, minimalismo cálido *hygge*, geometría 100% cuadrada / 0px radius, conexión botánica y maximización de la luz) fusionado con la estética de **Cuaderno de Aprendizaje & Notas de Laboratorio** (fondo marfil con cuadrícula *dot-grid*, margen de libreta ámbar, tarjetas de notas encuadernadas y acentos verde bosque/jade `#2c5234`).
    - `y2k-zen = 'E-INK TECHNICAL MINIMALIST'`: Tema Zen activado con `[data-theme="zen"]`. Inspirado en interfaces de tinta electrónica de alta densidad. Fondo carbón mate (`#141313`), contraste nítido de tinta de papel (`#e5e2e1`), bordes hairline (`#2d2c2c`), acentos Salvia/Slate desaturados y eliminación de cualquier efecto blur o neón para máxima concentración y cero fatiga visual.
+5. **Prioridad Absoluta: Mobile-First & Arquitectura PWA (CRÍTICO)**:
+   - **Naturaleza del Producto:** GAJE Web UI está concebida ante todo como una **Progressive Web App (PWA) móvil soberana** (Android, Termux, iOS, tablets).
+   - **Prohibido Perder Botones en Móvil:** Los botones de acción y control esenciales (Monitor HUD, Consola Terminal, Menú desplegable, Enviar) **NUNCA deben perderse, recortarse (`overflow: hidden`), ocultarse o salirse de la pantalla** en viewports reducidos (320px a 480px).
+   - **Jerarquía de Espacio:** En viewports ultra-compactos (≤ 400px), truncar o colapsar texto secundario o descriptivo (ej. el texto del logo `.toolbar-brand-title span`), pero **preservar siempre visibles y táctiles los botones de acción** (`flex-shrink: 0 !important`, `touch-action: manipulation` y tamaño mínimo de 32px–36px).
+   - **Diálogos y Modales Adaptativos:** Todo modal o consola flotante (`.y2k-console-window`, `.y2k-apple-modal`) debe ajustarse al alto de la pantalla móvil (`height: 94dvh`), colapsar etiquetas a iconos si el ancho es limitado y garantizar cierre táctil fluido.
 
 ## Capas visuales del header (orden de apilamiento)
 - `.y2k-header::before` (z-index 1): scanlines CRT + sheen diagonal (efecto vidrio Apple).

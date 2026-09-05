@@ -3624,6 +3624,8 @@ footer.y2k-footer {
         gap: 0.35rem;
         flex-wrap: nowrap;
         height: 34px;
+        width: 100%;
+        justify-content: space-between;
     }
 
     .toolbar-brand-title {
@@ -3634,15 +3636,20 @@ footer.y2k-footer {
         border-radius: 6px;
         background: rgba(10, 132, 255, 0.08);
         border: 1px solid rgba(10, 132, 255, 0.2);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
     }
 
     .chat-toolbar-left {
         min-width: 0;
-        flex: 1;
+        flex: 0 1 auto;
         display: flex;
         align-items: center;
         gap: 4px;
         flex-wrap: nowrap;
+        overflow: hidden;
     }
 
     /* Ocultar traffic lights y botones superfluos en pantalla pequeña para ganar espacio */
@@ -3679,7 +3686,8 @@ footer.y2k-footer {
         display: flex;
         align-items: center;
         gap: 4px;
-        flex-shrink: 0;
+        flex-shrink: 0 !important;
+        margin-left: auto;
     }
 
     .info-toggle-btn {
@@ -3694,6 +3702,7 @@ footer.y2k-footer {
         align-items: center;
         gap: 4px;
         border-radius: 8px;
+        flex-shrink: 0 !important;
     }
 
     .chat-header-icon-btn {
@@ -3705,6 +3714,8 @@ footer.y2k-footer {
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        flex-shrink: 0 !important;
+        touch-action: manipulation;
     }
 
     .chat-header-icon-btn svg {
@@ -3941,8 +3952,28 @@ footer.y2k-footer {
 
 /* ── Pantallas Ultra-Estrechas (iPhone SE / <= 480px) ── */
 @media (max-width: 480px) {
+    .chat-toolbar {
+        padding: 0.15rem 0.35rem;
+    }
+
     .chat-toolbar-primary-row {
         gap: 3px;
+    }
+
+    .chat-toolbar-actions {
+        gap: 3px;
+    }
+
+    .chat-header-icon-btn {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        min-height: 32px;
+    }
+
+    .toolbar-brand-title {
+        padding: 2px 4px;
+        font-size: 0.68rem;
     }
 
     .monitor-pill-btn span:not(.live-dot-pulse-mini) {
@@ -3951,6 +3982,52 @@ footer.y2k-footer {
 
     .monitor-pill-btn {
         padding: 0.35rem 0.45rem;
+    }
+
+    /* Modal de consola optimizado para móvil estrecho */
+    .y2k-console-backdrop {
+        padding: 4px;
+    }
+
+    .y2k-console-window {
+        max-width: 100%;
+        height: 95dvh;
+        height: 95vh;
+        border-radius: 8px;
+    }
+
+    .y2k-console-header {
+        padding: 8px 10px;
+    }
+
+    .y2k-console-title span:first-of-type {
+        font-size: 10.5px;
+    }
+
+    .y2k-console-actions .y2k-bevel-btn span {
+        display: none; /* En móvil, muestra icono para que quepan todos los botones en 1 sola fila */
+    }
+
+    .y2k-console-actions .y2k-bevel-btn {
+        padding: 4px 6px;
+    }
+}
+
+/* ── Pantallas Extremadamente Estrechas (<= 380px) ── */
+@media (max-width: 380px) {
+    .toolbar-brand-title span {
+        display: none !important; /* Muestra solo el icono de ADN para priorizar los botones táctiles */
+    }
+
+    .chat-toolbar-actions {
+        gap: 2px;
+    }
+
+    .chat-header-icon-btn {
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
+        min-height: 30px;
     }
 }
 
