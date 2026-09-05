@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="static/icons/gaje-icon.svg" type="image/svg+xml">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
     <meta name="description" content="GAJE Helix - Motor de inferencia nativo en Rust con compresión Q4_0 + FP32 (formato .gaje.flat v2 zero-copy mmap), Island Model .gmem y kernels SIMD de alto rendimiento.">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -64,30 +64,34 @@
                 <!-- Barra de Herramientas Modular (Cargada desde static/partials/chat_toolbar.html) -->
                 <div id="chat-toolbar" class="chat-toolbar"></div>
                 <div id="chat-window" class="chat-window" role="log" aria-live="polite" aria-relevant="additions" aria-labelledby="chat-label">
-                    <!-- Sugerencias Rápidas de Prompt / Starter Cards -->
+                    <!-- Sugerencias Rápidas de Prompt (Formato Lista Compacta) -->
                     <div id="chat-starters" class="chat-starters">
                         <div class="starters-header">
                             <span class="starters-badge"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-sparkle"/></svg> PREGUNTAS RÁPIDAS</span>
-                            <span class="starters-sub">Selecciona un tema para iniciar la conversación:</span>
                         </div>
-                        <div class="starters-grid">
-                            <button class="starter-card" data-prompt="¿Quién eres y qué puedes hacer?">
-                                <svg class="y2k-icon starter-icon"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg>
-                                <div class="starter-info">
-                                    <strong>Presentación</strong>
-                                    <span>Conoce a GAJE y sus capacidades</span>
-                                </div>
-                            </button>
-                            <button class="starter-card" data-prompt="Explica en pocas palabras qué es la compresión semántica.">
-                                <svg class="y2k-icon starter-icon"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg>
-                                <div class="starter-info">
-                                    <strong>Compresión Semántica</strong>
-                                    <span>Conceptos clave en un resumen simple</span>
-                                </div>
-                            </button>
-                        </div>
+                        <ul class="starters-list" role="list">
+                            <li>
+                                <button class="starter-card starter-list-item" data-prompt="¿Quién eres y qué puedes hacer?">
+                                    <svg class="y2k-icon starter-icon"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg>
+                                    <span class="starter-text">¿Quién eres y qué puedes hacer?</span>
+                                    <span class="starter-arrow" aria-hidden="true">→</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button class="starter-card starter-list-item" data-prompt="Explica en pocas palabras qué es la compresión semántica.">
+                                    <svg class="y2k-icon starter-icon"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg>
+                                    <span class="starter-text">Explica en pocas palabras qué es la compresión semántica.</span>
+                                    <span class="starter-arrow" aria-hidden="true">→</span>
+                                </button>
+                            </li>
+                        </ul>
                     </div>
                 </div>
+
+                <!-- Botón Flotante para Bajar al Último Mensaje (Scroll to Bottom) -->
+                <button id="scroll-to-bottom-btn" class="scroll-to-bottom-btn" aria-label="Bajar al último mensaje" title="Bajar al final" hidden>
+                    <svg class="y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-arrow-down"/></svg>
+                </button>
 
                 <!-- Input Composer Inteligente (Multi-línea + Barra de Estado) -->
                 <div class="input-area">
@@ -121,7 +125,7 @@
         </main>
     </div>
 
-    <footer id="gaje-footer"></footer>
+    <footer id="gaje-footer" class="y2k-footer"></footer>
     <script src="static/js/config.js"></script>
     <script src="static/js/storage.js"></script>
     <script src="static/js/ui.js"></script>
@@ -137,11 +141,7 @@
     <script src="static/js/chat/telemetry.js?v=1.7.2"></script>
     <script src="static/js/chat/index.js?v=1.7.2"></script>
 
-    <!-- Consola Móvil DevTools Integrada para Android -->
-    <button id="mobile-devtools-fab" onclick="window.toggleDevConsole()" style="position: fixed; bottom: 16px; left: 16px; z-index: 99999; background: #1c1c1e; color: #22d3ee; border: 1px solid #3a3a3c; border-radius: 20px; padding: 6px 14px; font-size: 11px; font-family: monospace; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 6px;" aria-label="Abrir Consola Móvil">
-        <span>🛠️ Consola</span>
-        <span id="mobile-err-badge" style="display:none; background:#ff453a; color:#fff; border-radius:10px; padding:1px 6px; font-size:10px;">0</span>
-    </button>
+    <!-- Consola Móvil DevTools Modal (Activada desde el menú del chat) -->
 
     <div id="mobile-devtools-modal" style="display: none; position: fixed; inset: 0; z-index: 100000; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); flex-direction: column; font-family: monospace; padding: 12px; box-sizing: border-box;">
         <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #333;">
@@ -162,7 +162,11 @@
             if (!m) return;
             const isHidden = m.style.display === 'none';
             m.style.display = isHidden ? 'flex' : 'none';
-            if (isHidden) window.renderDevLogs();
+            if (isHidden) {
+                window.renderDevLogs();
+                const dd = document.getElementById('chat-actions-dropdown');
+                if (dd) dd.hidden = true;
+            }
         };
 
         window.renderDevLogs = function() {

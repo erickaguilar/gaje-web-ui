@@ -25,9 +25,10 @@ Dentro:
    usa `z-index: 3` para quedar por encima del brillo glass. Mantener estas jerarquías.
 3. **`.visually-hidden` vive en `base.css`** (NO en `chat.css`) para que funcione en
    todas las páginas (docs, architecture, index). No duplicarlo.
-4. **Filosofía de Temas (Dark vs Light)**:
+4. **Filosofía de Temas (Tri-Theme: Dark, Light y Zen)**:
    - `y2k-dark = 'HIG-APPLE'`: Tema oscuro por defecto. Estética Apple Human Interface Guidelines (HIG) Dark Materials, fondos negros profundos (`#000000`), efecto glassmorphism/blur (20px), scanlines CRT y acentos neón Y2K.
    - `y2k-light = 'SCANDINAVIAN-DESIGN'`: Tema claro activado con `[data-theme="light"]`. Basado en principios nórdicos (funcionalismo, minimalismo cálido *hygge*, geometría 100% cuadrada / 0px radius, conexión botánica y maximización de la luz) fusionado con la estética de **Cuaderno de Aprendizaje & Notas de Laboratorio** (fondo marfil con cuadrícula *dot-grid*, margen de libreta ámbar, tarjetas de notas encuadernadas y acentos verde bosque/jade `#2c5234`).
+   - `y2k-zen = 'E-INK TECHNICAL MINIMALIST'`: Tema Zen activado con `[data-theme="zen"]`. Inspirado en interfaces de tinta electrónica de alta densidad. Fondo carbón mate (`#141313`), contraste nítido de tinta de papel (`#e5e2e1`), bordes hairline (`#2d2c2c`), acentos Salvia/Slate desaturados y eliminación de cualquier efecto blur o neón para máxima concentración y cero fatiga visual.
 
 ## Capas visuales del header (orden de apilamiento)
 - `.y2k-header::before` (z-index 1): scanlines CRT + sheen diagonal (efecto vidrio Apple).

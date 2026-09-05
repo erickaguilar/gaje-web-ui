@@ -556,7 +556,7 @@ h1, h2, h3, h4, h5, h6 {
 [data-theme="light"] .y2k-theme-btn .icon-sun { display: inline-block; }
 .y2k-theme-btn:hover .y2k-theme-icon { transform: scale(1.1); }
 
-@media (max-width: 720px) {
+@media (max-width: 768px) {
   .y2k-header {
     width: 100% !important;
     max-width: 100% !important;
@@ -566,11 +566,44 @@ h1, h2, h3, h4, h5, h6 {
     border-left: none !important;
     border-right: none !important;
     border-top: none !important;
+    padding: 0 !important;
   }
-  .y2k-header .wrap { padding: 0 8px; height: 48px; }
+  .y2k-header .wrap {
+    padding: 0 10px;
+    height: 40px;
+    gap: 8px;
+  }
+  .y2k-brand {
+    font-size: 0.88rem;
+    gap: 6px;
+  }
+  .y2k-brand-badge {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+  }
+  .y2k-brand-icon {
+    width: 20px;
+    height: 20px;
+  }
+  .y2k-brand-text {
+    height: 14px;
+    width: auto;
+  }
+  .y2k-header-actions {
+    gap: 4px;
+  }
+  .y2k-theme-toggle-direct,
+  .y2k-github-icon-btn,
+  .y2k-menu-btn {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0;
+  }
   .y2k-status { display: none; }
   .y2k-nav a { padding: 4px 6px; font-size: 0.75rem; }
-  .y2k-brand { font-size: 0.92rem; }
 }
 
 /* Botón PWA de instalación / actualización (Icon-only) */
@@ -786,10 +819,10 @@ h1, h2, h3, h4, h5, h6 {
 .reveal.visible { opacity: 1; transform: none; }
 
 /* ── FOOTER (Legacy fallback) ── */
-footer:not(.y2k-footer) { border-top: 1px solid var(--border); padding: 32px 0; margin-top: 40px; position: relative; z-index: 1; }
-footer:not(.y2k-footer) .wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-.fnote { color: var(--muted); font-size: 0.82rem; }
-footer:not(.y2k-footer) .mono { color: var(--accent-2); text-decoration: none; font-family: var(--mono); font-size: 0.8rem; }
+footer:not(.y2k-footer) { border-top: 1px solid var(--border); padding: 8px 0; margin-top: 0; position: relative; z-index: 1; }
+footer:not(.y2k-footer) .wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.fnote { color: var(--muted); font-size: 0.75rem; }
+footer:not(.y2k-footer) .mono { color: var(--accent-2); text-decoration: none; font-family: var(--mono); font-size: 0.75rem; }
 
 /* ── Responsive base ── */
 @media (max-width: 640px) {
@@ -1365,11 +1398,15 @@ footer:not(.y2k-footer) .mono { color: var(--accent-2); text-decoration: none; f
 #gaje-footer {
   display: block;
   width: 100%;
+  margin-top: auto;
+  flex-shrink: 0;
 }
 
 .y2k-footer {
-  padding: 0.65rem 2rem;
-  font-size: 0.72rem;
+  padding: 0.35rem 1.25rem;
+  font-size: 0.7rem;
+  margin-top: auto;
+  flex-shrink: 0;
   color: var(--footer-text);
   border-top: 1px solid var(--border-color);
   background:
@@ -1420,7 +1457,7 @@ footer:not(.y2k-footer) .mono { color: var(--accent-2); text-decoration: none; f
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.6rem;
 }
 
 .y2k-footer-col {

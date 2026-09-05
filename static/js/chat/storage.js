@@ -38,9 +38,15 @@ window.ChatStorage = {
 
     async renderHistory() {
         const chatWindow = document.getElementById('chat-window');
-        if (!chatWindow || !window.GajeDB) return;
+        if (!chatWindow || !window.GajeDB) return false;
         const arr = await window.GajeDB.getAllMessages();
-        if (!arr || arr.length === 0) return;
+        if (!arr || arr.length === 0) return false;
+
+        // Si hay historial almacenado, ocultar las preguntas rápidas
+        window.ChatComposerController?.hideStarters();
+        const starters = document.getElementById('chat-starters');
+        if (starters) starters.style.display = 'none';
+
         arr.forEach(entry => {
             const posixVal = entry.timestampPosix || (entry.savedAt ? entry.savedAt / 1000 : null);
             const timeVal = (entry.meta && entry.meta.server_time) || entry.time || window.ChatUtils.formatExactTime(posixVal);

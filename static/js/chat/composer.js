@@ -39,13 +39,58 @@ window.ChatComposerController = {
 
         // Configurar botones de starters rápidos
         this.initStarters();
+
+        // Configurar botón flotante para desplazarse al final (Scroll to Bottom)
+        this.initScrollToBottom();
+    },
+
+    initScrollToBottom() {
+        const chatWindow = document.getElementById('chat-window');
+        const scrollBtn = document.getElementById('scroll-to-bottom-btn');
+        if (!chatWindow || !scrollBtn) return;
+
+        const updateScrollBtn = () => {
+            const threshold = 120;
+            const distanceToBottom = chatWindow.scrollHeight - chatWindow.scrollTop - chatWindow.clientHeight;
+            const isScrolledUp = distanceToBottom > threshold;
+
+            if (isScrolledUp) {
+                scrollBtn.hidden = false;
+                requestAnimationFrame(() => scrollBtn.classList.add('visible'));
+            } else {
+                scrollBtn.classList.remove('visible');
+                setTimeout(() => {
+                    if (!scrollBtn.classList.contains('visible')) scrollBtn.hidden = true;
+                }, 220);
+            }
+        };
+
+        chatWindow.addEventListener('scroll', updateScrollBtn, { passive: true });
+
+        scrollBtn.addEventListener('click', () => {
+            chatWindow.scrollTo({
+                top: chatWindow.scrollHeight,
+                behavior: 'smooth'
+            });
+            setTimeout(() => {
+                scrollBtn.classList.remove('visible');
+                scrollBtn.hidden = true;
+            }, 300);
+        });
     },
 
     initStarters() {
         const startersContainer = document.getElementById('chat-starters');
+        const chatWindow = document.getElementById('chat-window');
+
+        // Si ya existen mensajes en el chat, no mostrar las preguntas iniciales
+        if (chatWindow && chatWindow.querySelectorAll('.message').length > 0) {
+            this.hideStarters();
+        }
+
         if (startersContainer) {
             startersContainer.addEventListener('click', (e) => {
-                const card = e.target.closest('.starter-card');
+                const card = e.target.closest('.starter-card, .starter-list-item');
                 if (!card) return;
                 e.preventDefault();
                 const prompt = card.getAttribute('data-prompt');
@@ -133,6 +178,7 @@ window.ChatComposerController = {
         const shortName = mName.replace('.gaje.flat', '').replace('.flat', '').replace('.gaje', '');
         const posixNow = window.ChatUtils.getUnixTimestamp();
         const msgTime = window.ChatUtils.formatExactTime(posixNow);
+        const shortTime = msgTime.includes('::') ? msgTime.split('::')[0] : msgTime;
         const isoTime = window.ChatUtils.formatUnixIso(posixNow);
 
         const msgDiv = document.createElement('article');
@@ -147,7 +193,7 @@ window.ChatComposerController = {
                     <span class="msg-avatar-icon"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg></span>
                     <span class="msg-author-name">GAJE AI</span>
                 </div>
-                <time class="msg-timestamp" datetime="${isoTime}" data-unix="${posixNow.toFixed(3)}" data-tooltip="Tiempo Unix POSIX: ${posixNow.toFixed(3)}s">${msgTime}</time>
+                <time class="msg-timestamp" datetime="${isoTime}" data-unix="${posixNow.toFixed(3)}" data-tooltip="Tiempo Unix POSIX: ${posixNow.toFixed(3)}s · ${msgTime}">${shortTime}</time>
             </header>
             <section class="msg-content"></section>
             <footer class="msg-footer msg-footer-streaming">
@@ -162,9 +208,8 @@ window.ChatComposerController = {
                     </span>
                 </div>
                 <div class="msg-actions">
-                    <button type="button" class="msg-action-btn msg-stop-btn" title="Detener generación" aria-label="Detener generación">
+                    <button type="button" class="msg-action-btn msg-stop-btn" data-tooltip="Detener generación" aria-label="Detener generación">
                         <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
-                        <span>Detener</span>
                     </button>
                 </div>
             </footer>
@@ -179,6 +224,7 @@ window.ChatComposerController = {
 
         const posixVal = (meta && meta.timestamp_posix) || explicitPosix || window.ChatUtils.getUnixTimestamp();
         const timeStr = (meta && meta.server_time) || explicitTime || window.ChatUtils.formatExactTime(posixVal);
+        const shortTime = timeStr.includes('::') ? timeStr.split('::')[0] : timeStr;
 
         // Los mensajes de sistema se registran en la bitácora/auditoría sin ensuciar la ventana visual del chat
         if (type === 'system') {
@@ -210,7 +256,7 @@ window.ChatComposerController = {
                         <span class="msg-avatar-icon"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg></span>
                         <span class="msg-author-name">GAJE AI</span>
                     </div>
-                    <time class="msg-timestamp" datetime="${isoTime}" data-unix="${Number(posixVal).toFixed(3)}" data-tooltip="Tiempo Unix POSIX: ${Number(posixVal).toFixed(3)}s">${timeStr}</time>
+                    <time class="msg-timestamp" datetime="${isoTime}" data-unix="${Number(posixVal).toFixed(3)}" data-tooltip="Tiempo Unix POSIX: ${Number(posixVal).toFixed(3)}s · ${timeStr}">${shortTime}</time>
                 </header>
                 <section class="msg-content">
                     ${parsedBody}
@@ -226,60 +272,25 @@ window.ChatComposerController = {
             }
         } else if (type === 'user') {
             msgDiv.innerHTML = `
-                <header class="msg-header">
-                    <div class="msg-author">
-                        <span class="msg-avatar-icon user-avatar"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-user"/></svg></span>
-                        <span class="msg-author-name">Tú</span>
+                <div class="user-msg-wrap">
+                    <div class="msg-content user-msg-content">
+                        <p>${window.ChatUtils.escapeHtml(text)}</p>
                     </div>
-                    <time class="msg-timestamp" datetime="${isoTime}" data-unix="${Number(posixVal).toFixed(3)}" data-tooltip="Tiempo Unix POSIX: ${Number(posixVal).toFixed(3)}s">${timeStr}</time>
-                </header>
-                <section class="msg-content">
-                    <p>${window.ChatUtils.escapeHtml(text)}</p>
-                </section>
-                <footer class="msg-footer">
-                    <div class="msg-telemetry">
-                        <span class="telemetry-pill pill-prompt" data-tooltip="Longitud del Prompt"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-docs"/></svg> <span>${text.length} car.</span></span>
-                    </div>
-                    <div class="msg-actions">
-                        <button type="button" class="msg-action-btn user-edit-btn" data-tooltip="Reutilizar / Editar en composer" aria-label="Reutilizar prompt">
-                            <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-edit"/></svg>
-                            <span>Editar</span>
-                        </button>
-                        <button type="button" class="msg-action-btn copy-btn" data-tooltip="Copiar prompt al portapapeles" aria-label="Copiar prompt">
-                            <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-copy"/></svg>
-                            <span>Copiar</span>
-                        </button>
-                    </div>
-                </footer>
+                    <footer class="user-msg-footer">
+                        <time class="user-msg-time" datetime="${isoTime}" data-unix="${Number(posixVal).toFixed(3)}" data-tooltip="POSIX: ${Number(posixVal).toFixed(3)}s · ${timeStr}">${shortTime}</time>
+                        <div class="user-msg-actions">
+                            <button type="button" class="user-msg-action-btn copy-btn" data-tooltip="Copiar prompt" aria-label="Copiar prompt">
+                                <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-copy"/></svg>
+                            </button>
+                        </div>
+                    </footer>
+                </div>
             `;
 
             const copyBtn = msgDiv.querySelector('.copy-btn');
             if (copyBtn) {
                 copyBtn.addEventListener('click', () => {
                     window.ChatUtils.copyTextToClipboard(text, copyBtn);
-                });
-            }
-
-            const editBtn = msgDiv.querySelector('.user-edit-btn');
-            if (editBtn) {
-                editBtn.addEventListener('click', () => {
-                    const input = document.getElementById('user-input');
-                    if (input) {
-                        input.value = text;
-                        input.focus();
-                        input.style.height = 'auto';
-                        input.style.height = `${Math.min(input.scrollHeight, 180)}px`;
-                        const charCount = document.getElementById('char-count');
-                        if (charCount) charCount.textContent = `${text.length} car.`;
-                        const sendBtn = document.getElementById('send-btn');
-                        if (sendBtn) {
-                            sendBtn.hidden = false;
-                            sendBtn.disabled = false;
-                        }
-                        const stopBtn = document.getElementById('stop-btn');
-                        if (stopBtn) stopBtn.hidden = true;
-                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
                 });
             }
         } else {
@@ -333,9 +344,8 @@ window.ChatComposerController = {
                     ${pillsHtml}
                 </div>
                 <div class="msg-actions">
-                    <button type="button" class="msg-action-btn copy-btn" data-tooltip="Copiar respuesta al portapapeles" aria-label="Copiar respuesta">
+                    <button type="button" class="msg-action-btn copy-btn" data-tooltip="Copiar respuesta" aria-label="Copiar respuesta">
                         <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-copy"/></svg>
-                        <span>Copiar</span>
                     </button>
                 </div>
             </footer>
@@ -350,7 +360,12 @@ window.ChatComposerController = {
         // Si el backend envió la hora exacta del servidor Linux, actualizar el timestamp en header
         if (metrics && metrics.server_time) {
             const timeEl = msgEl.querySelector('.msg-timestamp');
-            if (timeEl) timeEl.textContent = metrics.server_time;
+            const st = metrics.server_time;
+            const shortSt = st.includes('::') ? st.split('::')[0] : st;
+            if (timeEl) {
+                timeEl.textContent = shortSt;
+                timeEl.setAttribute('data-tooltip', `Tiempo Servidor: ${st}`);
+            }
         }
 
         // Remover footer previo si existiera

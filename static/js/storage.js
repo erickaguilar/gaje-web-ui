@@ -69,6 +69,7 @@
                     this.db = e.target.result;
                     console.log('⚡ [GajeStorage] GajeHelixDB v3 (con Islas .gmem y Model Cache) inicializada en IndexedDB.');
                     this.migrateFromLocalStorage();
+                    this.requestPersistentStorage();
                     this.notifyChange('init');
                     resolve(this.db);
                 };
@@ -78,6 +79,25 @@
                     resolve(null);
                 };
             });
+        }
+
+        /**
+         * Solicita persistencia de almacenamiento para evitar que navegadores móviles (iOS/Android) purguen los modelos binarios.
+         */
+        async requestPersistentStorage() {
+            try {
+                if (typeof navigator !== 'undefined' && navigator.storage && navigator.storage.persist) {
+                    const isPersisted = await navigator.storage.persisted();
+                    if (!isPersisted) {
+                        const granted = await navigator.storage.persist();
+                        if (granted) {
+                            console.log('🛡️ [GajeStorage] Almacenamiento persistente concedido por el navegador.');
+                        }
+                    }
+                }
+            } catch (err) {
+                console.debug('ℹ️ [GajeStorage] No se pudo verificar persistencia de almacenamiento:', err);
+            }
         }
 
         /**

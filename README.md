@@ -1,5 +1,7 @@
 # 🧬 GAJE Helix — Web UI & PWA Platform
 
+[![Language: English](https://img.shields.io/badge/Language-English-blue.svg)](README.en.md) [![Language: 中文](https://img.shields.io/badge/Language-%E4%B8%AD%E6%96%87-red.svg)](README.zh.md)
+
 <p align="center">
   <img src="static/icons/gaje-icon.svg" width="96" height="96" alt="GAJE Helix Logo">
   <br>
@@ -23,7 +25,7 @@
 **GAJE Helix Web UI** es la interfaz interactiva oficial para el ecosistema **GAJE (Genetic Adaptive Joint Embedding)**. Ofrece una experiencia de chat multimodal, telemetría HUD en tiempo real, visualizador de arquitectura interactivo y gestión de memoria episódica (`.gmem`), diseñada para funcionar en dos modalidades complementarias:
 
 1. **Modo Zero-Server (In-Browser WebAssembly):** Ejecuta modelos de lenguaje (`.flat`) íntegramente dentro del hilo secundario del navegador (Web Worker) sin necesidad de un backend o servidor en la nube.
-2. **Modo Servidor Nativo (FastAPI + Rust PyO3):** Inferencia de ultra-alto rendimiento en streaming (SSE) conectada al núcleo nativo compilado en Rust con memoria `mmap` zero-copy.
+2. **Modo Servidor Nativo Soberano (`gaje-cli serve`):** Inferencia de ultra-alto rendimiento en streaming (SSE) conectada al núcleo nativo compilado en Rust (Zero-Python Runtime) con memoria `mmap` zero-copy y modo ultra-ligero `--chat-only`.
 
 ---
 
@@ -63,7 +65,7 @@ web_ui/
 ├── manifest.json               # Manifiesto PWA para instalación en dispositivos móviles y PC
 ├── sw.js                       # Service Worker (Network-First, caché y auto-actualización)
 ├── vercel.json                 # Configuración de despliegue y cabeceras de seguridad
-├── server.py                   # Servidor backend FastAPI para modo nativo
+├── server.py                   # Servidor de desarrollo/investigación Python stdlib
 ├── static/
 │   ├── js/
 │   │   ├── config.js           # 🧬 Configuración global, catálogo y control de versiones
@@ -107,19 +109,25 @@ Abre `http://localhost:8000` en tu navegador.
 
 ---
 
-### Opción 2: Modo Servidor Nativo (FastAPI + Streaming SSE)
+### Opción 2: Modo Servidor Nativo de Producción (`gaje-cli serve` Zero-Python)
 
-Para utilizar la máxima aceleración SIMD AVX2/NEON y memoria `mmap`:
+Para utilizar la máxima aceleración SIMD nativa (AVX-512 / AVX2 / NEON) y memoria `mmap` zero-copy sin sobrecarga de intérpretes ni GIL de Python:
 
 ```bash
-# 1. Instalar dependencias
-pip install fastapi uvicorn psutil
+# 1. Compilar el binario nativo optimizado
+cargo build --release --bin gaje-cli
 
-# 2. Iniciar el servidor
-python3 server.py
-# o bien:
-uvicorn server:app --reload --port 8000
+# 2. Iniciar el servidor nativo en modo ultra-ligero
+./target/release/gaje-cli serve --port 8080 --chat-only
 ```
+
+#### Flags y opciones de `gaje-cli serve`:
+- `--port <PUERTO>`: Puerto HTTP a escuchar (por defecto `8080`).
+- `--host <IP>`: Dirección de enlace (por defecto `127.0.0.1`).
+- `--chat-only`: Activa el modo ligero optimizado para móviles y terminales edge (desactiva telemetría pesada de laboratorio y optimiza memoria).
+- `--model <RUTA>`: Precarga un organismo binario específico al arrancar (por defecto auto-detecta `born/max.gaje`, `gaje_coder_3b.flat` o `gaje_pico_135m.flat`).
+
+> **💡 Entorno de desarrollo Python alternativo:** Para iteración rápida en la capa de investigación Python sin compilar en Rust, se puede ejecutar `python3 server.py --port 8080` (utiliza el servidor ligero nativo de la biblioteca estándar `http.server`).
 
 ---
 

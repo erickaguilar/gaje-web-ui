@@ -258,7 +258,20 @@
     -webkit-backdrop-filter: none !important;
     box-shadow: none !important;
     font-family: "Plus Jakarta Sans", sans-serif !important;
-    line-height: 1.75 !important;
+    line-height: 1.5 !important;
+}
+
+[data-theme="zen"] .user-msg-time {
+    color: #7a8c85 !important;
+}
+
+[data-theme="zen"] .user-msg-action-btn {
+    color: #7a8c85 !important;
+}
+
+[data-theme="zen"] .user-msg-action-btn:hover {
+    color: #e5e2e1 !important;
+    background: rgba(255, 255, 255, 0.08) !important;
 }
 
 [data-theme="zen"] .message.bot {
@@ -276,8 +289,8 @@
 [data-theme="zen"] .message.bot .response-body {
     color: #e5e2e1 !important;
     font-family: "Plus Jakarta Sans", sans-serif !important;
-    font-size: 16px !important;
-    line-height: 1.75 !important;
+    font-size: 0.92rem !important;
+    line-height: 1.5 !important;
     letter-spacing: 0.01em !important;
 }
 
