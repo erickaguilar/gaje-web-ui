@@ -19,10 +19,21 @@
     cdnBaseUrl: 'https://huggingface.co/eaguilar/gaje-models/resolve/main/',
     
     // Modelo por defecto al iniciar
-    defaultModel: 'gaje_pico_135m.flat',
+    defaultModel: 'max.gaje',
     
     // Catálogo Maestro de Modelos Certificados
     modelsCatalog: [
+      {
+        id: 'max.gaje',
+        name: 'max.gaje',
+        title: 'GAJE Max (Llama-Born)',
+        badge: 'Insignia 99MB GTOK',
+        size_bytes: 104409712,
+        sizeMb: 99.6,
+        ramMb: 120,
+        mobileOptimized: true,
+        arch: 'Llama-256-8L (Q2_0 + GTOK)'
+      },
       {
         id: 'gaje_pico_135m.flat',
         name: 'gaje_pico_135m.flat',
