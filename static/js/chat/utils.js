@@ -348,7 +348,14 @@ window.ChatUtils = {
                         if (speedMatch) speedThisTurn = parseFloat(speedMatch[1]);
 
                         const latMatch = b.match(/([\d.]+)\s*ms/i);
-                        if (latMatch) latencyThisTurn = parseFloat(latMatch[1]);
+                        if (latMatch) {
+                            latencyThisTurn = parseFloat(latMatch[1]);
+                        } else {
+                            const secMatch = b.match(/([\d.]+)\s*s\b/i);
+                            if (secMatch && !b.includes('tok/s')) {
+                                latencyThisTurn = parseFloat(secMatch[1]) * 1000;
+                            }
+                        }
 
                         if (b.includes('GAJE-')) observedStatusCodes.add(b);
                     });
@@ -394,11 +401,15 @@ window.ChatUtils = {
         const avgLatency = latencyCount > 0 ? (latencySum / latencyCount) : 0;
         const statusCodesFormatted = Array.from(observedStatusCodes).join(', ');
 
+        const metaObj = window.GAJE_CONFIG?.getModelMeta(selectedModelName) || {};
+        const archText = metaObj.arch || (selectedModelName.endsWith('.gaje') ? 'Llama-Born 8L (Q2_0 Conformal 2-Bits + GTOK)' : 'Q4_0 (Cuerpo Transformer) + FP32 (Embeddings / LM Head)');
+        const formatText = selectedModelName.endsWith('.gaje') ? '.gaje v2 (Zero-Copy Mmap Alignment)' : '.gaje.flat v2 (Zero-Copy Mmap Alignment)';
+
         // 3. Construcción del documento Markdown completo (GFM + Frontmatter)
         const logContent = `---
 audit_id: "${auditId}"
 application: "GAJE Helix Semantic Compression Platform"
-version: "${window.GAJE_CONFIG?.version || '1.7.8'}"
+version: "${window.GAJE_CONFIG?.version || '1.7.0-alpha'}"
 model: "${selectedModelName}"
 engine_mode: "${engineMode}"
 generated_at: "${isoTimestamp}"
@@ -420,8 +431,8 @@ avg_throughput_tok_s: ${avgSpeed.toFixed(2)}
 | Propiedad | Valor Registrado |
 | :--- | :--- |
 | **Archivo del Modelo** | \`${selectedModelName}\` |
-| **Arquitectura Cuantizada** | \`Q4_0 (Cuerpo Transformer) + FP32 (Embeddings / LM Head)\` |
-| **Formato Binario** | \`.gaje.flat v2\` (Zero-Copy Mmap Alignment) |
+| **Arquitectura Cuantizada** | \`${archText}\` |
+| **Formato Binario** | \`${formatText}\` |
 | **Tamaño en Disco / Caché** | \`${modelSizeText}\` |
 | **Estado / Memoria Residente** | \`${modelRamText}\` |
 
