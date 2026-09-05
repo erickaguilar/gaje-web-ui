@@ -19,10 +19,21 @@
     cdnBaseUrl: 'https://huggingface.co/eaguilar/gaje-models/resolve/main/',
     
     // Modelo por defecto al iniciar
-    defaultModel: 'max.gaje',
+    defaultModel: 'max_512_pro.gaje',
     
     // Catálogo Maestro de Modelos Certificados (Unificado a formato .gaje)
     modelsCatalog: [
+      {
+        id: 'max_512_pro.gaje',
+        name: 'max_512_pro.gaje',
+        title: 'GAJE Max Pro 512 (Born D=512)',
+        badge: 'Pro 208MB GTOK',
+        size_bytes: 217894512,
+        sizeMb: 207.8,
+        ramMb: 240,
+        mobileOptimized: true,
+        arch: 'Llama-512-12L (Q2_0 + GTOK)'
+      },
       {
         id: 'max.gaje',
         name: 'max.gaje',
