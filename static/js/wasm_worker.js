@@ -129,16 +129,36 @@ self.onmessage = async (e) => {
                 history = []
             } = payload;
 
-            const isBaseModel = (typeof currentModelName === 'string') && (
+            const isBornModel = (typeof currentModelName === 'string') && (
+                currentModelName.endsWith('.gaje') ||
+                currentModelName.includes('born') ||
+                currentModelName.includes('max')
+            );
+
+            const isBaseModel = !isBornModel && (typeof currentModelName === 'string') && (
                 currentModelName.includes('pico') ||
                 currentModelName.includes('base') ||
                 currentModelName.includes('raw') ||
                 (!currentModelName.includes('instruct') && !currentModelName.includes('chat') && !currentModelName.includes('r1'))
             );
 
-            // Inyección automática de ChatML sólo si el modelo es Instruct y el prompt es texto plano
+            // Inyección automática de ChatML según la ontogenia del organismo
             let formattedPrompt = prompt;
-            if (isBaseModel) {
+            if (isBornModel) {
+                // Organismos Nacidos (Born / .gaje / max): ChatML puro sin prefijo system
+                if (typeof prompt === 'string' && !prompt.includes('<|im_start|>') && !prompt.includes('<|user|>')) {
+                    let contextBlock = '';
+                    if (Array.isArray(history) && history.length > 0) {
+                        for (const msg of history.slice(-4)) {
+                            if (msg && msg.content) {
+                                const role = msg.role === 'assistant' ? 'assistant' : 'user';
+                                contextBlock += `<|im_start|>${role}\n${msg.content}<|im_end|>\n`;
+                            }
+                        }
+                    }
+                    formattedPrompt = `${contextBlock}<|im_start|>user\n${prompt}<|im_end|>\n<|im_start|>assistant\n`;
+                }
+            } else if (isBaseModel) {
                 // Modelo base: Completado directo o formato natural
                 if (Array.isArray(history) && history.length > 0) {
                     let contextBlock = '';
@@ -165,7 +185,7 @@ self.onmessage = async (e) => {
                 formattedPrompt = `<|im_start|>system\n${systemPrompt}<|im_end|>\n${contextBlock}<|im_start|>user\n${prompt}<|im_end|>\n<|im_start|>assistant\n`;
             }
 
-            const effectiveTemp = isBaseModel ? Math.max(temperature, 0.65) : temperature;
+            const effectiveTemp = isBornModel ? Math.min(temperature, 0.35) : (isBaseModel ? Math.max(temperature, 0.65) : temperature);
             const t0 = performance.now();
             let rawResponse = wasmEngine.chat_with_memory(formattedPrompt, maxTokens, effectiveTemp, repetitionPenalty, injectRag);
             const genTimeMs = (performance.now() - t0).toFixed(2);
