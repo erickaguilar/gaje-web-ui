@@ -132,7 +132,7 @@ window.ChatTelemetryController = {
 
     updateModelTabStats() {
         const modelSelect = document.getElementById('model-select');
-        const selectedModel = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'gaje_pico_135m.flat');
+        const selectedModel = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'max.gaje');
         const meta = window.GAJE_CONFIG?.getModelMeta(selectedModel) || {};
 
         const nameEl = document.getElementById('modal-model-name-val');
@@ -212,7 +212,7 @@ window.ChatTelemetryController = {
         const modelSelect = document.getElementById('model-select');
         if (!tableBody) return;
 
-        const selectedModel = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'qwen2_5_3b.flat');
+        const selectedModel = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'max.gaje');
         const organism = selectedModel.replace('.flat', '').replace('.gaje', '');
 
         // En modo estático Zero-Server (WASM / Vercel), sintetizar datos de época sin consultar backend
@@ -309,7 +309,7 @@ window.ChatTelemetryController = {
 
         if (btnSnapshot) {
             btnSnapshot.addEventListener('click', async () => {
-                const selectedModel = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'qwen2_5_3b.flat');
+                const selectedModel = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'max.gaje');
                 const organism = selectedModel.replace('.flat', '').replace('.gaje', '');
                 const comment = prompt('Comentario para el Snapshot de Memoria:', 'Snapshot Manual Web UI');
                 if (comment === null) return;
@@ -337,7 +337,7 @@ window.ChatTelemetryController = {
 
         if (btnSleep) {
             btnSleep.addEventListener('click', async () => {
-                const selectedModel = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'qwen2_5_3b.flat');
+                const selectedModel = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'max.gaje');
                 const organism = selectedModel.replace('.flat', '').replace('.gaje', '');
                 if (feedback) {
                     feedback.style.display = 'block';

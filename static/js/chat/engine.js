@@ -960,33 +960,23 @@ window.ChatEngineController = {
          * Resuelve un identificador de modelo o URL directa al endpoint real de Hugging Face.
          */
         if (typeof modelIdentifier !== 'string') {
-            return ['https://huggingface.co/eaguilar/gaje-models/resolve/main/gaje_nano_1.5b.flat', 'gaje_nano_1.5b.flat'];
+            return ['https://huggingface.co/eaguilar/gaje-models/resolve/main/max.gaje', 'max.gaje'];
         }
 
         if (modelIdentifier.startsWith('http://') || modelIdentifier.startsWith('https://')) {
             const cleanUrl = modelIdentifier.split('?')[0];
             const parts = cleanUrl.split('/');
-            const filename = parts[parts.length - 1] || 'model.flat';
+            const filename = parts[parts.length - 1] || 'max.gaje';
             return [modelIdentifier, filename];
         }
 
         const modelMap = {
-            'pico': ['gaje_pico_135m.flat', 'eaguilar/gaje-models'],
-            'nano_0_5b': ['gaje_nano_0_5b.flat', 'eaguilar/gaje-models'],
-            '0.5b': ['gaje_nano_0_5b.flat', 'eaguilar/gaje-models'],
-            'nano': ['gaje_nano_1.5b.flat', 'eaguilar/gaje-models'],
-            'coder': ['gaje_coder_3b.flat', 'eaguilar/gaje-models'],
-            'prime': ['gaje_prime_3b.flat', 'eaguilar/gaje-models'],
-            'ultra': ['gaje_ultra_7b.flat', 'eaguilar/gaje-models'],
-            'gaje_pico_135m.flat': ['gaje_pico_135m.flat', 'eaguilar/gaje-models'],
-            'gaje_nano_0_5b.flat': ['gaje_nano_0_5b.flat', 'eaguilar/gaje-models'],
-            'gaje_nano_1.5b.flat': ['gaje_nano_1.5b.flat', 'eaguilar/gaje-models'],
-            'gaje_coder_3b.flat': ['gaje_coder_3b.flat', 'eaguilar/gaje-models'],
-            'gaje_prime_3b.flat': ['gaje_prime_3b.flat', 'eaguilar/gaje-models'],
-            'gaje_ultra_7b.flat': ['gaje_ultra_7b.flat', 'eaguilar/gaje-models'],
-            'SmolLM2-135M-Instruct.flat': ['SmolLM2-135M-Instruct.flat', 'eaguilar/gaje-models'],
-            'Qwen2-0.5B-Instruct.flat': ['Qwen2-0.5B-Instruct.flat', 'eaguilar/gaje-models'],
-            'Qwen2.5-1.5B-Instruct.flat': ['Qwen2.5-1.5B-Instruct.flat', 'eaguilar/gaje-models']
+            'max': ['max.gaje', 'eaguilar/gaje-models'],
+            'max.gaje': ['max.gaje', 'eaguilar/gaje-models'],
+            'max_512': ['max_512.gaje', 'eaguilar/gaje-models'],
+            'max_512.gaje': ['max_512.gaje', 'eaguilar/gaje-models'],
+            'max_512_pro': ['max_512_pro.gaje', 'eaguilar/gaje-models'],
+            'max_512_pro.gaje': ['max_512_pro.gaje', 'eaguilar/gaje-models']
         };
 
         if (modelMap[modelIdentifier]) {
@@ -996,7 +986,7 @@ window.ChatEngineController = {
             return [url, fname];
         }
 
-        const fname = modelIdentifier.endsWith('.flat') || modelIdentifier.endsWith('.gaje') ? modelIdentifier : `${modelIdentifier}.flat`;
+        const fname = modelIdentifier.endsWith('.gaje') ? modelIdentifier : `${modelIdentifier}.gaje`;
         const cdnBase = window.GAJE_CONFIG?.cdnBaseUrl || 'https://huggingface.co/eaguilar/gaje-models/resolve/main/';
         const url = cdnBase.endsWith('/') ? `${cdnBase}${encodeURIComponent(fname)}` : `${cdnBase}/${encodeURIComponent(fname)}`;
         return [url, fname];

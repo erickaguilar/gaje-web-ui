@@ -171,7 +171,7 @@ window.ChatToolbarController = {
         // Entorno estático (Zero-Server / Vercel / PWA): Catálogo verificado sin peticiones 404
         if (this.isStaticEnvironment()) {
             const catalog = (window.GAJE_CONFIG && window.GAJE_CONFIG.modelsCatalog) ? window.GAJE_CONFIG.modelsCatalog : [
-                { id: 'gaje_pico_135m.flat', name: 'gaje_pico_135m.flat', title: 'GAJE Pico 135M', badge: 'Móvil Ultra-Rápido 470MB', size_bytes: 494280704 }
+                { id: 'max.gaje', name: 'max.gaje', title: 'GAJE Max (Llama-Born)', badge: 'Insignia 99MB GTOK', size_bytes: 104409712 }
             ];
             window.ChatState.modelsData = catalog;
             modelSelect.innerHTML = '';
@@ -179,7 +179,7 @@ window.ChatToolbarController = {
                 const opt = document.createElement('option');
                 opt.value = m.id || m.name;
                 opt.innerText = `${m.title} · [${m.badge}]`;
-                if ((m.id || m.name) === (window.GAJE_CONFIG?.defaultModel || 'gaje_pico_135m.flat')) {
+                if ((m.id || m.name) === (window.GAJE_CONFIG?.defaultModel || 'max.gaje')) {
                     opt.selected = true;
                 }
                 modelSelect.appendChild(opt);
@@ -193,27 +193,29 @@ window.ChatToolbarController = {
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
             if (data && data.models && data.models.length > 0) {
-                window.ChatState.modelsData = data.models;
+                // Filtrar exclusivamente modelos válidos .gaje (unificación nativa)
+                const gajeModels = data.models.filter(m => (m.name || m.id || '').endsWith('.gaje'));
+                window.ChatState.modelsData = gajeModels.length > 0 ? gajeModels : data.models;
                 modelSelect.innerHTML = '';
                 window.ChatState.modelsData.forEach(model => {
                     const opt = document.createElement('option');
                     opt.value = model.name;
                     let label = model.name;
-                    if (label === 'qwen2_5_3b.flat') label = 'Qwen 2.5 3B · [Principal Flat]';
-                    else if (label === 'deepseek_r1_1_5b.flat') label = 'DeepSeek-R1 1.5B · [CoT Flat]';
-                    else if (label === 'feto_genomico_v1.gaje') label = 'Feto Genómico v1 · [Nacido GAJE]';
-                    else if (label === 'qwen2_0_5b.flat') label = 'Qwen 2 0.5B · [Micro Flat]';
-                    else if (label === 'smollm2_135m.flat') label = 'SmolLM2 135M · [Nano Flat]';
+                    if (label === 'max.gaje') label = 'GAJE Max · [Insignia 99MB GTOK]';
+                    else if (label === 'max_512.gaje') label = 'GAJE Max 512 · [Contexto Extendido 208MB]';
+                    else if (label === 'max_512_pro.gaje') label = 'GAJE Max 512 Pro · [Genómico Pro 208MB]';
                     else if (label.endsWith('.gaje')) label = label.replace('.gaje', '') + ' · [GAJE Model]';
-                    else if (label.endsWith('.flat')) label = label.replace('.flat', '') + ' · [Flat Model]';
                     opt.innerText = label;
+                    if (model.name === (window.GAJE_CONFIG?.defaultModel || 'max.gaje')) {
+                        opt.selected = true;
+                    }
                     modelSelect.appendChild(opt);
                 });
                 this.updateModelMeta();
             }
         } catch (err) {
             const catalog = (window.GAJE_CONFIG && window.GAJE_CONFIG.modelsCatalog) ? window.GAJE_CONFIG.modelsCatalog : [
-                { id: 'gaje_pico_135m.flat', name: 'gaje_pico_135m.flat', title: 'GAJE Pico 135M', badge: 'Móvil Ultra-Rápido 470MB', size_bytes: 494280704 }
+                { id: 'max.gaje', name: 'max.gaje', title: 'GAJE Max (Llama-Born)', badge: 'Insignia 99MB GTOK', size_bytes: 104409712 }
             ];
             window.ChatState.modelsData = catalog;
             this.updateModelMeta();
@@ -498,7 +500,7 @@ window.ChatToolbarController = {
         const toggleBtn = document.getElementById('model-toggle-btn');
         const isActive = toggleBtn ? toggleBtn.classList.contains('active') : true;
         const modelSelect = document.getElementById('model-select');
-        const modelName = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'qwen2_5_3b.flat');
+        const modelName = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'max.gaje');
 
         if (isActive) {
             await this.unloadModels();
@@ -555,10 +557,10 @@ window.ChatToolbarController = {
             if (wasmHeaderBadge) wasmHeaderBadge.style.display = 'inline-flex';
             if (gpuHeaderBadge) gpuHeaderBadge.style.display = 'none';
 
-            if (modelSelect && (modelSelect.value === 'qwen2_5_3b.flat' || modelSelect.value === 'gaje_coder_3b.flat')) {
-                modelSelect.value = 'gaje_pico_135m.flat';
+            if (modelSelect && !modelSelect.value.endsWith('.gaje')) {
+                modelSelect.value = 'max.gaje';
                 this.updateModelMeta();
-                window.ChatUtils?.showToast('Seleccionado SmolLM 135M para WebAssembly', 'info', 3000);
+                window.ChatUtils?.showToast('Seleccionado GAJE Max (Llama-Born) para WebAssembly', 'info', 3000);
             }
 
             window.ChatEngineController?.initWasmWorker();
@@ -630,8 +632,9 @@ window.ChatToolbarController = {
                 let existingOpt = Array.from(modelSelect.options).find(opt => opt.value === modelName);
                 if (!existingOpt) {
                     existingOpt = document.createElement('option');
-                    existingOpt.value = modelName;
-                    existingOpt.innerText = `${modelName.replace('.flat', '')} · [Local .flat]`;
+                    const cleanName = modelName.replace('.gaje', '').replace('.flat', '');
+                    const badge = modelName.endsWith('.gaje') ? 'Local .gaje' : 'Local';
+                    existingOpt.innerText = `${cleanName} · [${badge}]`;
                     modelSelect.appendChild(existingOpt);
                 }
                 modelSelect.value = modelName;

@@ -21,7 +21,7 @@
     // Modelo por defecto al iniciar
     defaultModel: 'max.gaje',
     
-    // Catálogo Maestro de Modelos Certificados
+    // Catálogo Maestro de Modelos Certificados (Unificado a formato .gaje)
     modelsCatalog: [
       {
         id: 'max.gaje',
@@ -33,72 +33,6 @@
         ramMb: 120,
         mobileOptimized: true,
         arch: 'Llama-256-8L (Q2_0 + GTOK)'
-      },
-      {
-        id: 'gaje_pico_135m.flat',
-        name: 'gaje_pico_135m.flat',
-        title: 'GAJE Pico 135M',
-        badge: 'Móvil Ultra-Rápido 470MB',
-        size_bytes: 494280704,
-        sizeMb: 471.4,
-        ramMb: 220,
-        mobileOptimized: true,
-        arch: 'SmolLM2-135M (Q4_0+FP32)'
-      },
-      {
-        id: 'gaje_nano_0_5b.flat',
-        name: 'gaje_nano_0_5b.flat',
-        title: 'GAJE Nano 0.5B',
-        badge: 'WASM Fluido 1.2GB',
-        size_bytes: 1324845056,
-        sizeMb: 1264.8,
-        ramMb: 1300,
-        mobileOptimized: true,
-        arch: 'Qwen2.5-0.5B (Q4_0+FP32)'
-      },
-      {
-        id: 'gaje_nano_1.5b.flat',
-        name: 'gaje_nano_1.5b.flat',
-        title: 'GAJE Nano 1.5B',
-        badge: 'WASM Prime 1.2GB',
-        size_bytes: 1324845056,
-        sizeMb: 1263.5,
-        ramMb: 1400,
-        mobileOptimized: false,
-        arch: 'Qwen2.5-1.5B (Q4_0+FP32)'
-      },
-      {
-        id: 'gaje_coder_3b.flat',
-        name: 'gaje_coder_3b.flat',
-        title: 'GAJE Coder 3B',
-        badge: 'Especialista Código 2.2GB',
-        size_bytes: 2409550059,
-        sizeMb: 2297.9,
-        ramMb: 2600,
-        mobileOptimized: false,
-        arch: 'Qwen2.5-Coder-3B (Q4_0+FP32)'
-      },
-      {
-        id: 'gaje_prime_3b.flat',
-        name: 'gaje_prime_3b.flat',
-        title: 'GAJE Prime 3B',
-        badge: 'Desktop 2.2GB',
-        size_bytes: 2410702683,
-        sizeMb: 2299.0,
-        ramMb: 2600,
-        mobileOptimized: false,
-        arch: 'Qwen2.5-3B (Q4_0+FP32)'
-      },
-      {
-        id: 'gaje_ultra_7b.flat',
-        name: 'gaje_ultra_7b.flat',
-        title: 'GAJE Ultra 7B',
-        badge: 'Cloud 4.9GB',
-        size_bytes: 5247000000,
-        sizeMb: 5003.9,
-        ramMb: 5400,
-        mobileOptimized: false,
-        arch: 'Qwen2.5-7B (Q4_0+FP32)'
       }
     ],
 

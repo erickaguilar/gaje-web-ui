@@ -45,12 +45,7 @@
                         </div>
                         <div class="config-stacked-control">
                             <select id="model-select" class="menu-stacked-select header-model-dropdown" aria-label="Seleccionar Modelo">
-                                <option value="gaje_pico_135m.flat" selected>GAJE Pico 135M · [Móvil 470MB]</option>
-                                <option value="gaje_nano_0_5b.flat">GAJE Nano 0.5B · [WASM Fluido 1.2GB]</option>
-                                <option value="gaje_nano_1.5b.flat">GAJE Nano 1.5B · [WASM Prime 1.2GB]</option>
-                                <option value="gaje_coder_3b.flat">GAJE Coder 3B · [Código 2.2GB]</option>
-                                <option value="gaje_prime_3b.flat">GAJE Prime 3B · [Desktop 2.2GB]</option>
-                                <option value="gaje_ultra_7b.flat">GAJE Ultra 7B · [Cloud 4.9GB]</option>
+                                <option value="max.gaje" selected>GAJE Max · [Insignia 99MB GTOK]</option>
                             </select>
                         </div>
                     </div>
@@ -103,11 +98,11 @@
 
                 <!-- 3. Gestión de Memoria y Pesos -->
                 <div class="menu-section-label">Gestión de Memoria</div>
-                <button id="load-local-flat-btn" class="chat-menu-item" role="menuitem" data-tooltip="Cargar e inferir un archivo binario .flat o .gaje desde tu disco local">
+                <button id="load-local-flat-btn" class="chat-menu-item" role="menuitem" data-tooltip="Cargar e inferir un archivo binario genómico .gaje desde tu disco local">
                     <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-import"/></svg>
-                    <span>Cargar Modelo .flat Local...</span>
+                    <span>Cargar Modelo .gaje Local...</span>
                 </button>
-                <input type="file" id="local-flat-file-input" accept=".flat" style="display: none;">
+                <input type="file" id="local-flat-file-input" accept=".gaje,.flat" style="display: none;">
 
                 <button id="unload-model-btn" class="chat-menu-item warning" role="menuitem" data-tooltip="Desasignar tensores y reducir el consumo de RAM a 0 MB (reposo)">
                     <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-unload"/></svg>

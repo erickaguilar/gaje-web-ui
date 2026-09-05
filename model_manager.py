@@ -169,15 +169,15 @@ def list_available_models(models_root: str) -> list:
     models = []
     seen_models = set()
     search_dirs = [
-        os.path.join(models_root, "production"),
         os.path.join(models_root, "born"),
+        os.path.join(models_root, "production"),
     ]
 
     for sdir in search_dirs:
         if os.path.exists(sdir):
             for root, _, files in os.walk(sdir):
                 for f in sorted(files):
-                    if (f.endswith(".gaje") or f.endswith(".flat")) and f not in seen_models:
+                    if f.endswith(".gaje") and f not in seen_models:
                         fpath = os.path.join(root, f)
                         try:
                             mtime = os.path.getmtime(fpath)
