@@ -188,7 +188,18 @@
                         --------------------------------
                     </div>
                     <div class="hud-metrics-container" id="modal-metrics-content">
-                        <p class="placeholder">Envía un mensaje en el chat para ver las métricas de compresión genómica en tiempo real.</p>
+                        <div class="modal-card-grid" style="margin-top: 0.8rem;">
+                            <div class="hud-stat-box">
+                                <div class="metric-row"><span>Ratio Compresión:</span> <span id="modal-ratio-val" class="metric-val" style="color: #4ade80">—</span></div>
+                                <div class="metric-row"><span>Bits Por Carácter (BPC):</span> <span id="modal-bpc-val" class="metric-val" style="color: var(--neon-cyan)">—</span></div>
+                                <div class="metric-row"><span>Perplejidad (PPL):</span> <span id="modal-ppl-val" class="metric-val">—</span></div>
+                            </div>
+                            <div class="hud-stat-box">
+                                <div class="metric-row"><span>Longitud Hebra:</span> <span id="modal-dna-len-val" class="metric-val">32 bases</span></div>
+                                <div class="metric-row"><span>Inhibición K-WTA:</span> <span id="modal-kwta-val" class="metric-val" style="color: var(--neon-cyan)">Top-K Activo (k=16)</span></div>
+                                <div class="metric-row"><span>Codificación:</span> <span class="metric-val">2-bit / 4-bit Genómico</span></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -200,15 +211,15 @@
                         <h4 class="hud-card-title">Entorno de Ejecución</h4>
                         <div class="hud-stat-box">
                             <div class="metric-row"><span>Software:</span> <span id="modal-sf-val" class="metric-val">Rust 2021 + PyO3</span></div>
-                            <div class="metric-row"><span>Hardware:</span> <span id="modal-hd-val" class="metric-val">AMD Ryzen 7 5800H</span></div>
-                            <div class="metric-row"><span>Arquitectura:</span> <span id="modal-arch-val" class="metric-val">x86_64</span></div>
-                            <div class="metric-row"><span>SIMD Flags:</span> <span id="modal-simd-val" class="metric-val">AVX2 / FMA / SSE4.2</span></div>
+                            <div class="metric-row"><span>Hardware:</span> <span id="modal-hd-val" class="metric-val">Detectando...</span></div>
+                            <div class="metric-row"><span>Arquitectura:</span> <span id="modal-arch-val" class="metric-val">Detectando...</span></div>
+                            <div class="metric-row"><span>SIMD Flags:</span> <span id="modal-simd-val" class="metric-val">Detectando...</span></div>
                         </div>
                     </div>
                     <div class="hud-card">
                         <h4 class="hud-card-title">Rendimiento y Aceleración</h4>
                         <div class="hud-stat-box">
-                            <div class="metric-row"><span>Cores Activos:</span> <span id="modal-cores-val" class="metric-val">16 Cores</span></div>
+                            <div class="metric-row"><span>Cores Activos:</span> <span id="modal-cores-val" class="metric-val">Detectando...</span></div>
                             <div class="metric-row"><span>Latencia Inferencia:</span> <span id="modal-latency-val" class="metric-val">Sub-milisegundo</span></div>
                             <div class="metric-row"><span>Aceleración CPU:</span> <span class="metric-val" style="color: var(--neon-cyan)">q4_0_dot SIMD AVX2</span></div>
                             <div class="metric-row"><span>Aceleración GPU:</span> <span id="modal-gpu-val" class="metric-val" style="color: #38bdf8">🎮 AMD Radeon Vega (Vulkan)</span></div>
@@ -221,16 +232,20 @@
             <!-- Tab 5: Audit Logs & Alerts -->
             <section id="tab-alerts" class="tab-pane" role="tabpanel" aria-labelledby="seg-tab-alerts" hidden>
                 <div class="hud-card">
-                    <div class="hud-card-head">
+                    <div class="hud-card-head" style="display: flex; justify-content: space-between; align-items: center;">
                         <h4 class="hud-card-title">Registro y Alertas del Sistema (Audit Log)</h4>
+                        <div style="display: flex; gap: 0.4rem;">
+                            <button id="modal-copy-logs-btn" class="apple-pill-btn" style="font-size: 0.68rem; padding: 0.2rem 0.55rem;">📋 Copiar</button>
+                            <button id="modal-clear-logs-btn" class="apple-pill-btn" style="font-size: 0.68rem; padding: 0.2rem 0.55rem; color: #f87171;">🗑️ Limpiar</button>
+                        </div>
                     </div>
-                    <div id="modal-system-alerts-container" class="system-alerts-container modal-alerts-log">
+                    <div id="modal-system-alerts-container" class="system-alerts-container modal-alerts-log" style="max-height: 240px; margin-top: 0.5rem;">
                         <div class="system-alert-item">[00:00:00] Núcleo GAJE iniciado. Listo para compresión semántica.</div>
                     </div>
                 </div>
             </section>
 
-            <!-- Tab 6: Sovereign Storage (IndexedDB) -->
+            <!-- Tab 6: Sovereign Storage (IndexedDB & OPFS) -->
             <section id="tab-storage" class="tab-pane" role="tabpanel" aria-labelledby="seg-tab-storage" hidden>
                 <div class="modal-card-grid">
                     <div class="hud-card">
@@ -243,22 +258,34 @@
                         </div>
                     </div>
                     <div class="hud-card">
-                        <h4 class="hud-card-title">Soberanía de Datos & Backup</h4>
-                        <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.8rem;">
-                            Exporta o restaura tu base de datos de conversaciones completas en formato JSON sin intermediarios ni nube externa.
-                        </p>
-                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                            <button id="modal-export-db-btn" class="apple-pill-btn" style="flex: 1; min-width: 130px; font-size: 0.7rem;">
-                                📥 Exportar JSON
-                            </button>
-                            <button id="modal-import-db-btn" class="apple-pill-btn" style="flex: 1; min-width: 130px; font-size: 0.7rem;">
-                                📤 Importar JSON
-                            </button>
-                            <input type="file" id="modal-import-db-file" accept=".json" style="display: none;">
-                            <button id="modal-clear-db-btn" class="apple-pill-btn" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.35); color: #fca5a5; font-size: 0.7rem;">
-                                🗑️ Vaciar DB
-                            </button>
+                        <h4 class="hud-card-title">Caché de Modelos OPFS (High-Speed)</h4>
+                        <div class="hud-stat-box">
+                            <div class="metric-row"><span>Almacén Privado:</span> <span class="metric-val" style="color: #4ade80">OPFS Zero-Copy</span></div>
+                            <div class="metric-row"><span>Modelos en Caché:</span> <span id="modal-opfs-models-val" class="metric-val">0 modelos</span></div>
+                            <div class="metric-row"><span>Tamaño en OPFS:</span> <span id="modal-opfs-usage-val" class="metric-val">0 MB</span></div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="hud-card" style="margin-top: 1rem;">
+                    <h4 class="hud-card-title">Soberanía de Datos & Respaldo</h4>
+                    <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.8rem;">
+                        Exporta o restaura tu base de datos de conversaciones completas en formato JSON sin intermediarios ni nube externa.
+                    </p>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button id="modal-export-db-btn" class="apple-pill-btn" style="flex: 1; min-width: 130px; font-size: 0.7rem;">
+                            📥 Exportar JSON
+                        </button>
+                        <button id="modal-import-db-btn" class="apple-pill-btn" style="flex: 1; min-width: 130px; font-size: 0.7rem;">
+                            📤 Importar JSON
+                        </button>
+                        <input type="file" id="modal-import-db-file" accept=".json" style="display: none;">
+                        <button id="modal-clear-cache-btn" class="apple-pill-btn" style="font-size: 0.7rem; background: rgba(251, 146, 60, 0.15); border-color: rgba(251, 146, 60, 0.35); color: #fdba74;">
+                            🧹 Purgar Caché Modelos
+                        </button>
+                        <button id="modal-clear-db-btn" class="apple-pill-btn" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.35); color: #fca5a5; font-size: 0.7rem;">
+                            🗑️ Vaciar DB
+                        </button>
                     </div>
                 </div>
             </section>

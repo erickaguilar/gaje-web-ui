@@ -21,7 +21,7 @@
     // Modelo por defecto al iniciar
     defaultModel: 'max.gaje',
     
-    // Catálogo Maestro de Modelos Certificados (Unificado a formato .gaje)
+    // Catálogo Maestro de Modelos Certificados (Unificado a formato .gaje y .flat)
     modelsCatalog: [
       {
         id: 'max.gaje',
@@ -31,8 +31,42 @@
         size_bytes: 104409712,
         sizeMb: 99.6,
         ramMb: 120,
+        blocks: 8,
+        dim: 256,
+        heads: '8 Heads / 2 KV (GQA 4x)',
+        tokenizer: 'GTOK v1.0 Nativo Incrustado',
         mobileOptimized: true,
         arch: 'Llama-256-8L (Q2_0 + GTOK)'
+      },
+      {
+        id: 'gaje_pico_135m.flat',
+        name: 'gaje_pico_135m.flat',
+        title: 'SmolLM2 Pico 135M',
+        badge: 'Q4_0 Zero-Copy',
+        size_bytes: 145000000,
+        sizeMb: 138.3,
+        ramMb: 220,
+        blocks: 30,
+        dim: 576,
+        heads: '9 Heads / 3 KV (GQA 3x)',
+        tokenizer: 'HuggingFace BPE (SmolLM2)',
+        mobileOptimized: true,
+        arch: 'SmolLM2-135M (Q4_0)'
+      },
+      {
+        id: 'gaje_coder_3b.flat',
+        name: 'gaje_coder_3b.flat',
+        title: 'Qwen 2.5 Coder 3B',
+        badge: 'Q4_0 AVX2',
+        size_bytes: 1950000000,
+        sizeMb: 1860,
+        ramMb: 2400,
+        blocks: 36,
+        dim: 2048,
+        heads: '16 Heads / 2 KV (GQA 8x)',
+        tokenizer: 'Qwen2.5 BPE 152k',
+        mobileOptimized: false,
+        arch: 'Qwen2.5-Coder-3B (Q4_0)'
       }
     ],
 

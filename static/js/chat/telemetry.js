@@ -130,6 +130,7 @@ window.ChatTelemetryController = {
 
         this.bindStorageActions();
         this.bindEpochActions();
+        this.bindAlertsActions();
     },
 
     async openModal(explicitModal) {
@@ -158,9 +159,11 @@ window.ChatTelemetryController = {
         const blocksEl = document.getElementById('modal-model-blocks-val');
         const dimEl = document.getElementById('modal-model-dim-val');
         const headsEl = document.getElementById('modal-model-heads-val');
+        const tokEl = document.getElementById('modal-model-tok-val');
         const badgeEl = document.getElementById('modal-model-badge');
         const ramEl = document.getElementById('modal-model-ram-val');
         const fileSizeEl = document.getElementById('modal-model-filesize-val');
+        const loadLatEl = document.getElementById('modal-model-loadlat-val');
         const tpsEl = document.getElementById('modal-infer-tps-val');
         const tokCountEl = document.getElementById('modal-infer-tokcount-val');
         const decodeTimeEl = document.getElementById('modal-infer-decodetime-val');
@@ -168,10 +171,16 @@ window.ChatTelemetryController = {
         if (nameEl) nameEl.innerText = selectedModel;
         if (archEl) archEl.innerText = meta.arch || 'Qwen2.5 / SmolLM2 (Q4_0+FP32)';
         if (badgeEl) badgeEl.innerText = meta.badge || 'Q4_0 Zero-Copy';
-        if (ramEl) ramEl.innerText = meta.ramMb ? `~${meta.ramMb} MB (RSS)` : (window.ChatState?.modelRam || '~220 MB');
-        if (fileSizeEl) fileSizeEl.innerText = meta.sizeMb ? `${meta.sizeMb} MB` : (window.ChatState?.modelSize || '471.4 MB');
+        if (ramEl) ramEl.innerText = meta.ramMb ? `~${meta.ramMb} MB (RSS)` : (window.ChatState?.modelRam || '~120 MB');
+        if (fileSizeEl) fileSizeEl.innerText = meta.sizeMb ? `${meta.sizeMb} MB` : (window.ChatState?.modelSize || '99.6 MB');
+        if (tokEl) tokEl.innerText = meta.tokenizer || (selectedModel.endsWith('.gaje') ? 'GTOK v1.0 Nativo Incrustado' : 'HuggingFace BPE Tokenizer');
+        if (loadLatEl) loadLatEl.innerText = window.ChatState?.modelLoadLatencyMs ? `${window.ChatState.modelLoadLatencyMs.toFixed(1)} ms` : '< 2.0 ms (Zero-Copy)';
 
-        if (selectedModel.includes('0_5b') || selectedModel.includes('0.5b')) {
+        if (meta.blocks) {
+            if (blocksEl) blocksEl.innerText = `${meta.blocks} Bloques`;
+            if (dimEl) dimEl.innerText = String(meta.dim);
+            if (headsEl) headsEl.innerText = meta.heads;
+        } else if (selectedModel.includes('0_5b') || selectedModel.includes('0.5b')) {
             if (blocksEl) blocksEl.innerText = '24 Bloques';
             if (dimEl) dimEl.innerText = '896';
             if (headsEl) headsEl.innerText = '14 Heads / 2 KV (GQA 7x)';
@@ -187,6 +196,10 @@ window.ChatTelemetryController = {
             if (blocksEl) blocksEl.innerText = '28 Bloques';
             if (dimEl) dimEl.innerText = '3584';
             if (headsEl) headsEl.innerText = '28 Heads / 4 KV (GQA 7x)';
+        } else if (selectedModel.includes('max') || selectedModel.endsWith('.gaje')) {
+            if (blocksEl) blocksEl.innerText = '8 Bloques';
+            if (dimEl) dimEl.innerText = '256';
+            if (headsEl) headsEl.innerText = '8 Heads / 2 KV (GQA 4x)';
         } else {
             if (blocksEl) blocksEl.innerText = '30 Bloques';
             if (dimEl) dimEl.innerText = '576';
@@ -215,8 +228,26 @@ window.ChatTelemetryController = {
     updateDnaTab() {
         const modalDna = document.getElementById('modal-dna-strand');
         const mainDna = document.getElementById('dna-strand');
-        if (modalDna && mainDna && mainDna.childNodes.length > 0 && modalDna.innerText.trim() === '--------------------------------') {
+        if (modalDna && mainDna && mainDna.childNodes.length > 0) {
             modalDna.innerHTML = mainDna.innerHTML;
+        }
+
+        const ratioEl = document.getElementById('modal-ratio-val');
+        const bpcEl = document.getElementById('modal-bpc-val');
+        const pplEl = document.getElementById('modal-ppl-val');
+        const dnaLenEl = document.getElementById('modal-dna-len-val');
+
+        const mainRatio = document.getElementById('ratio-val')?.innerText;
+        const mainBpc = document.getElementById('bpc-val')?.innerText;
+        const mainPpl = document.getElementById('ppl-val')?.innerText;
+
+        if (ratioEl && mainRatio && mainRatio !== '—') ratioEl.innerText = mainRatio;
+        if (bpcEl && mainBpc && mainBpc !== '—') bpcEl.innerText = mainBpc;
+        if (pplEl && mainPpl && mainPpl !== '—') pplEl.innerText = mainPpl;
+
+        if (dnaLenEl && modalDna) {
+            const count = modalDna.querySelectorAll('.base').length;
+            if (count > 0) dnaLenEl.innerText = `${count} bases`;
         }
     },
 
@@ -291,6 +322,33 @@ window.ChatTelemetryController = {
         if (countEl) countEl.innerText = `${count} mensajes`;
         if (usageEl) usageEl.innerText = est.usageFormatted;
         if (quotaEl) quotaEl.innerText = est.quotaFormatted !== 'N/A' ? `${est.quotaFormatted} (${est.percentUsed}% en uso)` : 'Ilimitada / No restringida';
+
+        // Inspección de modelos cacheados en OPFS
+        const opfsModelsEl = document.getElementById('modal-opfs-models-val');
+        const opfsUsageEl = document.getElementById('modal-opfs-usage-val');
+        if (typeof navigator !== 'undefined' && navigator.storage && navigator.storage.getDirectory) {
+            try {
+                const root = await navigator.storage.getDirectory();
+                let opfsCount = 0;
+                let opfsBytes = 0;
+                for await (const [name, handle] of root.entries()) {
+                    if (name.endsWith('.flat') || name.endsWith('.gaje')) {
+                        opfsCount++;
+                        if (handle.getFile) {
+                            const file = await handle.getFile();
+                            opfsBytes += file.size;
+                        }
+                    }
+                }
+                if (opfsModelsEl) opfsModelsEl.innerText = `${opfsCount} modelo(s)`;
+                if (opfsUsageEl) opfsUsageEl.innerText = `${(opfsBytes / (1024 * 1024)).toFixed(1)} MB`;
+            } catch (e) {
+                if (opfsModelsEl) opfsModelsEl.innerText = 'No accesible';
+            }
+        } else {
+            if (opfsModelsEl) opfsModelsEl.innerText = 'No soportado';
+            if (opfsUsageEl) opfsUsageEl.innerText = 'N/A';
+        }
     },
 
     async updateEpochsTab() {
@@ -527,6 +585,42 @@ window.ChatTelemetryController = {
                         this.updateStorageTabStats();
                     }
                 }
+            });
+        }
+
+        const clearCacheBtn = document.getElementById('modal-clear-cache-btn');
+        if (clearCacheBtn) {
+            clearCacheBtn.addEventListener('click', async () => {
+                if (confirm('¿Deseas purgar todos los modelos descargados en la caché local (OPFS e IndexedDB)?')) {
+                    if (window.GajeDB) {
+                        await window.GajeDB.clearModelCache();
+                        alert('✓ Caché de modelos locales purgada exitosamente.');
+                        this.updateStorageTabStats();
+                    }
+                }
+            });
+        }
+    },
+
+    bindAlertsActions() {
+        const copyBtn = document.getElementById('modal-copy-logs-btn');
+        const clearBtn = document.getElementById('modal-clear-logs-btn');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', () => {
+                const logs = (window.gajeDevLogs || []).map(l => `[${l.time}] [${l.type.toUpperCase()}] ${l.text}`).join('\n');
+                if (logs) {
+                    navigator.clipboard?.writeText(logs).then(() => {
+                        const original = copyBtn.innerText;
+                        copyBtn.innerText = '✓ Copiado';
+                        setTimeout(() => { copyBtn.innerText = original; }, 2000);
+                    });
+                }
+            });
+        }
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                window.gajeDevLogs = [];
+                this.updateAlertsTab();
             });
         }
     }
