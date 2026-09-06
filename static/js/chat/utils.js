@@ -332,7 +332,7 @@ window.ChatUtils = {
                     bodyText = bodyText.replace(/<\/?thinks?>/gi, '').trim();
 
                     // Extracción y agregación de métricas
-                    const metaBadges = Array.from(msg.querySelectorAll('.message-meta .meta-tag:not(.meta-btn-copy), .message-meta .meta-badge:not(.meta-copy-btn)'))
+                    const metaBadges = Array.from(msg.querySelectorAll('.msg-footer .telemetry-pill, .message-meta .meta-tag:not(.meta-btn-copy), .message-meta .meta-badge:not(.meta-copy-btn)'))
                         .map(b => b.innerText.trim())
                         .filter(Boolean);
 
