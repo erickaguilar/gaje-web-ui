@@ -20,6 +20,7 @@ const STATIC_ASSETS = [
   '/manifest.json',
   `/static/css/base.css?v=${VERSION}`,
   `/static/css/chat.css?v=${VERSION}`,
+  `/static/css/console.css?v=${VERSION}`,
   `/static/css/dashboard.css?v=${VERSION}`,
   `/static/css/docs.css?v=${VERSION}`,
   `/static/css/architecture.css?v=${VERSION}`,
@@ -39,11 +40,14 @@ const STATIC_ASSETS = [
   `/static/js/chat/engine.js?v=${VERSION}`,
   `/static/js/chat/composer.js?v=${VERSION}`,
   `/static/js/chat/telemetry.js?v=${VERSION}`,
+  `/static/js/chat/devtools.js?v=${VERSION}`,
   `/static/js/chat/index.js?v=${VERSION}`,
   '/static/js/wasm_worker.js',
   `/static/partials/chat_toolbar.html?v=${VERSION}`,
   `/static/partials/header.html?v=${VERSION}`,
-  `/static/partials/footer.html?v=${VERSION}`
+  `/static/partials/footer.html?v=${VERSION}`,
+  `/static/partials/metrics_modal.html?v=${VERSION}`,
+  `/static/partials/devtools_modal.html?v=${VERSION}`
 ];
 
 self.addEventListener('message', (event) => {

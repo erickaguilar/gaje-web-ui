@@ -1,0 +1,44 @@
+<!-- Consola Móvil DevTools Modal Y2K (Activada desde toolbar o menú) -->
+<div id="mobile-devtools-modal" class="y2k-console-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-label="Consola de Sistema y Diagnóstico">
+    <div class="y2k-console-window">
+        <div class="y2k-console-header">
+            <div class="y2k-console-title-group">
+                <div class="y2k-console-traffic-dots">
+                    <span id="console-close-dot" class="console-dot dot-red" title="Cerrar consola"></span>
+                    <span id="console-clear-dot" class="console-dot dot-yellow" title="Limpiar logs"></span>
+                    <span id="console-copy-dot" class="console-dot dot-green" title="Copiar logs"></span>
+                </div>
+                <div class="y2k-console-title">
+                    <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-terminal"/></svg>
+                    <span>GAJE_CONSOLE // SYSTEM_DIAGNOSTICS</span>
+                    <span class="brand-underscore">_</span>
+                </div>
+            </div>
+            <div class="y2k-console-actions">
+                <button type="button" id="console-btn-copy" class="y2k-bevel-btn" title="Copiar logs al portapapeles">
+                    <svg class="y2k-icon-micro"><use href="static/icons/y2k/sprite.svg#i-docs"/></svg>
+                    <span>Copiar</span>
+                </button>
+                <button type="button" id="console-btn-clear" class="y2k-bevel-btn" title="Limpiar todos los logs">
+                    <svg class="y2k-icon-micro"><use href="static/icons/y2k/sprite.svg#i-trash"/></svg>
+                    <span>Limpiar</span>
+                </button>
+                <button type="button" id="console-btn-eruda" class="y2k-bevel-btn y2k-btn-cyan" title="Inyectar consola Eruda completa">
+                    <svg class="y2k-icon-micro"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg>
+                    <span>Eruda</span>
+                </button>
+                <button type="button" id="console-btn-close" class="y2k-bevel-btn y2k-btn-close" title="Cerrar">✕</button>
+            </div>
+        </div>
+        <!-- Barra de Filtros Y2K -->
+        <div class="y2k-console-filter-bar">
+            <span class="filter-prompt">&gt; FILTRAR:</span>
+            <button type="button" class="console-filter-chip active" data-filter="all">[TODOS]</button>
+            <button type="button" class="console-filter-chip chip-err" data-filter="error">[ERRORES]</button>
+            <button type="button" class="console-filter-chip chip-warn" data-filter="warn">[WARN]</button>
+            <button type="button" class="console-filter-chip chip-info" data-filter="info">[INFO]</button>
+        </div>
+        <!-- Cuerpo de la consola CRT -->
+        <div id="mobile-devtools-body" class="y2k-console-body"></div>
+    </div>
+</div>
