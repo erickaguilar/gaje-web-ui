@@ -1,0 +1,26 @@
+<!-- 🧬 GAJE — static/partials/chat_input.html -->
+<div class="composer-main-row">
+    <label for="user-input" class="visually-hidden">Mensaje para el modelo</label>
+    <textarea id="user-input" placeholder="Escribe un mensaje o consulta genómica..." rows="1" autocomplete="off" aria-label="Mensaje para el modelo"></textarea>
+    
+    <button id="stop-btn" class="composer-action-btn stop-btn" title="Detener generación" aria-label="Detener generación" hidden>
+        <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
+    </button>
+    
+    <button id="send-btn" class="composer-action-btn send-btn" title="Enviar mensaje (Enter)" aria-label="Enviar mensaje" disabled>
+        <svg class="send-icon y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-send"/></svg>
+    </button>
+</div>
+
+<div class="composer-meta-bar">
+    <div class="composer-hint">
+        <span class="keycap">Enter</span> para enviar · <span class="keycap">Shift+Enter</span> nueva línea
+    </div>
+    <div class="composer-stats">
+        <span id="composer-model-tag" class="composer-model-badge"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg> <span id="composer-active-model-name">gaje-model</span></span>
+        <span class="composer-sep">·</span>
+        <span id="char-count" class="composer-char-count">0 car.</span>
+        <span class="composer-sep">·</span>
+        <span class="composer-status-badge"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg> Rust Engine Listo</span>
+    </div>
+</div>

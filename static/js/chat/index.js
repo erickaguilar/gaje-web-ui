@@ -7,9 +7,16 @@
     'use strict';
 
     const bootChat = async () => {
+        // 0. Inicializar el Sidebar de Sesiones
+        try {
+            if (window.ChatSidebarController) await window.ChatSidebarController.init();
+        } catch (err) {
+            console.error('🔥 [GAJE-UI] Error inicializando ChatSidebarController:', err);
+        }
+
         // 1. Inicializar el Composer prioritariamente para activar el botón enviar, textarea y starter cards
         try {
-            if (window.ChatComposerController) window.ChatComposerController.init();
+            if (window.ChatComposerController) await window.ChatComposerController.init();
         } catch (err) {
             console.error('🔥 [GAJE-UI] Error inicializando ChatComposerController:', err);
         }
@@ -36,7 +43,7 @@
         }
 
         // Registrar inicio del sistema en consola
-        const ver = window.GAJE_CONFIG?.version || '1.7.0-alpha';
+        const ver = window.GAJE_CONFIG?.version || '1.7.4';
         console.log(`🧬 [GAJE-CORE] Núcleo GAJE v${ver} iniciado. Inferencia nativa mmap zero-copy activa.`);
     };
 
@@ -51,6 +58,7 @@
         get Utils() { return window.ChatUtils; },
         get Markdown() { return window.ChatMarkdown; },
         get Storage() { return window.ChatStorage; },
+        get Sidebar() { return window.ChatSidebarController; },
         get Toolbar() { return window.ChatToolbarController; },
         get ModelLoader() { return window.ChatModelLoader; },
         get Engine() { return window.ChatEngineController; },

@@ -217,6 +217,35 @@
         }
 
         /**
+         * Elimina los mensajes pertenecientes a una sesión específica.
+         */
+        async deleteMessagesBySession(sessionId) {
+            await this.readyPromise;
+            if (!this.db || !sessionId) return false;
+            return new Promise((resolve) => {
+                try {
+                    const tx = this.db.transaction(['messages'], 'readwrite');
+                    const store = tx.objectStore('messages');
+                    const idx = store.index('sessionId');
+                    const req = idx.openCursor(IDBKeyRange.only(sessionId));
+                    req.onsuccess = (e) => {
+                        const cursor = e.target.result;
+                        if (cursor) {
+                            cursor.delete();
+                            cursor.continue();
+                        } else {
+                            this.notifyChange('delete_session');
+                            resolve(true);
+                        }
+                    };
+                    req.onerror = () => resolve(false);
+                } catch (e) {
+                    resolve(false);
+                }
+            });
+        }
+
+        /**
          * Cuenta el total de mensajes almacenados.
          */
         async getMessageCount() {

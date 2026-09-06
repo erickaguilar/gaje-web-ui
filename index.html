@@ -15,114 +15,37 @@
     <title>GAJE Helix | Genomic Semantic Compression Platform</title>
     <link rel="stylesheet" href="static/css/base.css?v=1.7.4">
     <link rel="stylesheet" href="static/css/chat.css?v=1.7.4">
+    <link rel="stylesheet" href="static/css/sidebar.css?v=1.7.4">
     <link rel="stylesheet" href="static/css/messages.css?v=1.7.4">
     <link rel="stylesheet" href="static/css/toasts.css?v=1.7.4">
     <link rel="stylesheet" href="static/css/y2k-dark.css?v=1.7.4">
     <link rel="stylesheet" href="static/css/y2k-light.css?v=1.7.4">
     <link rel="stylesheet" href="static/css/y2k-zen.css?v=1.7.4">
     <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
-    <script>
-        (function() {
-            const theme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', theme);
-
-            // 🧬 Consola Móvil DevTools GAJE para Android
-            window.gajeDevLogs = [];
-            const pushEntry = (type, args) => {
-                const text = Array.from(args).map(a => {
-                    if (a instanceof Error) return `${a.name}: ${a.message}\n${a.stack || ''}`;
-                    if (typeof a === 'object') {
-                        try { return JSON.stringify(a, null, 2); } catch (_) { return String(a); }
-                    }
-                    return String(a);
-                }).join(' ');
-                window.gajeDevLogs.push({ type, time: new Date().toLocaleTimeString(), text });
-                if (window.gajeDevLogs.length > 300) window.gajeDevLogs.shift();
-                if (window.renderDevLogs) window.renderDevLogs();
-            };
-
-            const _log = console.log, _warn = console.warn, _err = console.error;
-            console.log = function(...a) { pushEntry('info', a); _log.apply(console, a); };
-            console.warn = function(...a) { pushEntry('warn', a); _warn.apply(console, a); };
-            console.error = function(...a) { pushEntry('error', a); _err.apply(console, a); };
-
-            window.onerror = function(msg, url, line, col, err) {
-                const src = url ? url.split('/').pop() : 'inline';
-                pushEntry('error', [`[CRASH ${src}:${line}:${col}] ${msg}`]);
-            };
-            window.addEventListener('unhandledrejection', function(e) {
-                pushEntry('error', [`[PROMISE ERROR] ${e.reason}`]);
-            });
-        })();
-    </script>
+    <script src="static/js/bootstrap.js?v=1.7.4"></script>
 </head>
 <body>
     <div class="glow-bg-radial" aria-hidden="true"></div>
     <header id="gaje-header" class="y2k-header" data-page="chat"></header>
+
+    <!-- Barra Lateral / Cajón Móvil de Sesiones e Historial (Modular) -->
+    <aside id="chat-sidebar-drawer" class="sidebar-drawer" aria-label="Historial de Sesiones"></aside>
+    <div id="sidebar-backdrop" class="sidebar-backdrop" aria-hidden="true"></div>
+
     <div class="app-container">
         <main>
-            <!-- ──────────────────────────── CHAT (PANTALLA COMPLETA) ──────────────────────────── -->
+            <!-- Chat Principal con Componentes Modulares Dinámicos -->
             <section id="chat-view" class="chat-container" aria-label="Consola de Chat Genómico" aria-busy="false">
-                <!-- Barra de Herramientas Modular (Cargada desde static/partials/chat_toolbar.html) -->
                 <div id="chat-toolbar" class="chat-toolbar"></div>
                 <div id="chat-window" class="chat-window" role="log" aria-live="polite" aria-relevant="additions" aria-labelledby="chat-label">
-                    <!-- Sugerencias Rápidas de Prompt (Formato Lista Compacta) -->
-                    <div id="chat-starters" class="chat-starters">
-                        <div class="starters-header">
-                            <span class="starters-badge"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-sparkle"/></svg> PREGUNTAS RÁPIDAS</span>
-                        </div>
-                        <ul class="starters-list" role="list">
-                            <li>
-                                <button class="starter-card starter-list-item" data-prompt="¿Quién eres y qué puedes hacer?">
-                                    <svg class="y2k-icon starter-icon"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg>
-                                    <span class="starter-text">¿Quién eres y qué puedes hacer?</span>
-                                    <span class="starter-arrow" aria-hidden="true">→</span>
-                                </button>
-                            </li>
-                            <li>
-                                <button class="starter-card starter-list-item" data-prompt="Explica en pocas palabras qué es la compresión semántica.">
-                                    <svg class="y2k-icon starter-icon"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg>
-                                    <span class="starter-text">Explica en pocas palabras qué es la compresión semántica.</span>
-                                    <span class="starter-arrow" aria-hidden="true">→</span>
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
+                    <div id="chat-starters" class="chat-starters"></div>
                 </div>
 
-                <!-- Botón Flotante para Bajar al Último Mensaje (Scroll to Bottom) -->
                 <button id="scroll-to-bottom-btn" class="scroll-to-bottom-btn" aria-label="Bajar al último mensaje" title="Bajar al final" hidden>
                     <svg class="y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-arrow-down"/></svg>
                 </button>
 
-                <!-- Input Composer Inteligente (Multi-línea + Barra de Estado) -->
-                <div class="input-area">
-                    <div class="composer-main-row">
-                        <label for="user-input" class="visually-hidden">Mensaje para el modelo</label>
-                        <textarea id="user-input" placeholder="Escribe un mensaje o consulta genómica..." rows="1" autocomplete="off" aria-label="Mensaje para el modelo"></textarea>
-                        
-                        <button id="stop-btn" class="composer-action-btn stop-btn" title="Detener generación" aria-label="Detener generación" hidden>
-                            <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
-                        </button>
-                        
-                        <button id="send-btn" class="composer-action-btn send-btn" title="Enviar mensaje (Enter)" aria-label="Enviar mensaje" disabled>
-                            <svg class="send-icon y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-send"/></svg>
-                        </button>
-                    </div>
-
-                    <div class="composer-meta-bar">
-                        <div class="composer-hint">
-                            <span class="keycap">Enter</span> para enviar · <span class="keycap">Shift+Enter</span> nueva línea
-                        </div>
-                        <div class="composer-stats">
-                            <span id="composer-model-tag" class="composer-model-badge"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-dna"/></svg> <span id="composer-active-model-name">gaje-model</span></span>
-                            <span class="composer-sep">·</span>
-                            <span id="char-count" class="composer-char-count">0 car.</span>
-                            <span class="composer-sep">·</span>
-                            <span class="composer-status-badge"><svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-bolt"/></svg> Rust Engine Listo</span>
-                        </div>
-                    </div>
-                </div>
+                <div id="chat-input-area" class="input-area"></div>
             </section>
         </main>
     </div>
@@ -137,6 +60,7 @@
     <script src="static/js/chat/utils.js?v=1.7.4"></script>
     <script src="static/js/chat/markdown.js?v=1.7.4"></script>
     <script src="static/js/chat/storage.js?v=1.7.4"></script>
+    <script src="static/js/chat/sidebar.js?v=1.7.4"></script>
     <script src="static/js/chat/toolbar.js?v=1.7.4"></script>
     <script src="static/js/chat/model_loader.js?v=1.7.4"></script>
     <script src="static/js/chat/engine.js?v=1.7.4"></script>

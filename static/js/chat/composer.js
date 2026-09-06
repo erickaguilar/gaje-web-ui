@@ -4,7 +4,27 @@
    ============================================================================= */
 
 window.ChatComposerController = {
-    init() {
+    async init() {
+        // 1. Cargar template parcial de starters si está vacío
+        const startersEl = document.getElementById('chat-starters');
+        if (startersEl && !startersEl.hasChildNodes()) {
+            try {
+                const url = window.GAJE_CONFIG ? window.GAJE_CONFIG.assetUrl('static/partials/chat_starters.html') : 'static/partials/chat_starters.html?v=1.7.4';
+                const res = await fetch(url);
+                if (res.ok) startersEl.innerHTML = await res.text();
+            } catch (e) {}
+        }
+
+        // 2. Cargar template parcial del composer si está vacío
+        const inputArea = document.getElementById('chat-input-area') || document.querySelector('.input-area');
+        if (inputArea && !inputArea.hasChildNodes()) {
+            try {
+                const url = window.GAJE_CONFIG ? window.GAJE_CONFIG.assetUrl('static/partials/chat_input.html') : 'static/partials/chat_input.html?v=1.7.4';
+                const res = await fetch(url);
+                if (res.ok) inputArea.innerHTML = await res.text();
+            } catch (e) {}
+        }
+
         const sendBtn = document.getElementById('send-btn');
         const userInput = document.getElementById('user-input');
         const charCount = document.getElementById('char-count');
@@ -108,6 +128,13 @@ window.ChatComposerController = {
         const starters = document.getElementById('chat-starters');
         if (starters) {
             starters.style.display = 'none';
+        }
+    },
+
+    showStarters() {
+        const starters = document.getElementById('chat-starters');
+        if (starters) {
+            starters.style.display = 'block';
         }
     },
 

@@ -1,0 +1,57 @@
+<!-- 🧬 GAJE — static/partials/sidebar.html -->
+<div class="sidebar-inner" role="dialog" aria-modal="true" aria-label="Historial de Conversaciones y Sesiones">
+    <!-- Encabezado del Sidebar -->
+    <div class="sidebar-header">
+        <div class="sidebar-brand">
+            <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-chat"/></svg>
+            <span class="sidebar-title">SESIONES & MEMORIA</span>
+        </div>
+        <div class="sidebar-header-actions">
+            <button type="button" id="sidebar-close-btn" class="sidebar-icon-btn" title="Cerrar barra lateral" aria-label="Cerrar barra lateral">✕</button>
+        </div>
+    </div>
+
+    <!-- Botón Nueva Sesión -->
+    <div class="sidebar-action-row">
+        <button type="button" id="sidebar-new-chat-btn" class="sidebar-primary-btn" title="Iniciar nueva conversación">
+            <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-sparkle"/></svg>
+            <span>+ Nueva Conversación</span>
+        </button>
+    </div>
+
+    <!-- Lista de Sesiones / Historial -->
+    <div class="sidebar-content">
+        <div class="sidebar-section-label">
+            <span>Conversaciones Recientes</span>
+            <span id="sidebar-session-count" class="sidebar-badge">0</span>
+        </div>
+        <ul id="sidebar-sessions-list" class="sidebar-sessions-list" role="list">
+            <!-- Renderizado dinámico desde window.ChatSidebarController -->
+        </ul>
+        <div id="sidebar-empty-state" class="sidebar-empty-state" style="display: none;">
+            <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-database"/></svg>
+            <p>No hay conversaciones previas guardadas.</p>
+        </div>
+    </div>
+
+    <!-- Pie del Sidebar: Diagnóstico de Almacenamiento & Acciones -->
+    <div class="sidebar-footer">
+        <div class="sidebar-storage-meta">
+            <div class="storage-indicator">
+                <span class="storage-led active"></span>
+                <span class="storage-label">GajeHelixDB (Zero-Copy)</span>
+            </div>
+            <span id="sidebar-storage-stats" class="storage-sub">IndexedDB Soberano</span>
+        </div>
+        <div class="sidebar-footer-buttons">
+            <button type="button" id="sidebar-export-btn" class="sidebar-footer-btn" title="Exportar historial completo (JSON)" aria-label="Exportar historial">
+                <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-download"/></svg>
+                <span>Exportar</span>
+            </button>
+            <button type="button" id="sidebar-clear-btn" class="sidebar-footer-btn danger" title="Limpiar todas las conversaciones" aria-label="Limpiar todo">
+                <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-stop"/></svg>
+                <span>Limpiar</span>
+            </button>
+        </div>
+    </div>
+</div>

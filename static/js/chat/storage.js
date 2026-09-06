@@ -15,8 +15,14 @@ window.ChatStorage = {
             const modelSelect = document.getElementById('model-select');
             entry.model = modelSelect ? modelSelect.value : (window.ChatState?.activeModel || 'GAJE');
         }
+        if (!entry.sessionId) {
+            entry.sessionId = window.ChatState?.currentSessionId || window.ChatSidebarController?.activeSessionId || 'default';
+        }
         if (window.GajeDB) {
             window.GajeDB.saveMessage(entry);
+        }
+        if (window.ChatSidebarController && typeof window.ChatSidebarController.renderSessions === 'function') {
+            window.ChatSidebarController.renderSessions();
         }
     },
 
@@ -29,18 +35,23 @@ window.ChatStorage = {
     async getRecentHistory(limit = 8) {
         if (!window.GajeDB) return [];
         try {
-            const msgs = await window.GajeDB.getAllMessages();
+            const targetSession = window.ChatState?.currentSessionId || 'default';
+            const msgs = await window.GajeDB.getAllMessages(targetSession);
             return (msgs || []).slice(-limit).map(e => ({ role: e.role, content: e.content }));
         } catch (e) {
             return [];
         }
     },
 
-    async renderHistory() {
+    async renderHistory(sessionId = null) {
         const chatWindow = document.getElementById('chat-window');
         if (!chatWindow || !window.GajeDB) return false;
-        const arr = await window.GajeDB.getAllMessages();
-        if (!arr || arr.length === 0) return false;
+        const targetSession = sessionId || window.ChatState?.currentSessionId || 'default';
+        const arr = await window.GajeDB.getAllMessages(targetSession);
+        if (!arr || arr.length === 0) {
+            window.ChatComposerController?.showStarters();
+            return false;
+        }
 
         // Si hay historial almacenado, ocultar las preguntas rápidas
         window.ChatComposerController?.hideStarters();
@@ -60,5 +71,6 @@ window.ChatStorage = {
             }
         });
         chatWindow.scrollTop = chatWindow.scrollHeight;
+        return true;
     }
 };

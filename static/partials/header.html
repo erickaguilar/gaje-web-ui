@@ -41,6 +41,10 @@
           <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-chat"/></svg>
           <span>Chat Sandbox</span>
         </a>
+        <button type="button" id="header-open-sidebar-btn" onclick="if(window.ChatSidebarController) { window.ChatSidebarController.toggle(); const dd = document.getElementById('y2k-menu-dropdown'); if(dd) dd.classList.remove('open'); }" class="y2k-dropdown-item" style="text-align: left; background: none; border: none; width: 100%; cursor: pointer;">
+          <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-chat"/></svg>
+          <span>Historial & Sesiones</span>
+        </button>
         <a href="architecture.html" class="y2k-dropdown-item">
           <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-arch"/></svg>
           <span>Arquitectura</span>
