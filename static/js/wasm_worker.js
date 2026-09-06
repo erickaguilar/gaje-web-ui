@@ -129,16 +129,27 @@ self.onmessage = async (e) => {
                 history = []
             } = payload;
 
-            const isBaseModel = (typeof currentModelName === 'string') && (
+            const isBornModel = (typeof currentModelName === 'string') && (
+                currentModelName.endsWith('.gaje') ||
+                currentModelName.includes('born') ||
+                currentModelName.includes('max')
+            );
+
+            const isBaseModel = !isBornModel && (typeof currentModelName === 'string') && (
                 currentModelName.includes('pico') ||
                 currentModelName.includes('base') ||
                 currentModelName.includes('raw') ||
                 (!currentModelName.includes('instruct') && !currentModelName.includes('chat') && !currentModelName.includes('r1'))
             );
 
-            // Inyección automática de ChatML sólo si el modelo es Instruct y el prompt es texto plano
+            // Inyección automática de ChatML según la ontogenia del organismo
             let formattedPrompt = prompt;
-            if (isBaseModel) {
+            if (isBornModel) {
+                // En modelos nacidos (.gaje / max), chat_with_memory() en el núcleo Rust WASM
+                // ya formatea internamente con <|im_start|>user\n{}<|im_end|>\n<|im_start|>assistant\n
+                // por lo que pasamos el prompt limpio directamente para evitar doble envoltura.
+                formattedPrompt = prompt;
+            } else if (isBaseModel) {
                 // Modelo base: Completado directo o formato natural
                 if (Array.isArray(history) && history.length > 0) {
                     let contextBlock = '';
@@ -165,7 +176,7 @@ self.onmessage = async (e) => {
                 formattedPrompt = `<|im_start|>system\n${systemPrompt}<|im_end|>\n${contextBlock}<|im_start|>user\n${prompt}<|im_end|>\n<|im_start|>assistant\n`;
             }
 
-            const effectiveTemp = isBaseModel ? Math.max(temperature, 0.65) : temperature;
+            const effectiveTemp = isBornModel ? Math.min(temperature, 0.35) : (isBaseModel ? Math.max(temperature, 0.65) : temperature);
             const t0 = performance.now();
             let rawResponse = wasmEngine.chat_with_memory(formattedPrompt, maxTokens, effectiveTemp, repetitionPenalty, injectRag);
             const genTimeMs = (performance.now() - t0).toFixed(2);
@@ -179,17 +190,18 @@ self.onmessage = async (e) => {
                 .replace(/<\|end\|>[\s\S]*$/gi, '')
                 .trim() : '';
 
-            // Auto-fallback resiliente: si el formateo colapsó a EOS vacío en paso 0, reintentar con prompt crudo directo
-            if ((!cleanResponse || cleanResponse.length === 0) && formattedPrompt !== prompt) {
-                const fallbackRaw = wasmEngine.chat_with_memory(prompt, maxTokens, Math.max(temperature, 0.7), repetitionPenalty, false);
-                const fallbackClean = (typeof fallbackRaw === 'string') ? fallbackRaw
+            // Auto-fallback resiliente: si la respuesta colapsó a EOS vacío o a un solo carácter (ej. '¡'),
+            // reintentar con inferencia directa a temperatura 0.45 para superar el atractor prematuro de fin de secuencia
+            if (!cleanResponse || cleanResponse.length <= 2) {
+                const retryRaw = wasmEngine.chat(prompt, maxTokens, 0.45, repetitionPenalty);
+                const retryClean = (typeof retryRaw === 'string') ? retryRaw
                     .replace(/<\|im_end\|>[\s\S]*$/gi, '')
                     .replace(/<\|im_start\|>[\s\S]*$/gi, '')
                     .replace(/<\|endoftext\|>[\s\S]*$/gi, '')
                     .replace(/<\|end\|>[\s\S]*$/gi, '')
                     .trim() : '';
-                if (fallbackClean && fallbackClean.length > 0) {
-                    cleanResponse = fallbackClean;
+                if (retryClean && retryClean.length > (cleanResponse ? cleanResponse.length : 0)) {
+                    cleanResponse = retryClean;
                 }
             }
 

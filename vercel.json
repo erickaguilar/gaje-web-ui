@@ -20,7 +20,7 @@
       ]
     },
     {
-      "source": "/(sw.js|manifest.json|.*\\.html)",
+      "source": "/(sw.js|manifest.json|.*\\.html|static/js/wasm_worker.js|static/js/config.js|static/partials/.*\\.html)",
       "headers": [
         {
           "key": "Cache-Control",

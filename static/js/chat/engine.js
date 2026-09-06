@@ -7,7 +7,8 @@
 window.ChatEngineController = {
     initWasmWorker() {
         if (window.ChatState.wasmWorker) return window.ChatState.wasmWorker;
-        window.ChatState.wasmWorker = new Worker('static/js/wasm_worker.js', { type: 'module' });
+        const workerVersion = (window.GAJE_CONFIG && window.GAJE_CONFIG.version) ? window.GAJE_CONFIG.version : '1.7.4';
+        window.ChatState.wasmWorker = new Worker(`static/js/wasm_worker.js?v=${encodeURIComponent(workerVersion)}`, { type: 'module' });
         window.ChatState.wasmWorker.postMessage({ action: 'init' });
         window.ChatState.wasmWorker.onmessage = (e) => {
             const data = e.data;
