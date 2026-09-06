@@ -39,6 +39,7 @@ const STATIC_ASSETS = [
   `/static/js/chat/markdown.js?v=${VERSION}`,
   `/static/js/chat/storage.js?v=${VERSION}`,
   `/static/js/chat/toolbar.js?v=${VERSION}`,
+  `/static/js/chat/model_loader.js?v=${VERSION}`,
   `/static/js/chat/engine.js?v=${VERSION}`,
   `/static/js/chat/composer.js?v=${VERSION}`,
   `/static/js/chat/telemetry.js?v=${VERSION}`,

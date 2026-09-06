@@ -52,6 +52,7 @@
         get Markdown() { return window.ChatMarkdown; },
         get Storage() { return window.ChatStorage; },
         get Toolbar() { return window.ChatToolbarController; },
+        get ModelLoader() { return window.ChatModelLoader; },
         get Engine() { return window.ChatEngineController; },
         get Composer() { return window.ChatComposerController; },
         get Telemetry() { return window.ChatTelemetryController; },
