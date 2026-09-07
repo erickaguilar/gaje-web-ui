@@ -220,6 +220,195 @@
     font-family: var(--mono, monospace);
 }
 
+/* ── Buscador de Historial ── */
+.sidebar-search-row {
+    padding: 0 0.8rem 0.5rem;
+}
+
+.sidebar-search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0 8px;
+    transition: all 0.2s ease;
+}
+
+.sidebar-search-wrapper:focus-within {
+    border-color: var(--accent-color, #0a84ff);
+    background: rgba(255, 255, 255, 0.07);
+    box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.2);
+}
+
+.sidebar-search-wrapper .search-icon {
+    width: 14px;
+    height: 14px;
+    color: var(--text-muted, #71717a);
+    margin-right: 6px;
+    flex-shrink: 0;
+}
+
+.sidebar-search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-color, #f4f4f5);
+    font-size: 0.76rem;
+    padding: 6px 0;
+    min-width: 0;
+    font-family: inherit;
+}
+
+.sidebar-search-clear {
+    background: transparent;
+    border: none;
+    color: var(--text-muted, #71717a);
+    font-size: 0.72rem;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+.sidebar-search-clear:hover {
+    color: #fff;
+}
+
+/* ── Encabezado de Grupos de Fecha ── */
+.sidebar-date-group-header {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted, #71717a);
+    padding: 0.5rem 0.35rem 0.2rem;
+    font-family: var(--mono, monospace);
+    list-style: none;
+}
+
+.session-title-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+}
+
+.session-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.66rem;
+    flex-wrap: wrap;
+}
+
+.session-model-badge {
+    display: inline-block;
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: rgba(10, 132, 255, 0.12);
+    border: 1px solid rgba(10, 132, 255, 0.25);
+    color: var(--accent-color, #0a84ff);
+    font-size: 0.6rem;
+    font-family: var(--mono, monospace);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.session-actions-group {
+    display: none;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+    margin-left: 6px;
+}
+
+.sidebar-session-item:hover .session-actions-group,
+.sidebar-session-item.active .session-actions-group {
+    display: flex;
+}
+
+.session-action-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted, #a1a1aa);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    touch-action: manipulation;
+}
+
+.session-action-btn .y2k-icon-inline {
+    width: 13px;
+    height: 13px;
+}
+
+.session-action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.session-action-btn.del-btn:hover {
+    background: rgba(255, 69, 58, 0.15);
+    color: #ff453a;
+}
+
+/* Formulario de Renombrado en Línea */
+.session-rename-form {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+}
+
+.session-rename-input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--accent-color, #0a84ff);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 0.78rem;
+    padding: 4px 8px;
+    outline: none;
+    font-family: inherit;
+}
+
+.session-rename-actions {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.rename-confirm-btn, .rename-cancel-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.72rem;
+    padding: 3px 6px;
+    font-weight: bold;
+}
+
+.rename-confirm-btn {
+    color: #30d158;
+    border-color: rgba(48, 209, 88, 0.4);
+    background: rgba(48, 209, 88, 0.12);
+}
+
+.rename-confirm-btn:hover {
+    background: rgba(48, 209, 88, 0.25);
+}
+
+.rename-cancel-btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
 .session-del-btn {
     background: transparent;
     border: none;
@@ -396,6 +585,41 @@
     color: #2c3539;
 }
 
+[data-theme="light"] .sidebar-search-wrapper,
+[data-theme="light"] .sidebar-search-input,
+[data-theme="light"] .session-model-badge,
+[data-theme="light"] .session-action-btn,
+[data-theme="light"] .session-rename-input,
+[data-theme="light"] .rename-confirm-btn,
+[data-theme="light"] .rename-cancel-btn {
+    border-radius: 0px !important;
+}
+
+[data-theme="light"] .sidebar-search-wrapper {
+    background: #ffffff;
+    border-color: rgba(44, 82, 52, 0.2);
+}
+
+[data-theme="light"] .sidebar-search-wrapper:focus-within {
+    border-color: #2c5234;
+    box-shadow: none;
+}
+
+[data-theme="light"] .sidebar-search-input {
+    color: #2c3539;
+}
+
+[data-theme="light"] .session-model-badge {
+    background: rgba(44, 82, 52, 0.08);
+    border-color: rgba(44, 82, 52, 0.25);
+    color: #2c5234;
+}
+
+[data-theme="light"] .session-action-btn:hover {
+    background: rgba(44, 82, 52, 0.1);
+    color: #2c5234;
+}
+
 /* ── Tema Zen (E-Ink Technical) ── */
 [data-theme="zen"] .sidebar-drawer {
     background: #141313;
@@ -423,4 +647,25 @@
 [data-theme="zen"] .sidebar-session-item.active {
     background: #1e1d1d;
     border-color: #7a8c85;
+}
+
+[data-theme="zen"] .sidebar-search-wrapper {
+    background: #1a1919;
+    border-color: #2d2c2c;
+    border-radius: 4px;
+}
+
+[data-theme="zen"] .sidebar-search-wrapper:focus-within {
+    border-color: #7a8c85;
+}
+
+[data-theme="zen"] .session-model-badge {
+    background: rgba(122, 140, 133, 0.15);
+    border-color: rgba(122, 140, 133, 0.35);
+    color: #7a8c85;
+}
+
+[data-theme="zen"] .session-action-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #e5e2e1;
 }

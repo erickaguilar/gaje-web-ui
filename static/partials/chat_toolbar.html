@@ -12,8 +12,10 @@
             <span>GAJE HELIX</span>
         </div>
 
-        <button type="button" id="y2k-open-sidebar-btn" class="chat-header-icon-btn" onclick="if(window.ChatSidebarController) window.ChatSidebarController.toggle();" data-tooltip="Historial y Sesiones" aria-label="Abrir Historial de Sesiones">
+        <button type="button" id="y2k-open-sidebar-btn" class="chat-header-icon-btn chat-sidebar-toggle-btn" onclick="if(window.ChatSidebarController) window.ChatSidebarController.toggle();" data-tooltip="Historial de Conversaciones" aria-label="Abrir Historial de Conversaciones">
             <svg class="y2k-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-chat"/></svg>
+            <span class="chat-sidebar-btn-label">Historial</span>
+            <span id="sidebar-toolbar-badge" class="sidebar-count-pill" style="display:none;">0</span>
         </button>
     </div>
 

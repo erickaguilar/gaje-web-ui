@@ -543,6 +543,16 @@ window.ChatTelemetryController = {
 
     bindStorageActions() {
         const chatWindow = document.getElementById('chat-window');
+        const openHistoryBtn = document.getElementById('modal-open-history-btn');
+        if (openHistoryBtn) {
+            openHistoryBtn.addEventListener('click', () => {
+                this.closeModal();
+                if (window.ChatSidebarController) {
+                    window.ChatSidebarController.open();
+                }
+            });
+        }
+
         const exportDbBtn = document.getElementById('modal-export-db-btn');
         if (exportDbBtn) {
             exportDbBtn.addEventListener('click', async () => {

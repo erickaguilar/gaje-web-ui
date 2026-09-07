@@ -4,7 +4,7 @@
     <div class="sidebar-header">
         <div class="sidebar-brand">
             <svg class="y2k-icon-inline"><use href="static/icons/y2k/sprite.svg#i-chat"/></svg>
-            <span class="sidebar-title">SESIONES & MEMORIA</span>
+            <span class="sidebar-title">HISTORIAL DE CHATS</span>
         </div>
         <div class="sidebar-header-actions">
             <button type="button" id="sidebar-close-btn" class="sidebar-icon-btn" title="Cerrar barra lateral" aria-label="Cerrar barra lateral">✕</button>
@@ -19,10 +19,19 @@
         </button>
     </div>
 
+    <!-- Buscador en Historial -->
+    <div class="sidebar-search-row">
+        <div class="sidebar-search-wrapper">
+            <svg class="y2k-icon-inline search-icon" aria-hidden="true"><use href="static/icons/y2k/sprite.svg#i-search"/></svg>
+            <input type="text" id="sidebar-search-input" class="sidebar-search-input" placeholder="Buscar en conversaciones..." aria-label="Buscar en historial">
+            <button type="button" id="sidebar-search-clear-btn" class="sidebar-search-clear" style="display: none;" title="Limpiar búsqueda" aria-label="Limpiar búsqueda">✕</button>
+        </div>
+    </div>
+
     <!-- Lista de Sesiones / Historial -->
     <div class="sidebar-content">
         <div class="sidebar-section-label">
-            <span>Conversaciones Recientes</span>
+            <span>Conversaciones Guardadas</span>
             <span id="sidebar-session-count" class="sidebar-badge">0</span>
         </div>
         <ul id="sidebar-sessions-list" class="sidebar-sessions-list" role="list">
@@ -31,6 +40,10 @@
         <div id="sidebar-empty-state" class="sidebar-empty-state" style="display: none;">
             <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-database"/></svg>
             <p>No hay conversaciones previas guardadas.</p>
+        </div>
+        <div id="sidebar-no-results" class="sidebar-empty-state" style="display: none;">
+            <svg class="y2k-icon"><use href="static/icons/y2k/sprite.svg#i-search"/></svg>
+            <p>No se encontraron coincidencias.</p>
         </div>
     </div>
 

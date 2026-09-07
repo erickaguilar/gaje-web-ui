@@ -155,7 +155,13 @@
                     };
 
                     const req = store.add(item);
-                    req.onsuccess = () => {
+                    req.onsuccess = async () => {
+                        // Actualizar o inicializar metadatos de la sesión en el store 'sessions'
+                        try {
+                            if (this.db.objectStoreNames.contains('sessions')) {
+                                await this._upsertSessionOnMessage(item);
+                            }
+                        } catch (_) {}
                         if (notify) this.notifyChange('save_message');
                         resolve(req.result);
                     };
@@ -168,6 +174,139 @@
                     resolve(null);
                 }
             });
+        }
+
+        /**
+         * Actualiza o crea la entrada de sesión tras registrar un mensaje.
+         */
+        async _upsertSessionOnMessage(msgItem) {
+            const sid = msgItem.sessionId || 'default';
+            const existing = await this.getSession(sid);
+            const now = Date.now();
+            let title = existing?.title;
+            const isCustom = !!existing?.customTitle;
+
+            if (!existing) {
+                // Si es el primer mensaje de la sesión, derivar un título inicial legible
+                if (msgItem.role === 'user' && msgItem.content) {
+                    const cleanText = msgItem.content.replace(/\s+/g, ' ').trim();
+                    title = cleanText.length > 42 ? cleanText.slice(0, 42) + '...' : cleanText;
+                } else {
+                    title = 'Nueva Conversación';
+                }
+            } else if (!isCustom && existing.title === 'Nueva Conversación' && msgItem.role === 'user' && msgItem.content) {
+                const cleanText = msgItem.content.replace(/\s+/g, ' ').trim();
+                title = cleanText.length > 42 ? cleanText.slice(0, 42) + '...' : cleanText;
+            }
+
+            const sessionData = {
+                sessionId: sid,
+                title: title || 'Conversación',
+                customTitle: isCustom,
+                model: msgItem.model || existing?.model || 'GAJE',
+                createdAt: existing?.createdAt || now,
+                lastActivity: now
+            };
+
+            await this.saveSession(sessionData);
+        }
+
+        /**
+         * Guarda o actualiza los metadatos de una sesión en el store 'sessions'.
+         */
+        async saveSession(sessionData) {
+            await this.readyPromise;
+            if (!this.db || !sessionData || !sessionData.sessionId) return null;
+            if (!this.db.objectStoreNames.contains('sessions')) return null;
+
+            return new Promise((resolve) => {
+                try {
+                    const tx = this.db.transaction('sessions', 'readwrite');
+                    const store = tx.objectStore('sessions');
+                    const item = {
+                        sessionId: sessionData.sessionId,
+                        title: sessionData.title || 'Conversación',
+                        customTitle: !!sessionData.customTitle,
+                        model: sessionData.model || 'GAJE',
+                        createdAt: sessionData.createdAt || Date.now(),
+                        lastActivity: sessionData.lastActivity || Date.now()
+                    };
+                    const req = store.put(item);
+                    req.onsuccess = () => resolve(item);
+                    req.onerror = () => resolve(null);
+                } catch (e) {
+                    resolve(null);
+                }
+            });
+        }
+
+        /**
+         * Obtiene los metadatos de una sesión por su sessionId.
+         */
+        async getSession(sessionId) {
+            await this.readyPromise;
+            if (!this.db || !sessionId) return null;
+            if (!this.db.objectStoreNames.contains('sessions')) return null;
+
+            return new Promise((resolve) => {
+                try {
+                    const tx = this.db.transaction('sessions', 'readonly');
+                    const req = tx.objectStore('sessions').get(sessionId);
+                    req.onsuccess = () => resolve(req.result || null);
+                    req.onerror = () => resolve(null);
+                } catch (e) {
+                    resolve(null);
+                }
+            });
+        }
+
+        /**
+         * Obtiene la lista completa de sesiones ordenadas por última actividad.
+         */
+        async getAllSessions() {
+            await this.readyPromise;
+            if (!this.db || !this.db.objectStoreNames.contains('sessions')) return [];
+
+            return new Promise((resolve) => {
+                try {
+                    const tx = this.db.transaction('sessions', 'readonly');
+                    const store = tx.objectStore('sessions');
+                    const req = store.getAll();
+                    req.onsuccess = () => {
+                        const sessions = req.result || [];
+                        sessions.sort((a, b) => (b.lastActivity || 0) - (a.lastActivity || 0));
+                        resolve(sessions);
+                    };
+                    req.onerror = () => resolve([]);
+                } catch (e) {
+                    resolve([]);
+                }
+            });
+        }
+
+        /**
+         * Actualiza el título personalizado de una conversación.
+         */
+        async updateSessionTitle(sessionId, newTitle) {
+            await this.readyPromise;
+            if (!this.db || !sessionId || !newTitle) return false;
+            const existing = await this.getSession(sessionId);
+            const now = Date.now();
+            const sessionData = existing || {
+                sessionId: sessionId,
+                createdAt: now,
+                model: 'GAJE'
+            };
+            sessionData.title = newTitle.trim();
+            sessionData.customTitle = true;
+            sessionData.lastActivity = now;
+
+            const res = await this.saveSession(sessionData);
+            if (res) {
+                this.notifyChange('update_session_title');
+                return true;
+            }
+            return false;
         }
 
         /**
@@ -200,14 +339,16 @@
         }
 
         /**
-         * Elimina todos los mensajes de la base de datos.
+         * Elimina todos los mensajes y sesiones de la base de datos.
          */
         async clearAllMessages() {
             await this.readyPromise;
             if (this.db) {
                 try {
-                    const tx = this.db.transaction(['messages'], 'readwrite');
-                    tx.objectStore('messages').clear();
+                    const stores = ['messages'];
+                    if (this.db.objectStoreNames.contains('sessions')) stores.push('sessions');
+                    const tx = this.db.transaction(stores, 'readwrite');
+                    stores.forEach(s => tx.objectStore(s).clear());
                 } catch (e) {
                     // Silencioso
                 }
@@ -217,11 +358,20 @@
         }
 
         /**
-         * Elimina los mensajes pertenecientes a una sesión específica.
+         * Elimina los mensajes y la entrada de una sesión específica.
          */
         async deleteMessagesBySession(sessionId) {
             await this.readyPromise;
             if (!this.db || !sessionId) return false;
+
+            // Borrar de sessions
+            if (this.db.objectStoreNames.contains('sessions')) {
+                try {
+                    const sTx = this.db.transaction('sessions', 'readwrite');
+                    sTx.objectStore('sessions').delete(sessionId);
+                } catch (_) {}
+            }
+
             return new Promise((resolve) => {
                 try {
                     const tx = this.db.transaction(['messages'], 'readwrite');
@@ -243,6 +393,76 @@
                     resolve(false);
                 }
             });
+        }
+
+        /**
+         * Exporta una conversación individual en formato Markdown (.md)
+         */
+        async exportSessionMarkdown(sessionId) {
+            await this.readyPromise;
+            const msgs = await this.getAllMessages(sessionId);
+            if (!msgs || msgs.length === 0) return false;
+
+            const sessionInfo = await this.getSession(sessionId);
+            const title = sessionInfo?.title || `Conversación ${sessionId}`;
+            const dateStr = new Date(sessionInfo?.createdAt || Date.now()).toLocaleString('es-ES');
+            const modelStr = sessionInfo?.model || msgs[0]?.model || 'GAJE Helix';
+
+            let md = `# 🧬 GAJE Helix — ${title}\n\n`;
+            md += `* **ID de Sesión:** \`${sessionId}\`\n`;
+            md += `* **Fecha:** ${dateStr}\n`;
+            md += `* **Modelo Activo:** \`${modelStr}\`\n`;
+            md += `* **Total Mensajes:** ${msgs.length}\n\n`;
+            md += `---\n\n`;
+
+            msgs.forEach((m) => {
+                const roleName = m.role === 'user' ? '👤 Usuario' : `🧬 GAJE (${m.model || modelStr})`;
+                const timeStr = m.time || '';
+                md += `### ${roleName} ${timeStr ? `*[${timeStr}]*` : ''}\n\n`;
+                if (m.thought) {
+                    md += `> **Pensamiento:**\n> ${m.thought.split('\n').join('\n> ')}\n\n`;
+                }
+                md += `${m.content}\n\n---\n\n`;
+            });
+
+            const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const sanitizedTitle = title.replace(/[^a-z0-9_\u00C0-\u017F-]/gi, '_').toLowerCase();
+            a.download = `gaje_${sanitizedTitle}_${Date.now()}.md`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+            return true;
+        }
+
+        /**
+         * Exporta una conversación individual en formato JSON
+         */
+        async exportSessionJson(sessionId) {
+            await this.readyPromise;
+            const msgs = await this.getAllMessages(sessionId);
+            if (!msgs || msgs.length === 0) return false;
+
+            const sessionInfo = await this.getSession(sessionId);
+            const data = {
+                session: sessionInfo || { sessionId, title: 'Conversación' },
+                exportedAt: new Date().toISOString(),
+                messages: msgs
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `gaje_session_${sessionId}_${Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+            return true;
         }
 
         /**
