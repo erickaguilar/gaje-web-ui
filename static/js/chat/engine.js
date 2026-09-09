@@ -225,6 +225,7 @@ window.ChatEngineController = {
                             window.ChatState.isWasmModelLoaded = true;
                             window.ChatState.wasmActiveModelName = modelName;
                             window.ChatState.wasmActiveModelInfo = ev.data.info || null;
+                            window.ChatState.wasmActiveModelLoadTime = ev.data.loadTimeMs || null;
                             resolve();
                         } else if (ev.data.status === 'error') {
                             worker.removeEventListener('message', handler);
@@ -299,9 +300,12 @@ window.ChatEngineController = {
             }
 
             const elapsed = Date.now() - started;
+            const completionTokens = result.completionTokens || (responseText ? Math.max(1, Math.round(responseText.trim().split(/\s+/).length * 1.3)) : 0);
+            const promptTokens = result.promptTokens || null;
+            const stopReason = result.stopReason || (hasGeneratedText ? 'COMPLETED' : 'EOS_TOKEN');
             const wasmMetrics = {
                 latency_ms: elapsed,
-                tokens_per_second: result.genTimeMs ? ((Math.max(responseText.length, 4) / 4) / (parseFloat(result.genTimeMs) / 1000)).toFixed(1) : '35.0',
+                tokens_per_second: result.genTimeMs ? ((completionTokens) / (parseFloat(result.genTimeMs) / 1000)).toFixed(1) : '35.0',
                 compression_ratio: '16.0x (Genomic)',
                 mode: 'Tronco Encefálico Local',
                 server_time: window.ChatUtils ? window.ChatUtils.formatExactTime() : null,
@@ -309,8 +313,17 @@ window.ChatEngineController = {
                 effective_temp: result.effectiveTemp,
                 requested_temp: result.requestedTemp,
                 raw_prompt: result.rawPrompt,
-                rag_injected: result.ragInjected || []
+                rag_injected: result.ragInjected || [],
+                stop_reason: stopReason,
+                prompt_tokens: promptTokens,
+                completion_tokens: completionTokens,
+                chat_template: result.chatTemplate || null
             };
+
+            botMsg.dataset.stopReason = stopReason;
+            if (promptTokens) botMsg.dataset.promptTokens = promptTokens;
+            if (completionTokens) botMsg.dataset.completionTokens = completionTokens;
+            if (result.chatTemplate) botMsg.dataset.chatTemplate = result.chatTemplate;
 
             window.ChatComposerController?.addMetaTo(botMsg, elapsed, 'Tronco Encefálico', responseText || 'EOS', modelName, wasmMetrics);
             if (responseText) {

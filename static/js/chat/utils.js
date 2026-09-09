@@ -409,11 +409,21 @@ window.ChatUtils = {
 
                     transcriptMd += `**Respuesta Generada:**\n\n${bodyText}\n\n`;
 
-                    if (metaBadges.length > 0) {
-                        let badges = [...metaBadges];
-                        if (effectiveTempThisTurn !== null && !badges.some(b => b.toLowerCase().includes('temp'))) {
-                            badges.push(`Temp: ${effectiveTempThisTurn.toFixed(2)}`);
-                        }
+                    const turnStopReason = turnMetrics.stop_reason || msg.dataset.stopReason || '';
+                    const turnPromptTokens = turnMetrics.prompt_tokens || msg.dataset.promptTokens || '';
+                    const turnCompletionTokens = turnMetrics.completion_tokens || msg.dataset.completionTokens || tokensThisTurn;
+
+                    let badges = [...metaBadges];
+                    if (turnStopReason && !badges.some(b => b.toLowerCase().includes('parada') || b.toLowerCase().includes('stop'))) {
+                        badges.push(`Parada: ${turnStopReason}`);
+                    }
+                    if (turnPromptTokens && !badges.some(b => b.includes('in /'))) {
+                        badges.push(`Tokens: ${turnPromptTokens} in / ${turnCompletionTokens} out`);
+                    }
+                    if (effectiveTempThisTurn !== null && !badges.some(b => b.toLowerCase().includes('temp'))) {
+                        badges.push(`Temp: ${effectiveTempThisTurn.toFixed(2)}`);
+                    }
+                    if (badges.length > 0) {
                         transcriptMd += `**📊 Telemetría del Turno:** \`${badges.join('` · `')}\`\n\n`;
                     }
 
@@ -430,8 +440,54 @@ window.ChatUtils = {
         const avgLatency = latencyCount > 0 ? (latencySum / latencyCount) : 0;
         const statusCodesFormatted = Array.from(observedStatusCodes).join(', ');
 
-        const metaObj = window.GAJE_CONFIG?.getModelMeta(selectedModelName) || {};
-        const archText = metaObj.arch || (selectedModelName.endsWith('.gaje') ? 'Llama-Born 8L (Q2_0 Conformal 2-Bits + GTOK)' : 'Q4_0 (Cuerpo Transformer) + FP32 (Embeddings / LM Head)');
+        // Detección forense de despliegue, entorno y hosting
+        const originUrl = (typeof window !== 'undefined' && window.location && window.location.origin)
+            ? window.location.origin
+            : (typeof window !== 'undefined' && window.location && window.location.href ? window.location.href.split('/').slice(0, 3).join('/') : 'http://localhost');
+        let hostingType = 'Servidor Local Privado (Termux / Localhost)';
+        if (originUrl.includes('vercel.app')) {
+            hostingType = 'Nube Pública / CDN Serverless (Vercel)';
+        } else if (originUrl.includes('github.io')) {
+            hostingType = 'GitHub Pages CDN';
+        } else if (originUrl.startsWith('file:')) {
+            hostingType = 'Sistema de Archivos Local (file://)';
+        } else if (!originUrl.includes('localhost') && !originUrl.includes('127.0.0.1')) {
+            hostingType = `Servidor Remoto (${originUrl})`;
+        }
+
+        const isStandalone = (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (typeof navigator !== 'undefined' && navigator.standalone === true);
+        const clientMode = isStandalone ? 'PWA Standalone (Instalada en Sistema)' : 'Pestaña de Navegador Web';
+        const networkState = (typeof navigator !== 'undefined' && navigator.onLine) ? 'Online (Conectado a Red)' : 'Offline (Zero-Server / Modo Avión)';
+
+        // Detección forense de consumo de Heap en navegador (Chromium/Android)
+        let heapMetrics = 'No expuesto por el navegador';
+        if (typeof window !== 'undefined' && window.performance && window.performance.memory) {
+            const usedMb = (window.performance.memory.usedJSHeapSize / (1024 * 1024)).toFixed(1);
+            const totalMb = (window.performance.memory.totalJSHeapSize / (1024 * 1024)).toFixed(1);
+            const limitMb = (window.performance.memory.jsHeapSizeLimit / (1024 * 1024)).toFixed(1);
+            const ratio = window.performance.memory.usedJSHeapSize / window.performance.memory.jsHeapSizeLimit;
+            const pressure = ratio > 0.85 ? '🚨 Crítico (>85%)' : (ratio > 0.65 ? '⚠️ Moderado' : '🟢 Normal');
+            heapMetrics = `${usedMb} MB / ${limitMb} MB (Presión: ${pressure})`;
+        }
+
+        const modelSource = window.ChatState?.modelSource || (window.ChatState?.isWasmModelLoaded ? 'IndexedDB / OPFS (Caché Local Certificada)' : 'Sistema de Archivos Local (/models)');
+        const modelMountTime = window.ChatState?.wasmActiveModelLoadTime ? `${window.ChatState.wasmActiveModelLoadTime} ms` : '—';
+
+        let archText = metaObj.arch;
+        if (!archText && wasmInfo?.n_layer) {
+            const family = wasmInfo.arch_family || (wasmInfo.n_embd === 896 ? 'Qwen2_5' : 'Llama');
+            const quant = wasmInfo.quant_format === 2 ? 'Q2_0' : 'Q4_0';
+            archText = `${family}-${wasmInfo.n_layer}L (${quant} + GTOK)`;
+        }
+        if (!archText) {
+            if (selectedModelName.toLowerCase().includes('qwen')) {
+                archText = 'Qwen2.5-0.5B-Instruct (Q4_0 + GTOK ChatML)';
+            } else if (selectedModelName.endsWith('.gaje')) {
+                archText = 'Llama-Born 8L (Q2_0 Conformal 2-Bits + GTOK)';
+            } else {
+                archText = 'Q4_0 (Cuerpo Transformer) + FP32 (Embeddings / LM Head)';
+            }
+        }
         const formatText = selectedModelName.endsWith('.gaje') ? '.gaje v2 (Zero-Copy Mmap Alignment)' : '.gaje.flat v2 (Zero-Copy Mmap Alignment)';
 
         const wasmInfo = window.ChatState?.wasmActiveModelInfo || null;
@@ -441,7 +497,7 @@ window.ChatUtils = {
         let quantFormatText = wasmInfo?.quant_format !== undefined ? `Formato ID #${wasmInfo.quant_format} (Grupo ${wasmInfo.group_size || 16})` : '—';
         let nativeDimensions = wasmInfo?.n_layer ? `${wasmInfo.n_layer}L · D=${wasmInfo.n_embd} · Heads=${wasmInfo.n_head} (${wasmInfo.n_head_kv} KV) · Vocab=${wasmInfo.vocab_size}` : '—';
         let headerVersion = wasmInfo?.header_version ? `v${wasmInfo.header_version}` : '—';
-        let chatTemplateResolved = wasmInfo?.chat_template ? wasmInfo.chat_template.toUpperCase() : 'GTOK-AUTO';
+        let chatTemplateResolved = wasmInfo?.chat_template ? wasmInfo.chat_template.toUpperCase() : (selectedModelName.toLowerCase().includes('qwen') ? 'CHATML' : 'GTOK-AUTO');
 
         let genesisTimestamp = '—';
         let baseTeacher = '—';
@@ -457,9 +513,13 @@ window.ChatUtils = {
         const logContent = `---
 audit_id: "${auditId}"
 application: "GAJE Helix Semantic Compression Platform"
-version: "${window.GAJE_CONFIG?.version || '1.7.0-alpha'}"
+version: "${window.GAJE_CONFIG?.version || '1.7.6'}"
 model: "${selectedModelName}"
 engine_mode: "${engineMode}"
+deployment_origin: "${originUrl}"
+hosting_type: "${hostingType}"
+client_environment: "${clientMode}"
+connectivity: "${networkState}"
 generated_at: "${isoTimestamp}"
 session_turns: ${userTurnCount + assistantTurnCount}
 total_tokens_generated: ${totalTokensGenerated}
@@ -470,7 +530,9 @@ avg_throughput_tok_s: ${avgSpeed.toFixed(2)}
 
 > **Fecha y Hora de Generación:** ${nowFormatted}  
 > **Identificador Único de Auditoría:** \`${auditId}\`  
-> **Modo de Operación:** \`${engineModeLabel}\`
+> **Modo de Operación:** \`${engineModeLabel}\`  
+> **Origen de Despliegue:** \`${originUrl}\` *(${hostingType})*  
+> **Entorno del Cliente:** \`${clientMode}\` · \`${networkState}\`
 
 ---
 
@@ -481,6 +543,8 @@ avg_throughput_tok_s: ${avgSpeed.toFixed(2)}
 | **Archivo del Modelo** | \`${selectedModelName}\` |
 | **Arquitectura Cuantizada** | \`${archText}\` |
 | **Plantilla de Diálogo (Template)** | \`${chatTemplateResolved}\` |
+| **Fuente de Carga del Modelo** | \`${modelSource}\` |
+| **Tiempo de Montaje / Cold-Start** | \`${modelMountTime}\` |
 | **Dimensiones Nativas (Kernel)** | \`${nativeDimensions}\` |
 | **Formato Binario** | \`${formatText} (${headerVersion})\` |
 | **Hash de Linaje (Organismo)** | \`${lineageCurrentHash}\` |
@@ -514,6 +578,9 @@ avg_throughput_tok_s: ${avgSpeed.toFixed(2)}
 | **Aceleración Gráfica (GPU)** | \`${gpuVal}\` |
 | **Arquitectura de CPU** | \`${archFormatted}\` |
 | **Conjunto de Instrucciones SIMD** | \`${simdVal}\` |
+| **Memoria Heap del Navegador (JS/WASM)** | \`${heapMetrics}\` |
+| **Origen Web / Despliegue** | \`${originUrl} (${hostingType})\` |
+| **Modo de Ejecución de Cliente** | \`${clientMode} · ${networkState}\` |
 | **Perfil de Latencia** | \`${latencyVal}\` |
 
 ---

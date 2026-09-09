@@ -6,9 +6,9 @@
 (function (scope) {
   'use strict';
 
-  var VERSION = '1.7.4';
-  var BUILD_DATE = '2026-09-05';
-  var BUILD_HASH = 'd0a0ebb';
+  var VERSION = '1.7.6';
+  var BUILD_DATE = '2026-09-09';
+  var BUILD_HASH = 'audit-v2';
 
   var CONFIG = {
     version: VERSION,
@@ -24,6 +24,21 @@
     
     // Catálogo Maestro de Modelos Certificados (Unificado a formato .gaje y .flat)
     modelsCatalog: [
+      {
+        id: 'qwen2_5_0_5b.gaje',
+        name: 'qwen2_5_0_5b.gaje',
+        title: 'Qwen 2.5 0.5B Instruct',
+        badge: 'Q4_0 ChatML 1.5GB',
+        size_bytes: 1579376328,
+        sizeMb: 1506.2,
+        ramMb: 1800,
+        blocks: 24,
+        dim: 896,
+        heads: '14 Heads / 2 KV (GQA 7x)',
+        tokenizer: 'GTOK Qwen2.5 BPE 152k',
+        mobileOptimized: false,
+        arch: 'Qwen2.5-0.5B-Instruct (Q4_0 + GTOK ChatML)'
+      },
       {
         id: 'max_512_pro.gaje',
         name: 'max_512_pro.gaje',

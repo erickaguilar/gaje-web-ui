@@ -222,6 +222,33 @@ self.onmessage = async (e) => {
                 }
             }
 
+            // Conteo forense de tokens vía tokenizador GTOK si está disponible
+            let promptTokens = 0;
+            let completionTokens = 0;
+            try {
+                if (typeof wasmEngine.encode === 'function') {
+                    promptTokens = wasmEngine.encode(formattedPrompt).length;
+                    if (cleanResponse) {
+                        completionTokens = wasmEngine.encode(cleanResponse).length;
+                    }
+                }
+            } catch (_) {}
+            if (completionTokens === 0 && cleanResponse) {
+                completionTokens = Math.max(1, Math.round(cleanResponse.trim().split(/\s+/).length * 1.3));
+            }
+
+            // Identificación forense de la causa de parada (Stop Reason)
+            let stopReason = 'EOS_TOKEN';
+            if (typeof rawResponse === 'string') {
+                if (rawResponse.includes('<|im_end|>') || rawResponse.includes('<|eot_id|>') || rawResponse.includes('<|endoftext|>') || rawResponse.includes('<end_of_turn>') || rawResponse.includes('</s>')) {
+                    stopReason = 'EOS_TOKEN';
+                } else if (completionTokens >= (maxTokens - 2)) {
+                    stopReason = 'MAX_TOKENS_LIMIT';
+                } else {
+                    stopReason = 'COMPLETED';
+                }
+            }
+
             self.postMessage({
                 status: 'chat_response',
                 response: cleanResponse,
@@ -231,7 +258,10 @@ self.onmessage = async (e) => {
                 requestedTemp: temperature,
                 ragInjected,
                 rawPrompt: formattedPrompt,
-                chatTemplate
+                chatTemplate,
+                promptTokens,
+                completionTokens,
+                stopReason
             });
         } else if (action === 'ingest_sensory') {
             if (!wasmEngine) throw new Error("Motor WASM no cargado");
