@@ -176,11 +176,20 @@ self.onmessage = async (e) => {
                 formattedPrompt = `<|im_start|>system\n${systemPrompt}<|im_end|>\n${contextBlock}<|im_start|>user\n${prompt}<|im_end|>\n<|im_start|>assistant\n`;
             }
 
-            const effectiveTemp = isBornModel ? Math.min(temperature, 0.35) : (isBaseModel ? Math.max(temperature, 0.65) : temperature);
+            // Si el usuario configuró una temperatura explícita, respetarla con límite seguro [0.01, 1.0]; de lo contrario aplicar preset ontogénico
+            const effectiveTemp = typeof temperature === 'number' && !isNaN(temperature)
+                ? Math.min(Math.max(temperature, 0.01), 1.0)
+                : (isBornModel ? 0.35 : (isBaseModel ? 0.65 : 0.50));
             const t0 = performance.now();
             let rawResponse = wasmEngine.chat_with_memory(formattedPrompt, maxTokens, effectiveTemp, repetitionPenalty, injectRag);
             const genTimeMs = (performance.now() - t0).toFixed(2);
             const memoryStats = JSON.parse(wasmEngine.get_memory_stats());
+            let ragInjected = [];
+            try {
+                if (typeof wasmEngine.get_last_rag_injected === 'function') {
+                    ragInjected = JSON.parse(wasmEngine.get_last_rag_injected());
+                }
+            } catch (_) {}
 
             // Limpieza de delimitadores ChatML en la salida
             let cleanResponse = (typeof rawResponse === 'string') ? rawResponse
@@ -209,7 +218,11 @@ self.onmessage = async (e) => {
                 status: 'chat_response',
                 response: cleanResponse,
                 genTimeMs,
-                memoryStats
+                memoryStats,
+                effectiveTemp,
+                requestedTemp: temperature,
+                ragInjected,
+                rawPrompt: formattedPrompt
             });
         } else if (action === 'ingest_sensory') {
             if (!wasmEngine) throw new Error("Motor WASM no cargado");

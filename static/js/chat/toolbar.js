@@ -614,6 +614,7 @@ window.ChatToolbarController = {
                         worker.removeEventListener('message', handler);
                         window.ChatState.isWasmModelLoaded = true;
                         window.ChatState.wasmActiveModelName = modelName;
+                        window.ChatState.wasmActiveModelInfo = ev.data.info || null;
                         window.ChatState.activeModel = modelName;
 
                         if (window.GajeDB) {

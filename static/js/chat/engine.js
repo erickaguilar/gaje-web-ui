@@ -19,6 +19,7 @@ window.ChatEngineController = {
                 console.log(`✅ [GAJE-CORE] Organismo ${data.modelName} cargado en ${data.loadTimeMs} ms`, data.info);
                 window.ChatState.isWasmModelLoaded = true;
                 window.ChatState.wasmActiveModelName = data.modelName;
+                window.ChatState.wasmActiveModelInfo = data.info || null;
                 this.resetAutonomicCycle();
                 this.startAutonomicTick();
                 window.ChatToolbarController?.setModelLoading(false);
@@ -223,6 +224,7 @@ window.ChatEngineController = {
                             worker.removeEventListener('message', handler);
                             window.ChatState.isWasmModelLoaded = true;
                             window.ChatState.wasmActiveModelName = modelName;
+                            window.ChatState.wasmActiveModelInfo = ev.data.info || null;
                             resolve();
                         } else if (ev.data.status === 'error') {
                             worker.removeEventListener('message', handler);
@@ -303,7 +305,11 @@ window.ChatEngineController = {
                 compression_ratio: '16.0x (Genomic)',
                 mode: 'Tronco Encefálico Local',
                 server_time: window.ChatUtils ? window.ChatUtils.formatExactTime() : null,
-                timestamp_posix: window.ChatUtils ? window.ChatUtils.getUnixTimestamp() : (Date.now() / 1000)
+                timestamp_posix: window.ChatUtils ? window.ChatUtils.getUnixTimestamp() : (Date.now() / 1000),
+                effective_temp: result.effectiveTemp,
+                requested_temp: result.requestedTemp,
+                raw_prompt: result.rawPrompt,
+                rag_injected: result.ragInjected || []
             };
 
             window.ChatComposerController?.addMetaTo(botMsg, elapsed, 'Tronco Encefálico', responseText || 'EOS', modelName, wasmMetrics);

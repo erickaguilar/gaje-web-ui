@@ -282,6 +282,7 @@ window.ChatUtils = {
         const observedStatusCodes = new Set(['GAJE-200 (OK_SYNTHESIS)']);
 
         let transcriptMd = '';
+        let lastEffectiveTemp = null;
 
         if (messages.length === 0) {
             transcriptMd = '*No se registraron turnos de conversación en esta sesión.*';
@@ -305,6 +306,18 @@ window.ChatUtils = {
                     turnIndex++;
                 } else {
                     assistantTurnCount++;
+
+                    // Metadatos forenses inyectados en este turno
+                    const turnMetrics = msg._metrics || {};
+                    let ragInjected = turnMetrics.rag_injected;
+                    if (!ragInjected && msg.dataset.ragInjected) {
+                        try { ragInjected = JSON.parse(msg.dataset.ragInjected); } catch (_) {}
+                    }
+                    const rawPrompt = turnMetrics.raw_prompt || msg.dataset.rawPrompt || '';
+                    const effectiveTempThisTurn = turnMetrics.effective_temp ?? (msg.dataset.effectiveTemp ? parseFloat(msg.dataset.effectiveTemp) : null);
+                    if (effectiveTempThisTurn !== null && !isNaN(effectiveTempThisTurn)) {
+                        lastEffectiveTemp = effectiveTempThisTurn;
+                    }
 
                     // Extracción de razonamiento (<think>)
                     let thoughtText = '';
@@ -386,10 +399,26 @@ window.ChatUtils = {
                         transcriptMd += `> ${thoughtText.replace(/\n/g, '\n> ')}\n\n`;
                     }
 
+                    if (Array.isArray(ragInjected) && ragInjected.length > 0) {
+                        transcriptMd += `> [!TIP] **Memoria Asociativa Inyectada (.gmem RAG)**\n`;
+                        for (const snip of ragInjected) {
+                            transcriptMd += `> ${snip}\n`;
+                        }
+                        transcriptMd += `\n`;
+                    }
+
                     transcriptMd += `**Respuesta Generada:**\n\n${bodyText}\n\n`;
 
                     if (metaBadges.length > 0) {
-                        transcriptMd += `**📊 Telemetría del Turno:** \`${metaBadges.join('` · `')}\`\n\n`;
+                        let badges = [...metaBadges];
+                        if (effectiveTempThisTurn !== null && !badges.some(b => b.toLowerCase().includes('temp'))) {
+                            badges.push(`Temp: ${effectiveTempThisTurn.toFixed(2)}`);
+                        }
+                        transcriptMd += `**📊 Telemetría del Turno:** \`${badges.join('` · `')}\`\n\n`;
+                    }
+
+                    if (rawPrompt) {
+                        transcriptMd += `<details>\n<summary>🔍 Prompt Ingerido al Motor (Raw Prompt con Delimitadores)</summary>\n\n\`\`\`text\n${rawPrompt}\n\`\`\`\n\n</details>\n\n`;
                     }
 
                     transcriptMd += `---\n\n`;
@@ -404,6 +433,24 @@ window.ChatUtils = {
         const metaObj = window.GAJE_CONFIG?.getModelMeta(selectedModelName) || {};
         const archText = metaObj.arch || (selectedModelName.endsWith('.gaje') ? 'Llama-Born 8L (Q2_0 Conformal 2-Bits + GTOK)' : 'Q4_0 (Cuerpo Transformer) + FP32 (Embeddings / LM Head)');
         const formatText = selectedModelName.endsWith('.gaje') ? '.gaje v2 (Zero-Copy Mmap Alignment)' : '.gaje.flat v2 (Zero-Copy Mmap Alignment)';
+
+        const wasmInfo = window.ChatState?.wasmActiveModelInfo || null;
+        let lineageCurrentHash = wasmInfo?.lineage_current_hash ? `0x${wasmInfo.lineage_current_hash}` : 'No disponible (pre-v1.7.4 o GGUF)';
+        let lineageParentHash = wasmInfo?.lineage_parent_hash ? `0x${wasmInfo.lineage_parent_hash}` : 'No disponible';
+        let numMutations = wasmInfo?.num_mutations !== undefined ? `${wasmInfo.num_mutations} mutaciones / ${wasmInfo.num_overrides ?? 0} overrides` : '—';
+        let quantFormatText = wasmInfo?.quant_format !== undefined ? `Formato ID #${wasmInfo.quant_format} (Grupo ${wasmInfo.group_size || 16})` : '—';
+        let nativeDimensions = wasmInfo?.n_layer ? `${wasmInfo.n_layer}L · D=${wasmInfo.n_embd} · Heads=${wasmInfo.n_head} (${wasmInfo.n_head_kv} KV) · Vocab=${wasmInfo.vocab_size}` : '—';
+        let headerVersion = wasmInfo?.header_version ? `v${wasmInfo.header_version}` : '—';
+
+        let genesisTimestamp = '—';
+        let baseTeacher = '—';
+        if (wasmInfo?.metadata_json) {
+            try {
+                const parsedMeta = JSON.parse(wasmInfo.metadata_json);
+                genesisTimestamp = parsedMeta.created_at || parsedMeta.genesis_date || parsedMeta.timestamp || parsedMeta.date || '—';
+                baseTeacher = parsedMeta.base_model || parsedMeta.teacher || parsedMeta.model_type || '—';
+            } catch (_) {}
+        }
 
         // 3. Construcción del documento Markdown completo (GFM + Frontmatter)
         const logContent = `---
@@ -432,7 +479,14 @@ avg_throughput_tok_s: ${avgSpeed.toFixed(2)}
 | :--- | :--- |
 | **Archivo del Modelo** | \`${selectedModelName}\` |
 | **Arquitectura Cuantizada** | \`${archText}\` |
-| **Formato Binario** | \`${formatText}\` |
+| **Dimensiones Nativas (Kernel)** | \`${nativeDimensions}\` |
+| **Formato Binario** | \`${formatText} (${headerVersion})\` |
+| **Hash de Linaje (Organismo)** | \`${lineageCurrentHash}\` |
+| **Hash de Linaje (Progenitor)** | \`${lineageParentHash}\` |
+| **Fecha de Génesis / Nacimiento** | \`${genesisTimestamp}\` |
+| **Modelo Progenitor / Maestro** | \`${baseTeacher}\` |
+| **Ciclos de Adaptación Genómica** | \`${numMutations}\` |
+| **Descriptor de Cuantización** | \`${quantFormatText}\` |
 | **Tamaño en Disco / Caché** | \`${modelSizeText}\` |
 | **Estado / Memoria Residente** | \`${modelRamText}\` |
 
@@ -479,8 +533,9 @@ avg_throughput_tok_s: ${avgSpeed.toFixed(2)}
 
 | Hiperparámetro | Valor de Configuración |
 | :--- | :--- |
-| **Sampling Mode** | \`Lagrangian Minimal Action / Greedy Hybrid\` |
-| **Temperatura Base** | \`${(window.ChatState?.temperature ?? 0.3).toFixed(2)}\` |
+| **Sampling Mode** | \`Lagrangian Minimal Action / Min-P Hybrid\` |
+| **Temperatura Solicitada (UI)** | \`${(window.ChatState?.temperature ?? 0.3).toFixed(2)}\` |
+| **Temperatura Efectiva en Kernel** | \`${lastEffectiveTemp !== null ? lastEffectiveTemp.toFixed(2) : (window.ChatState?.temperature ?? 0.3).toFixed(2)}\` |
 | **Top-P / Min-P** | \`0.90\` / \`0.05\` |
 | **Repetition Penalty** | \`1.15\` |
 | **Límite de Contexto Activo** | \`2048 tokens\` |

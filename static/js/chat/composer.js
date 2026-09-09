@@ -382,6 +382,22 @@ window.ChatComposerController = {
         const latencyText = window.ChatUtils.formatLatency(metrics && metrics.latency_ms ? metrics.latency_ms : elapsed);
         const finalLatency = prefix ? `${latencyText} (${prefix})` : latencyText;
 
+        // Almacenar métricas y telemetría forense en el elemento DOM para bitácora y auditoría
+        if (metrics) {
+            msgEl._metrics = metrics;
+            try {
+                if (Array.isArray(metrics.rag_injected) && metrics.rag_injected.length > 0) {
+                    msgEl.dataset.ragInjected = JSON.stringify(metrics.rag_injected);
+                }
+                if (metrics.raw_prompt) {
+                    msgEl.dataset.rawPrompt = metrics.raw_prompt;
+                }
+                if (metrics.effective_temp !== undefined) {
+                    msgEl.dataset.effectiveTemp = String(metrics.effective_temp);
+                }
+            } catch (_) {}
+        }
+
         // Si el backend envió la hora exacta del servidor Linux, actualizar el timestamp en header
         if (metrics && metrics.server_time) {
             const timeEl = msgEl.querySelector('.msg-timestamp');
