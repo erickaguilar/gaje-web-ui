@@ -32,12 +32,29 @@ window.ChatStorage = {
         }
     },
 
-    async getRecentHistory(limit = 8) {
+    async getRecentHistory(limit = 8, currentModel = null) {
         if (!window.GajeDB) return [];
         try {
             const targetSession = window.ChatState?.currentSessionId || 'default';
             const msgs = await window.GajeDB.getAllMessages(targetSession);
-            return (msgs || []).slice(-limit).map(e => ({ role: e.role, content: e.content }));
+            if (!msgs || msgs.length === 0) return [];
+
+            let filtered = msgs;
+            if (currentModel) {
+                let lastDiffIdx = -1;
+                for (let i = msgs.length - 1; i >= 0; i--) {
+                    const m = msgs[i];
+                    if (m.role === 'assistant' && m.model && m.model !== currentModel) {
+                        lastDiffIdx = i;
+                        break;
+                    }
+                }
+                if (lastDiffIdx !== -1) {
+                    filtered = msgs.slice(lastDiffIdx + 1);
+                }
+            }
+
+            return filtered.slice(-limit).map(e => ({ role: e.role, content: e.content }));
         } catch (e) {
             return [];
         }

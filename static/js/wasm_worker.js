@@ -134,7 +134,26 @@ self.onmessage = async (e) => {
                 ? wasmEngine.get_chat_template()
                 : 'chatml';
 
-            // Formatear prompt respetando la plantilla declarada por el organismo
+            // 1. Recuperar contexto de memoria Island (.gmem) si injectRag está activo
+            let ragInjected = [];
+            let relevantContext = '';
+            if (injectRag && typeof wasmEngine.retrieve_context === 'function') {
+                try {
+                    const ctxStr = wasmEngine.retrieve_context(prompt, [], 2);
+                    const parsedCtx = JSON.parse(ctxStr);
+                    if (Array.isArray(parsedCtx)) {
+                        const rel = parsedCtx.filter(c => c.similarity >= 0.50);
+                        if (rel.length > 0) {
+                            ragInjected = rel.map(c => `- [sim=${c.similarity.toFixed(2)}] ${c.text}`);
+                            relevantContext = `Información de memoria recuperada (.gmem):\n${ragInjected.join('\n')}\n\n`;
+                        }
+                    }
+                } catch (_) {}
+            }
+
+            const effectiveSysPrompt = relevantContext ? `${relevantContext}${systemPrompt}` : systemPrompt;
+
+            // 2. Formatear prompt respetando la plantilla declarada por el organismo
             let formattedPrompt = prompt;
             if (Array.isArray(history) && history.length > 0) {
                 let contextBlock = '';
@@ -145,7 +164,7 @@ self.onmessage = async (e) => {
                             contextBlock += `<|im_start|>${role}\n${msg.content}<|im_end|>\n`;
                         }
                     }
-                    formattedPrompt = `<|im_start|>system\n${systemPrompt}<|im_end|>\n${contextBlock}<|im_start|>user\n${prompt}<|im_end|>\n<|im_start|>assistant\n`;
+                    formattedPrompt = `<|im_start|>system\n${effectiveSysPrompt}<|im_end|>\n${contextBlock}<|im_start|>user\n${prompt}<|im_end|>\n<|im_start|>assistant\n`;
                 } else if (chatTemplate === 'llama3') {
                     for (const msg of history.slice(-4)) {
                         if (msg && msg.content) {
@@ -153,7 +172,7 @@ self.onmessage = async (e) => {
                             contextBlock += `<|start_header_id|>${role}<|end_header_id|>\n\n${msg.content}<|eot_id|>`;
                         }
                     }
-                    formattedPrompt = `<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n${systemPrompt}<|eot_id|>${contextBlock}<|start_header_id|>user<|end_header_id|>\n\n${prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n`;
+                    formattedPrompt = `<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n${effectiveSysPrompt}<|eot_id|>${contextBlock}<|start_header_id|>user<|end_header_id|>\n\n${prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n`;
                 } else if (chatTemplate === 'classic') {
                     for (const msg of history.slice(-4)) {
                         if (msg && msg.content) {
@@ -161,16 +180,20 @@ self.onmessage = async (e) => {
                             contextBlock += `${role}: ${msg.content}\n\n`;
                         }
                     }
-                    formattedPrompt = `${contextBlock}Human: ${prompt}\n\nAssistant:`;
+                    formattedPrompt = `${effectiveSysPrompt}\n\n${contextBlock}Human: ${prompt}\n\nAssistant:`;
                 } else {
                     formattedPrompt = (typeof wasmEngine.format_prompt === 'function')
-                        ? wasmEngine.format_prompt(prompt, systemPrompt)
+                        ? wasmEngine.format_prompt(prompt, effectiveSysPrompt)
                         : prompt;
                 }
             } else {
                 formattedPrompt = (typeof wasmEngine.format_prompt === 'function')
-                    ? wasmEngine.format_prompt(prompt, systemPrompt)
-                    : prompt;
+                    ? wasmEngine.format_prompt(prompt, effectiveSysPrompt)
+                    : (chatTemplate === 'chatml'
+                        ? `<|im_start|>system\n${effectiveSysPrompt}<|im_end|>\n<|im_start|>user\n${prompt}<|im_end|>\n<|im_start|>assistant\n`
+                        : (chatTemplate === 'llama3'
+                            ? `<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n${effectiveSysPrompt}<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n${prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n`
+                            : prompt));
             }
 
             // Si el usuario configuró una temperatura explícita, respetarla con límite seguro [0.01, 1.0];
@@ -179,15 +202,9 @@ self.onmessage = async (e) => {
                 ? Math.min(Math.max(temperature, 0.01), 1.0)
                 : ((chatTemplate === 'classic' || chatTemplate === 'raw') ? 0.65 : 0.40);
             const t0 = performance.now();
-            let rawResponse = wasmEngine.chat_with_memory(formattedPrompt, maxTokens, effectiveTemp, repetitionPenalty, injectRag);
+            let rawResponse = wasmEngine.chat(formattedPrompt, maxTokens, effectiveTemp, repetitionPenalty);
             const genTimeMs = (performance.now() - t0).toFixed(2);
             const memoryStats = JSON.parse(wasmEngine.get_memory_stats());
-            let ragInjected = [];
-            try {
-                if (typeof wasmEngine.get_last_rag_injected === 'function') {
-                    ragInjected = JSON.parse(wasmEngine.get_last_rag_injected());
-                }
-            } catch (_) {}
 
             // Limpieza de delimitadores ChatML / Llama3 / EOS en la salida
             let cleanResponse = (typeof rawResponse === 'string') ? rawResponse
@@ -205,7 +222,7 @@ self.onmessage = async (e) => {
             // Auto-fallback resiliente: si la respuesta colapsó a EOS vacío o a un solo carácter (ej. '¡'),
             // reintentar con inferencia directa a temperatura 0.45 para superar el atractor prematuro de fin de secuencia
             if (!cleanResponse || cleanResponse.length <= 2) {
-                const retryRaw = wasmEngine.chat(prompt, maxTokens, 0.45, repetitionPenalty);
+                const retryRaw = wasmEngine.chat(formattedPrompt, maxTokens, 0.45, repetitionPenalty);
                 const retryClean = (typeof retryRaw === 'string') ? retryRaw
                     .replace(/<\|im_end\|>[\s\S]*$/gi, '')
                     .replace(/<\|im_start\|>[\s\S]*$/gi, '')
@@ -220,6 +237,14 @@ self.onmessage = async (e) => {
                 if (retryClean && retryClean.length > (cleanResponse ? cleanResponse.length : 0)) {
                     cleanResponse = retryClean;
                 }
+            }
+
+            // Ingesta limpia del turno en memoria sensorial conversacional (.gmem)
+            if (cleanResponse && typeof wasmEngine.ingest_sensory === 'function') {
+                try {
+                    const convRecord = `U: ${prompt.slice(0, 150)} | A: ${cleanResponse.slice(0, 150)}`;
+                    wasmEngine.ingest_sensory(convRecord, [], 'conversational', null);
+                } catch (_) {}
             }
 
             // Conteo forense de tokens vía tokenizador GTOK si está disponible

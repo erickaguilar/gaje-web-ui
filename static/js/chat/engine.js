@@ -241,7 +241,7 @@ window.ChatEngineController = {
                 });
             }
 
-            const recentHistory = await (window.ChatStorage?.getRecentHistory(4) || []);
+            const recentHistory = await (window.ChatStorage?.getRecentHistory(4, modelName) || []);
             contentEl.textContent = 'Calculando resonancia semántica en núcleo local...';
             const result = await new Promise((resolve, reject) => {
                 const handler = (ev) => {
@@ -303,10 +303,26 @@ window.ChatEngineController = {
             const completionTokens = result.completionTokens || (responseText ? Math.max(1, Math.round(responseText.trim().split(/\s+/).length * 1.3)) : 0);
             const promptTokens = result.promptTokens || null;
             const stopReason = result.stopReason || (hasGeneratedText ? 'COMPLETED' : 'EOS_TOKEN');
+            const modelMeta = window.GAJE_CONFIG?.getModelMeta(modelName);
+            let compRatio = '16.0x (Genomic)';
+            const qFmt = window.ChatState.wasmActiveModelInfo?.quant_format;
+            if (typeof qFmt === 'number') {
+                if (qFmt === 1) compRatio = '8.0x (Q4_0 Zero-Copy)';
+                else if (qFmt === 2) compRatio = '4.0x (Q8_0 Native)';
+                else if (qFmt === 3) compRatio = '16.0x (Q2_0 Genomic)';
+                else if (qFmt === 0) compRatio = '16.0x (Genomic DNA)';
+            } else if (modelMeta?.arch) {
+                if (modelMeta.arch.includes('Q4_0')) compRatio = '8.0x (Q4_0 Zero-Copy)';
+                else if (modelMeta.arch.includes('Q2_0')) compRatio = '16.0x (Q2_0 Genomic)';
+                else if (modelMeta.arch.includes('Q8_0')) compRatio = '4.0x (Q8_0 Native)';
+            } else if (modelName.toLowerCase().includes('qwen') || modelName.toLowerCase().includes('smollm')) {
+                compRatio = '8.0x (Q4_0 Zero-Copy)';
+            }
+
             const wasmMetrics = {
                 latency_ms: elapsed,
                 tokens_per_second: result.genTimeMs ? ((completionTokens) / (parseFloat(result.genTimeMs) / 1000)).toFixed(1) : '35.0',
-                compression_ratio: '16.0x (Genomic)',
+                compression_ratio: compRatio,
                 mode: 'Tronco Encefálico Local',
                 server_time: window.ChatUtils ? window.ChatUtils.formatExactTime() : null,
                 timestamp_posix: window.ChatUtils ? window.ChatUtils.getUnixTimestamp() : (Date.now() / 1000),
@@ -492,7 +508,7 @@ window.ChatEngineController = {
             };
         }
 
-        const recentHistory = await (window.ChatStorage?.getRecentHistory(8) || []);
+        const recentHistory = await (window.ChatStorage?.getRecentHistory(8, modelName) || []);
 
         return fetch('/api/chat/stream', {
             method: 'POST',
@@ -573,7 +589,7 @@ window.ChatEngineController = {
 
     async fallbackChat(text, modelName) {
         try {
-            const recentHistory = await (window.ChatStorage?.getRecentHistory(8) || []);
+            const recentHistory = await (window.ChatStorage?.getRecentHistory(8, modelName) || []);
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

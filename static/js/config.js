@@ -6,9 +6,9 @@
 (function (scope) {
   'use strict';
 
-  var VERSION = '1.7.7';
+  var VERSION = '1.7.8';
   var BUILD_DATE = '2026-09-09';
-  var BUILD_HASH = 'fix-metaobj';
+  var BUILD_HASH = 'model-isolation-rag-fix';
 
   var CONFIG = {
     version: VERSION,
