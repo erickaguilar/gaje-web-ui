@@ -7,20 +7,30 @@ import init, { GajeWasmEngine } from '../wasm/_impl.js';
 
 let wasmEngine = null;
 let isInitialized = false;
+let initPromise = null;
 let currentModelName = '';
+
+async function ensureInit() {
+    if (isInitialized) return;
+    if (!initPromise) {
+        initPromise = (async () => {
+            await init({ module_or_path: '/static/wasm/_impl_bg.wasm' });
+            GajeWasmEngine.init_engine();
+            isInitialized = true;
+        })();
+    }
+    await initPromise;
+}
 
 self.onmessage = async (e) => {
     const { action, payload } = e.data;
 
     try {
         if (action === 'init') {
-            if (!isInitialized) {
-                await init({ module_or_path: '/static/wasm/_impl_bg.wasm' });
-                GajeWasmEngine.init_engine();
-                isInitialized = true;
-            }
+            await ensureInit();
             self.postMessage({ status: 'ready' });
         } else if (action === 'load_model_opfs') {
+            await ensureInit();
             const { modelName } = payload;
             try {
                 if (!navigator.storage || !navigator.storage.getDirectory) {
@@ -59,6 +69,7 @@ self.onmessage = async (e) => {
                 });
             }
         } else if (action === 'load_model') {
+            await ensureInit();
             const { buffer, modelName } = payload;
             const uint8Array = new Uint8Array(buffer);
 
