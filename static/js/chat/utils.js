@@ -441,6 +441,7 @@ window.ChatUtils = {
         let quantFormatText = wasmInfo?.quant_format !== undefined ? `Formato ID #${wasmInfo.quant_format} (Grupo ${wasmInfo.group_size || 16})` : '—';
         let nativeDimensions = wasmInfo?.n_layer ? `${wasmInfo.n_layer}L · D=${wasmInfo.n_embd} · Heads=${wasmInfo.n_head} (${wasmInfo.n_head_kv} KV) · Vocab=${wasmInfo.vocab_size}` : '—';
         let headerVersion = wasmInfo?.header_version ? `v${wasmInfo.header_version}` : '—';
+        let chatTemplateResolved = wasmInfo?.chat_template ? wasmInfo.chat_template.toUpperCase() : 'GTOK-AUTO';
 
         let genesisTimestamp = '—';
         let baseTeacher = '—';
@@ -479,6 +480,7 @@ avg_throughput_tok_s: ${avgSpeed.toFixed(2)}
 | :--- | :--- |
 | **Archivo del Modelo** | \`${selectedModelName}\` |
 | **Arquitectura Cuantizada** | \`${archText}\` |
+| **Plantilla de Diálogo (Template)** | \`${chatTemplateResolved}\` |
 | **Dimensiones Nativas (Kernel)** | \`${nativeDimensions}\` |
 | **Formato Binario** | \`${formatText} (${headerVersion})\` |
 | **Hash de Linaje (Organismo)** | \`${lineageCurrentHash}\` |

@@ -129,30 +129,32 @@ self.onmessage = async (e) => {
                 history = []
             } = payload;
 
-            const isBornModel = (typeof currentModelName === 'string') && (
-                currentModelName.endsWith('.gaje') ||
-                currentModelName.includes('born') ||
-                currentModelName.includes('max')
-            );
+            // Obtener plantilla conversacional canónica resuelta desde la cabecera/GTOK
+            const chatTemplate = (typeof wasmEngine.get_chat_template === 'function')
+                ? wasmEngine.get_chat_template()
+                : 'chatml';
 
-            const isBaseModel = !isBornModel && (typeof currentModelName === 'string') && (
-                currentModelName.includes('pico') ||
-                currentModelName.includes('base') ||
-                currentModelName.includes('raw') ||
-                (!currentModelName.includes('instruct') && !currentModelName.includes('chat') && !currentModelName.includes('r1'))
-            );
-
-            // Inyección automática de ChatML según la ontogenia del organismo
+            // Formatear prompt respetando la plantilla declarada por el organismo
             let formattedPrompt = prompt;
-            if (isBornModel) {
-                // En modelos nacidos (.gaje / max), chat_with_memory() en el núcleo Rust WASM
-                // ya formatea internamente con <|im_start|>user\n{}<|im_end|>\n<|im_start|>assistant\n
-                // por lo que pasamos el prompt limpio directamente para evitar doble envoltura.
-                formattedPrompt = prompt;
-            } else if (isBaseModel) {
-                // Modelo base: Completado directo o formato natural
-                if (Array.isArray(history) && history.length > 0) {
-                    let contextBlock = '';
+            if (Array.isArray(history) && history.length > 0) {
+                let contextBlock = '';
+                if (chatTemplate === 'chatml') {
+                    for (const msg of history.slice(-4)) {
+                        if (msg && msg.content) {
+                            const role = msg.role === 'assistant' ? 'assistant' : 'user';
+                            contextBlock += `<|im_start|>${role}\n${msg.content}<|im_end|>\n`;
+                        }
+                    }
+                    formattedPrompt = `<|im_start|>system\n${systemPrompt}<|im_end|>\n${contextBlock}<|im_start|>user\n${prompt}<|im_end|>\n<|im_start|>assistant\n`;
+                } else if (chatTemplate === 'llama3') {
+                    for (const msg of history.slice(-4)) {
+                        if (msg && msg.content) {
+                            const role = msg.role === 'assistant' ? 'assistant' : 'user';
+                            contextBlock += `<|start_header_id|>${role}<|end_header_id|>\n\n${msg.content}<|eot_id|>`;
+                        }
+                    }
+                    formattedPrompt = `<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n${systemPrompt}<|eot_id|>${contextBlock}<|start_header_id|>user<|end_header_id|>\n\n${prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n`;
+                } else if (chatTemplate === 'classic') {
                     for (const msg of history.slice(-4)) {
                         if (msg && msg.content) {
                             const role = msg.role === 'assistant' ? 'Assistant' : 'Human';
@@ -161,25 +163,21 @@ self.onmessage = async (e) => {
                     }
                     formattedPrompt = `${contextBlock}Human: ${prompt}\n\nAssistant:`;
                 } else {
-                    formattedPrompt = prompt;
+                    formattedPrompt = (typeof wasmEngine.format_prompt === 'function')
+                        ? wasmEngine.format_prompt(prompt, systemPrompt)
+                        : prompt;
                 }
-            } else if (typeof prompt === 'string' && !prompt.includes('<|im_start|>') && !prompt.includes('<|user|>')) {
-                let contextBlock = '';
-                if (Array.isArray(history) && history.length > 0) {
-                    for (const msg of history.slice(-4)) {
-                        if (msg && msg.content) {
-                            const role = msg.role === 'assistant' ? 'assistant' : 'user';
-                            contextBlock += `<|im_start|>${role}\n${msg.content}<|im_end|>\n`;
-                        }
-                    }
-                }
-                formattedPrompt = `<|im_start|>system\n${systemPrompt}<|im_end|>\n${contextBlock}<|im_start|>user\n${prompt}<|im_end|>\n<|im_start|>assistant\n`;
+            } else {
+                formattedPrompt = (typeof wasmEngine.format_prompt === 'function')
+                    ? wasmEngine.format_prompt(prompt, systemPrompt)
+                    : prompt;
             }
 
-            // Si el usuario configuró una temperatura explícita, respetarla con límite seguro [0.01, 1.0]; de lo contrario aplicar preset ontogénico
+            // Si el usuario configuró una temperatura explícita, respetarla con límite seguro [0.01, 1.0];
+            // de lo contrario aplicar preset ontogénico según la plantilla del organismo
             const effectiveTemp = typeof temperature === 'number' && !isNaN(temperature)
                 ? Math.min(Math.max(temperature, 0.01), 1.0)
-                : (isBornModel ? 0.35 : (isBaseModel ? 0.65 : 0.50));
+                : ((chatTemplate === 'classic' || chatTemplate === 'raw') ? 0.65 : 0.40);
             const t0 = performance.now();
             let rawResponse = wasmEngine.chat_with_memory(formattedPrompt, maxTokens, effectiveTemp, repetitionPenalty, injectRag);
             const genTimeMs = (performance.now() - t0).toFixed(2);
@@ -191,12 +189,17 @@ self.onmessage = async (e) => {
                 }
             } catch (_) {}
 
-            // Limpieza de delimitadores ChatML en la salida
+            // Limpieza de delimitadores ChatML / Llama3 / EOS en la salida
             let cleanResponse = (typeof rawResponse === 'string') ? rawResponse
                 .replace(/<\|im_end\|>[\s\S]*$/gi, '')
                 .replace(/<\|im_start\|>[\s\S]*$/gi, '')
                 .replace(/<\|endoftext\|>[\s\S]*$/gi, '')
+                .replace(/<\|eot_id\|>[\s\S]*$/gi, '')
+                .replace(/<\|end_of_text\|>[\s\S]*$/gi, '')
+                .replace(/<end_of_turn>[\s\S]*$/gi, '')
                 .replace(/<\|end\|>[\s\S]*$/gi, '')
+                .replace(/<\/s>[\s\S]*$/gi, '')
+                .replace(/<eos>[\s\S]*$/gi, '')
                 .trim() : '';
 
             // Auto-fallback resiliente: si la respuesta colapsó a EOS vacío o a un solo carácter (ej. '¡'),
@@ -207,7 +210,12 @@ self.onmessage = async (e) => {
                     .replace(/<\|im_end\|>[\s\S]*$/gi, '')
                     .replace(/<\|im_start\|>[\s\S]*$/gi, '')
                     .replace(/<\|endoftext\|>[\s\S]*$/gi, '')
+                    .replace(/<\|eot_id\|>[\s\S]*$/gi, '')
+                    .replace(/<\|end_of_text\|>[\s\S]*$/gi, '')
+                    .replace(/<end_of_turn>[\s\S]*$/gi, '')
                     .replace(/<\|end\|>[\s\S]*$/gi, '')
+                    .replace(/<\/s>[\s\S]*$/gi, '')
+                    .replace(/<eos>[\s\S]*$/gi, '')
                     .trim() : '';
                 if (retryClean && retryClean.length > (cleanResponse ? cleanResponse.length : 0)) {
                     cleanResponse = retryClean;
@@ -222,7 +230,8 @@ self.onmessage = async (e) => {
                 effectiveTemp,
                 requestedTemp: temperature,
                 ragInjected,
-                rawPrompt: formattedPrompt
+                rawPrompt: formattedPrompt,
+                chatTemplate
             });
         } else if (action === 'ingest_sensory') {
             if (!wasmEngine) throw new Error("Motor WASM no cargado");
