@@ -391,7 +391,9 @@ window.ChatUtils = {
                         latencyCount++;
                     }
 
-                    transcriptMd += `### 🧬 GAJE AI [\`${msgModel}\`]\n`;
+                    const msgEngine = msg.dataset.engine || (turnMetrics?.mode === 'Tronco Encefálico Local' ? 'wasm' : (turnMetrics?.tokens_sec ? 'native' : engineMode));
+                    const engineTag = msgEngine === 'native' ? 'Servidor Nativo Rust' : 'WASM In-Browser';
+                    transcriptMd += `### 🧬 GAJE AI [\`${msgModel}\` · \`${engineTag}\`]\n`;
                     transcriptMd += `* **Marca de Tiempo:** \`${time}\` *(POSIX: \`${unixTime}s\`)*\n\n`;
 
                     if (thoughtText) {

@@ -8,7 +8,7 @@
 
   var VERSION = '1.7.8';
   var BUILD_DATE = '2026-09-09';
-  var BUILD_HASH = 'model-isolation-rag-fix';
+  var BUILD_HASH = 'engine-tag-stream-fix';
 
   var CONFIG = {
     version: VERSION,

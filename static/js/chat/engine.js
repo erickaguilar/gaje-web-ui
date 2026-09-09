@@ -162,6 +162,8 @@ window.ChatEngineController = {
         const msgStopBtn = botMsg.querySelector('.msg-stop-btn, .msg-header-stop-btn, .stop-btn-action');
 
         let wasmAborted = false;
+        window.ChatState.engineMode = 'wasm';
+        botMsg.dataset.engine = 'wasm';
         const wasmDlAbortController = new AbortController();
         let dataAlert = null;
         window.ChatState.isWasmActionInProgress = true;
@@ -438,6 +440,8 @@ window.ChatEngineController = {
         chatWindow.appendChild(botMsg);
         chatWindow.scrollTop = chatWindow.scrollHeight;
 
+        window.ChatState.engineMode = 'native';
+        botMsg.dataset.engine = 'native';
         window.ChatState.abortController = new AbortController();
         const stopBtn = document.getElementById('stop-btn');
         if (stopBtn) stopBtn.hidden = false;
