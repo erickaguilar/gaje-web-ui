@@ -473,6 +473,9 @@ window.ChatUtils = {
         const modelSource = window.ChatState?.modelSource || (window.ChatState?.isWasmModelLoaded ? 'IndexedDB / OPFS (Caché Local Certificada)' : 'Sistema de Archivos Local (/models)');
         const modelMountTime = window.ChatState?.wasmActiveModelLoadTime ? `${window.ChatState.wasmActiveModelLoadTime} ms` : '—';
 
+        const metaObj = window.GAJE_CONFIG?.getModelMeta(selectedModelName) || {};
+        const wasmInfo = window.ChatState?.wasmActiveModelInfo || null;
+
         let archText = metaObj.arch;
         if (!archText && wasmInfo?.n_layer) {
             const family = wasmInfo.arch_family || (wasmInfo.n_embd === 896 ? 'Qwen2_5' : 'Llama');
@@ -489,8 +492,6 @@ window.ChatUtils = {
             }
         }
         const formatText = selectedModelName.endsWith('.gaje') ? '.gaje v2 (Zero-Copy Mmap Alignment)' : '.gaje.flat v2 (Zero-Copy Mmap Alignment)';
-
-        const wasmInfo = window.ChatState?.wasmActiveModelInfo || null;
         let lineageCurrentHash = wasmInfo?.lineage_current_hash ? `0x${wasmInfo.lineage_current_hash}` : 'No disponible (pre-v1.7.4 o GGUF)';
         let lineageParentHash = wasmInfo?.lineage_parent_hash ? `0x${wasmInfo.lineage_parent_hash}` : 'No disponible';
         let numMutations = wasmInfo?.num_mutations !== undefined ? `${wasmInfo.num_mutations} mutaciones / ${wasmInfo.num_overrides ?? 0} overrides` : '—';

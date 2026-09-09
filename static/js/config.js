@@ -6,9 +6,9 @@
 (function (scope) {
   'use strict';
 
-  var VERSION = '1.7.6';
+  var VERSION = '1.7.7';
   var BUILD_DATE = '2026-09-09';
-  var BUILD_HASH = 'audit-v2';
+  var BUILD_HASH = 'fix-metaobj';
 
   var CONFIG = {
     version: VERSION,
