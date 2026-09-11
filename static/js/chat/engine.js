@@ -243,7 +243,13 @@ window.ChatEngineController = {
                 });
             }
 
-            const recentHistory = await (window.ChatStorage?.getRecentHistory(4, modelName) || []);
+            let recentHistory = await (window.ChatStorage?.getRecentHistory(4, modelName) || []);
+            if (recentHistory.length > 0) {
+                const last = recentHistory[recentHistory.length - 1];
+                if (last && last.role === 'user' && last.content && last.content.trim() === text.trim()) {
+                    recentHistory = recentHistory.slice(0, -1);
+                }
+            }
             contentEl.textContent = 'Calculando resonancia semántica en núcleo local...';
             const result = await new Promise((resolve, reject) => {
                 const handler = (ev) => {
@@ -512,7 +518,13 @@ window.ChatEngineController = {
             };
         }
 
-        const recentHistory = await (window.ChatStorage?.getRecentHistory(8, modelName) || []);
+        let recentHistory = await (window.ChatStorage?.getRecentHistory(8, modelName) || []);
+        if (recentHistory.length > 0) {
+            const lastMsg = recentHistory[recentHistory.length - 1];
+            if (lastMsg && lastMsg.role === 'user' && lastMsg.content && lastMsg.content.trim() === message.trim()) {
+                recentHistory = recentHistory.slice(0, -1);
+            }
+        }
 
         return fetch('/api/chat/stream', {
             method: 'POST',
@@ -593,7 +605,13 @@ window.ChatEngineController = {
 
     async fallbackChat(text, modelName) {
         try {
-            const recentHistory = await (window.ChatStorage?.getRecentHistory(8, modelName) || []);
+            let recentHistory = await (window.ChatStorage?.getRecentHistory(8, modelName) || []);
+            if (recentHistory.length > 0) {
+                const lastMsg = recentHistory[recentHistory.length - 1];
+                if (lastMsg && lastMsg.role === 'user' && lastMsg.content && lastMsg.content.trim() === text.trim()) {
+                    recentHistory = recentHistory.slice(0, -1);
+                }
+            }
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

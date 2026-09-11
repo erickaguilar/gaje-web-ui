@@ -166,10 +166,20 @@ self.onmessage = async (e) => {
 
             // 2. Formatear prompt respetando la plantilla declarada por el organismo
             let formattedPrompt = prompt;
-            if (Array.isArray(history) && history.length > 0) {
+            let prevTurns = Array.isArray(history) ? history.slice() : [];
+            // Si el último mensaje del historial es idéntico al prompt actual del usuario,
+            // excluirlo del bloque de contexto previo para evitar duplicación de turnos
+            if (prevTurns.length > 0) {
+                const last = prevTurns[prevTurns.length - 1];
+                if (last && last.role === 'user' && last.content && last.content.trim() === prompt.trim()) {
+                    prevTurns.pop();
+                }
+            }
+
+            if (prevTurns.length > 0) {
                 let contextBlock = '';
                 if (chatTemplate === 'chatml') {
-                    for (const msg of history.slice(-4)) {
+                    for (const msg of prevTurns.slice(-4)) {
                         if (msg && msg.content) {
                             const role = msg.role === 'assistant' ? 'assistant' : 'user';
                             contextBlock += `<|im_start|>${role}\n${msg.content}<|im_end|>\n`;
@@ -177,7 +187,7 @@ self.onmessage = async (e) => {
                     }
                     formattedPrompt = `<|im_start|>system\n${effectiveSysPrompt}<|im_end|>\n${contextBlock}<|im_start|>user\n${prompt}<|im_end|>\n<|im_start|>assistant\n`;
                 } else if (chatTemplate === 'llama3') {
-                    for (const msg of history.slice(-4)) {
+                    for (const msg of prevTurns.slice(-4)) {
                         if (msg && msg.content) {
                             const role = msg.role === 'assistant' ? 'assistant' : 'user';
                             contextBlock += `<|start_header_id|>${role}<|end_header_id|>\n\n${msg.content}<|eot_id|>`;
@@ -185,7 +195,7 @@ self.onmessage = async (e) => {
                     }
                     formattedPrompt = `<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n${effectiveSysPrompt}<|eot_id|>${contextBlock}<|start_header_id|>user<|end_header_id|>\n\n${prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n`;
                 } else if (chatTemplate === 'classic') {
-                    for (const msg of history.slice(-4)) {
+                    for (const msg of prevTurns.slice(-4)) {
                         if (msg && msg.content) {
                             const role = msg.role === 'assistant' ? 'Assistant' : 'Human';
                             contextBlock += `${role}: ${msg.content}\n\n`;
@@ -231,9 +241,10 @@ self.onmessage = async (e) => {
                 .trim() : '';
 
             // Auto-fallback resiliente: si la respuesta colapsó a EOS vacío o a un solo carácter (ej. '¡'),
-            // reintentar con inferencia directa a temperatura 0.45 para superar el atractor prematuro de fin de secuencia
+            // reintentar con inferencia a mayor entropía (temperatura 0.70) para superar el atractor prematuro de fin de secuencia
             if (!cleanResponse || cleanResponse.length <= 2) {
-                const retryRaw = wasmEngine.chat(formattedPrompt, maxTokens, 0.45, repetitionPenalty);
+                const retryTemp = Math.max(effectiveTemp + 0.35, 0.70);
+                const retryRaw = wasmEngine.chat(formattedPrompt, maxTokens, retryTemp, 1.0);
                 const retryClean = (typeof retryRaw === 'string') ? retryRaw
                     .replace(/<\|im_end\|>[\s\S]*$/gi, '')
                     .replace(/<\|im_start\|>[\s\S]*$/gi, '')

@@ -27,6 +27,13 @@ def format_prompt(
             content = h.get("content", "").strip()
             if role in ("user", "assistant", "system") and content:
                 valid_history.append({"role": role, "content": content})
+        # Si el último mensaje es idéntico al mensaje entrante del usuario, excluirlo del historial previo
+        if (
+            valid_history
+            and valid_history[-1]["role"] == "user"
+            and valid_history[-1]["content"].strip() == message.strip()
+        ):
+            valid_history.pop()
         # Limitar para asegurar que quepa holgadamente en el presupuesto de 512 tokens
         if len(valid_history) > max_history_turns * 2:
             valid_history = valid_history[-(max_history_turns * 2):]
