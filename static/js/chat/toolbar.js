@@ -193,8 +193,11 @@ window.ChatToolbarController = {
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
             if (data && data.models && data.models.length > 0) {
-                // Filtrar exclusivamente modelos válidos .gaje (unificación nativa)
-                const gajeModels = data.models.filter(m => (m.name || m.id || '').endsWith('.gaje'));
+                // Filtrar modelos válidos .gaje y .flat (unificación nativa)
+                const gajeModels = data.models.filter(m => {
+                    const n = m.name || m.id || '';
+                    return n.endsWith('.gaje') || n.endsWith('.flat');
+                });
                 window.ChatState.modelsData = gajeModels.length > 0 ? gajeModels : data.models;
                 modelSelect.innerHTML = '';
                 window.ChatState.modelsData.forEach(model => {
@@ -204,7 +207,9 @@ window.ChatToolbarController = {
                     if (label === 'max.gaje') label = 'GAJE Max · [Insignia 99MB GTOK]';
                     else if (label === 'max_512.gaje') label = 'GAJE Max 512 · [Contexto Extendido 208MB]';
                     else if (label === 'max_512_pro.gaje') label = 'GAJE Max 512 Pro · [Genómico Pro 208MB]';
-                    else if (label.endsWith('.gaje')) label = label.replace('.gaje', '') + ' · [GAJE Model]';
+                    else if (label.endsWith('.gaje') || label.endsWith('.flat')) {
+                        label = label.replace(/\.(gaje|flat)$/, '') + ' · [GAJE Model]';
+                    }
                     opt.innerText = label;
                     if (model.name === (window.GAJE_CONFIG?.defaultModel || 'max.gaje')) {
                         opt.selected = true;
