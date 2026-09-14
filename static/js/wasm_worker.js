@@ -198,6 +198,10 @@ self.onmessage = async (e) => {
                     prevTurns.pop();
                 }
             }
+            // Garantizar alternancia canónica (User -> Assistant): nunca iniciar con mensaje de asistente huérfano
+            while (prevTurns.length > 0 && prevTurns[0].role === 'assistant') {
+                prevTurns.shift();
+            }
 
             if (prevTurns.length > 0) {
                 let contextBlock = '';
