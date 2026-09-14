@@ -171,15 +171,19 @@ window.ChatToolbarController = {
         // Entorno estático (Zero-Server / Vercel / PWA): Catálogo verificado sin peticiones 404
         if (this.isStaticEnvironment()) {
             const catalog = (window.GAJE_CONFIG && window.GAJE_CONFIG.modelsCatalog) ? window.GAJE_CONFIG.modelsCatalog : [
-                { id: 'max.gaje', name: 'max.gaje', title: 'GAJE Max (Llama-Born)', badge: 'Insignia 99MB GTOK', size_bytes: 104409712 }
+                { id: 'max_512_pro.gaje', name: 'max_512_pro.gaje', title: 'GAJE Max Pro 512', badge: 'Pro 208MB GTOK', mobileOptimized: true },
+                { id: 'max.gaje', name: 'max.gaje', title: 'GAJE Max (Llama-Born)', badge: 'Insignia 99MB GTOK', mobileOptimized: true }
             ];
             window.ChatState.modelsData = catalog;
             modelSelect.innerHTML = '';
             catalog.forEach(m => {
                 const opt = document.createElement('option');
                 opt.value = m.id || m.name;
-                opt.innerText = `${m.title} · [${m.badge}]`;
-                if ((m.id || m.name) === (window.GAJE_CONFIG?.defaultModel || 'max.gaje')) {
+                const isServerOnly = (m.mobileOptimized === false);
+                opt.innerText = isServerOnly
+                    ? `${m.title} · [${m.badge} - Requiere Servidor]`
+                    : `${m.title} · [${m.badge}]`;
+                if ((m.id || m.name) === (window.GAJE_CONFIG?.defaultModel || 'max_512_pro.gaje')) {
                     opt.selected = true;
                 }
                 modelSelect.appendChild(opt);
@@ -421,6 +425,12 @@ window.ChatToolbarController = {
             if (userInput) userInput.disabled = false;
             if (sendBtn) sendBtn.disabled = false;
             this.updateModelToggleState(true);
+
+            // Verificación preventiva de compatibilidad con modo WASM
+            const meta = window.GAJE_CONFIG?.getModelMeta(modelName);
+            if (meta && meta.mobileOptimized === false) {
+                window.ChatUtils?.showToast(`ℹ️ [${meta.title || modelName}] requiere Modo Servidor Nativo (1.5GB+). Para ejecución en navegador (WASM), utiliza GAJE Max Pro 512 o GAJE Max.`, 'warning', 6000);
+            }
 
             // Verificación preventiva de perfil de hardware
             if (window.GAJE_CONFIG && typeof window.GAJE_CONFIG.getHardwareProfile === 'function') {

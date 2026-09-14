@@ -232,6 +232,9 @@ window.ChatModelLoader = {
     async downloadLinearStream(url, filename, expectedBytes = 0, progressCb = null, signal = null) {
         const resp = await fetch(url, { mode: "cors", signal });
         if (!resp.ok) {
+            if (resp.status === 404) {
+                throw new Error(`El modelo [${filename}] requiere el Modo Servidor Nativo (Rust / AVX2). Para ejecución en navegador (WASM), utiliza GAJE Max Pro 512 o GAJE Max.`);
+            }
             throw new Error(`No se pudo descargar el modelo (${resp.status} ${resp.statusText})`);
         }
 
