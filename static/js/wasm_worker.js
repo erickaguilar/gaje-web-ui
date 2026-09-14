@@ -22,6 +22,29 @@ async function ensureInit() {
     await initPromise;
 }
 
+/**
+ * Limpieza resiliente de tokens de parada en la salida generada por LLM.
+ * Desprende delimitadores al inicio (si el modelo los emitió en step 0) y trunca en el primer stop posterior.
+ */
+function cleanLlmOutput(raw) {
+    if (typeof raw !== 'string') return '';
+    // 1. Quitar delimitadores iniciales si el modelo los emitió al arrancar (step 0 EOS/im_start/bos)
+    let s = raw.replace(/^(<\|im_end\|>|<\|im_start\|>(?:assistant|user|system)?|<\|endoftext\|>|<s>|<\/s>|<\|eot_id\|>|<end_of_turn>|\s)+/i, '');
+    // 2. Truncar en el primer delimitador de parada posterior
+    const stopPatterns = [
+        '<|im_end|>', '<|im_start|>', '<|endoftext|>', '<|eot_id|>',
+        '<|end_of_text|>', '<end_of_turn>', '<|end|>', '</s>', '<eos>'
+    ];
+    let firstStopIndex = s.length;
+    for (const pat of stopPatterns) {
+        const idx = s.indexOf(pat);
+        if (idx !== -1 && idx < firstStopIndex) {
+            firstStopIndex = idx;
+        }
+    }
+    return s.slice(0, firstStopIndex).trim();
+}
+
 self.onmessage = async (e) => {
     const { action, payload } = e.data;
 
@@ -223,42 +246,77 @@ self.onmessage = async (e) => {
                 ? Math.min(Math.max(temperature, 0.01), 1.0)
                 : ((chatTemplate === 'classic' || chatTemplate === 'raw') ? 0.65 : 0.40);
             const t0 = performance.now();
-            let rawResponse = wasmEngine.chat(formattedPrompt, maxTokens, effectiveTemp, repetitionPenalty);
+            let rawResponse = '';
+            const canDirectGenerate = (typeof wasmEngine.encode === 'function' &&
+                                       typeof wasmEngine.generate === 'function' &&
+                                       typeof wasmEngine.decode === 'function');
+
+            // Intento 1: Generación directa autorregresiva vía encode -> generate -> decode
+            // Evita la doble envoltura de delimitadores de wasmEngine.chat() y previene el colapso prematuro a EOS en step 0
+            if (canDirectGenerate) {
+                try {
+                    const promptIds = wasmEngine.encode(formattedPrompt);
+                    if (promptIds && promptIds.length > 0) {
+                        const genIds = wasmEngine.generate(
+                            promptIds,
+                            maxTokens,
+                            effectiveTemp,
+                            repetitionPenalty,
+                            new Uint32Array([]) // Sin parada en step 0 para garantizar síntesis
+                        );
+                        if (genIds && genIds.length > 0) {
+                            rawResponse = wasmEngine.decode(genIds);
+                        }
+                    }
+                } catch (directErr) {
+                    console.warn('[GAJE-WASM] Excepción en generación directa, usando chat():', directErr);
+                }
+            }
+
+            // Intento 2: Fallback a wasmEngine.chat() si la generación directa no produjo texto
+            if (!rawResponse || rawResponse.trim().length === 0) {
+                try {
+                    const chatInput = (typeof wasmEngine.format_prompt === 'function') ? formattedPrompt : prompt;
+                    rawResponse = wasmEngine.chat(chatInput, maxTokens, effectiveTemp, repetitionPenalty);
+                } catch (_) {}
+            }
+
             const genTimeMs = (performance.now() - t0).toFixed(2);
-            const memoryStats = JSON.parse(wasmEngine.get_memory_stats());
+            const memoryStats = (typeof wasmEngine.get_memory_stats === 'function')
+                ? JSON.parse(wasmEngine.get_memory_stats())
+                : {};
 
             // Limpieza de delimitadores ChatML / Llama3 / EOS en la salida
-            let cleanResponse = (typeof rawResponse === 'string') ? rawResponse
-                .replace(/<\|im_end\|>[\s\S]*$/gi, '')
-                .replace(/<\|im_start\|>[\s\S]*$/gi, '')
-                .replace(/<\|endoftext\|>[\s\S]*$/gi, '')
-                .replace(/<\|eot_id\|>[\s\S]*$/gi, '')
-                .replace(/<\|end_of_text\|>[\s\S]*$/gi, '')
-                .replace(/<end_of_turn>[\s\S]*$/gi, '')
-                .replace(/<\|end\|>[\s\S]*$/gi, '')
-                .replace(/<\/s>[\s\S]*$/gi, '')
-                .replace(/<eos>[\s\S]*$/gi, '')
-                .trim() : '';
+            let cleanResponse = cleanLlmOutput(rawResponse);
 
-            // Auto-fallback resiliente: si la respuesta colapsó a EOS vacío o a un solo carácter (ej. '¡'),
-            // reintentar con inferencia a mayor entropía (temperatura 0.70) para superar el atractor prematuro de fin de secuencia
+            // Auto-fallback resiliente: si colapsó a EOS vacío o a <= 2 caracteres
             if (!cleanResponse || cleanResponse.length <= 2) {
                 const retryTemp = Math.max(effectiveTemp + 0.35, 0.70);
-                const retryRaw = wasmEngine.chat(formattedPrompt, maxTokens, retryTemp, 1.0);
-                const retryClean = (typeof retryRaw === 'string') ? retryRaw
-                    .replace(/<\|im_end\|>[\s\S]*$/gi, '')
-                    .replace(/<\|im_start\|>[\s\S]*$/gi, '')
-                    .replace(/<\|endoftext\|>[\s\S]*$/gi, '')
-                    .replace(/<\|eot_id\|>[\s\S]*$/gi, '')
-                    .replace(/<\|end_of_text\|>[\s\S]*$/gi, '')
-                    .replace(/<end_of_turn>[\s\S]*$/gi, '')
-                    .replace(/<\|end\|>[\s\S]*$/gi, '')
-                    .replace(/<\/s>[\s\S]*$/gi, '')
-                    .replace(/<eos>[\s\S]*$/gi, '')
-                    .trim() : '';
+                let retryRaw = '';
+                // Reintento A: prompt directo de usuario en chat() sin doble formato
+                try {
+                    retryRaw = wasmEngine.chat(prompt, maxTokens, retryTemp, 1.0);
+                } catch (_) {}
+                let retryClean = cleanLlmOutput(retryRaw);
+
+                // Reintento B: generate directo con prompt de usuario si sigue vacío
+                if ((!retryClean || retryClean.length <= 2) && canDirectGenerate) {
+                    try {
+                        const pIds = wasmEngine.encode(prompt);
+                        const gIds = wasmEngine.generate(pIds, maxTokens, retryTemp, 1.0, new Uint32Array([]));
+                        retryClean = cleanLlmOutput(wasmEngine.decode(gIds));
+                    } catch (_) {}
+                }
+
                 if (retryClean && retryClean.length > (cleanResponse ? cleanResponse.length : 0)) {
                     cleanResponse = retryClean;
+                    rawResponse = retryRaw || cleanResponse;
                 }
+            }
+
+            // Si a pesar de todos los intentos el organismo no generó texto, emitir respuesta explicativa natural
+            if (!cleanResponse || cleanResponse.trim().length === 0) {
+                cleanResponse = "Soy GAJE Helix. He procesado tu consulta en el Tronco Encefálico WebAssembly, pero la secuencia finalizó antes de sintetizar contenido adicional. Puedes incrementar la temperatura de muestreo o reformular tu consulta.";
             }
 
             // Ingesta limpia del turno en memoria sensorial conversacional (.gmem)
